@@ -5,3 +5,5 @@ build/
 xcuserdata/
 DerivedData/
 .claude/settings.local.json
+temp/
+.vscode/
