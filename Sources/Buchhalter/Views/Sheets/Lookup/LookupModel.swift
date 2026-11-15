@@ -14,7 +14,8 @@ final class LookupModel {
         case idle
         case running(LookupQuery, LookupSource)
         case noMatch(LookupQuery)
-        case unreachable(LookupQuery, LookupSource)
+        /// Every source asked failed; carries the sources asked.
+        case unreachable(LookupQuery, [LookupSource])
     }
 
     private(set) var phase: Phase = .idle
@@ -40,14 +41,15 @@ final class LookupModel {
         result = nil
         editions = nil
         self.query = query
-        phase = .running(query, .dnb)
+        phase = .running(query, lookup.sources.first ?? .dnb)
         let generation = generation
         task = Task {
             do {
                 let outcome = try await lookup.run(
                     query, preferredLanguage: draft.wrappedValue.language
-                ) { [weak self] source in
-                    guard let self, self.generation == generation else { return }
+                ) { [weak self] event in
+                    // The status line names the source being asked right now.
+                    guard case .asking(let source) = event, let self, self.generation == generation else { return }
                     self.phase = .running(query, source)
                 }
                 guard self.generation == generation else { return }
@@ -62,7 +64,7 @@ final class LookupModel {
                 }
             } catch let error as LookupError {
                 guard self.generation == generation else { return }
-                if case .unreachable(let source) = error { phase = .unreachable(query, source) }
+                if case .noSourceReached(let sources) = error { phase = .unreachable(query, sources) }
             } catch {
                 // Cancelled: `stop()` already reset the state.
             }

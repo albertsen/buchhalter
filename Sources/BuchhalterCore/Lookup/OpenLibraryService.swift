@@ -1,7 +1,7 @@
 import Foundation
 
-/// Open Library's search API: free, no key, mostly English books. It is the
-/// fallback when the Deutsche Nationalbibliothek finds nothing. Each work
+/// Open Library's search API: free, no key, mostly English books. By default it is the
+/// second source, after the Deutsche Nationalbibliothek. Each work
 /// comes with its best-matching edition; that edition is the record.
 public struct OpenLibraryService: BookLookupService {
     public let source = LookupSource.openLibrary

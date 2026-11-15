@@ -1,0 +1,626 @@
+{
+  "totalItems": 34,
+  "items": [
+    {
+      "id": "KHvRCFRnDv4C",
+      "volumeInfo": {
+        "title": "Stoner",
+        "subtitle": "A Novel",
+        "authors": [
+          "John Williams"
+        ],
+        "publisher": "Random House",
+        "publishedDate": "2012-11-30",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9781448156023"
+          },
+          {
+            "type": "ISBN_10",
+            "identifier": "1448156025"
+          }
+        ],
+        "pageCount": 320,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=KHvRCFRnDv4C&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=KHvRCFRnDv4C&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+        },
+        "language": "en",
+        "infoLink": "https://play.google.com/store/books/details?id=KHvRCFRnDv4C&source=gbs_api",
+        "canonicalVolumeLink": "https://play.google.com/store/books/details?id=KHvRCFRnDv4C"
+      },
+      "saleInfo": {
+        "isEbook": true
+      }
+    },
+    {
+      "id": "pkVFjwEACAAJ",
+      "volumeInfo": {
+        "title": "Stoner",
+        "publishedDate": "2015",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_10",
+            "identifier": "8416334447"
+          },
+          {
+            "type": "ISBN_13",
+            "identifier": "9788416334445"
+          }
+        ],
+        "pageCount": 336,
+        "printType": "BOOK",
+        "language": "ca",
+        "infoLink": "http://books.google.de/books?id=pkVFjwEACAAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner.html?hl=&id=pkVFjwEACAAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "OWtyCQAAQBAJ",
+      "volumeInfo": {
+        "title": "Stoner",
+        "authors": [
+          "John Williams"
+        ],
+        "publisher": "\t KNIHA ZLIN",
+        "publishedDate": "2015-05-21",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9788074733048"
+          },
+          {
+            "type": "ISBN_10",
+            "identifier": "8074733041"
+          }
+        ],
+        "pageCount": 299,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=OWtyCQAAQBAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=OWtyCQAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+        },
+        "language": "cs",
+        "infoLink": "http://books.google.de/books?id=OWtyCQAAQBAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner.html?hl=&id=OWtyCQAAQBAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "CnsoIHKykSkC",
+      "volumeInfo": {
+        "title": "Stoner",
+        "subtitle": "Roman",
+        "authors": [
+          "John Williams"
+        ],
+        "publisher": "Deutscher Taschenbuch Verlag",
+        "publishedDate": "2013-09-01",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9783423418232"
+          },
+          {
+            "type": "ISBN_10",
+            "identifier": "3423418230"
+          }
+        ],
+        "pageCount": 353,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=CnsoIHKykSkC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=CnsoIHKykSkC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+        },
+        "language": "de",
+        "infoLink": "https://play.google.com/store/books/details?id=CnsoIHKykSkC&source=gbs_api",
+        "canonicalVolumeLink": "https://play.google.com/store/books/details?id=CnsoIHKykSkC"
+      },
+      "saleInfo": {
+        "isEbook": true
+      }
+    },
+    {
+      "id": "h_PqnwEACAAJ",
+      "volumeInfo": {
+        "title": "Stoner",
+        "authors": [
+          "John Williams"
+        ],
+        "publishedDate": "2014",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_10",
+            "identifier": "1471254216"
+          },
+          {
+            "type": "ISBN_13",
+            "identifier": "9781471254215"
+          }
+        ],
+        "pageCount": 364,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=h_PqnwEACAAJ&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=h_PqnwEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+        },
+        "language": "en",
+        "infoLink": "http://books.google.de/books?id=h_PqnwEACAAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner.html?hl=&id=h_PqnwEACAAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "gMOQEAAAQBAJ",
+      "volumeInfo": {
+        "title": "Stoner",
+        "subtitle": "50th Anniversary Edition",
+        "authors": [
+          "John Williams"
+        ],
+        "publisher": "National Geographic Books",
+        "publishedDate": "2019-07-30",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9781681374574"
+          },
+          {
+            "type": "ISBN_10",
+            "identifier": "1681374579"
+          }
+        ],
+        "pageCount": 0,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=gMOQEAAAQBAJ&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=gMOQEAAAQBAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+        },
+        "language": "en",
+        "infoLink": "http://books.google.de/books?id=gMOQEAAAQBAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner.html?hl=&id=gMOQEAAAQBAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "GyKVDwAAQBAJ",
+      "volumeInfo": {
+        "title": "Stoner Sonderausgabe mit einem umfangreichen Anhang zu Leben und Werk",
+        "subtitle": "Roman",
+        "authors": [
+          "John Williams"
+        ],
+        "publisher": "Deutscher Taschenbuch Verlag",
+        "publishedDate": "2019-10-25",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9783423436670"
+          },
+          {
+            "type": "ISBN_10",
+            "identifier": "3423436670"
+          }
+        ],
+        "pageCount": 326,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=GyKVDwAAQBAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=GyKVDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+        },
+        "language": "de",
+        "infoLink": "https://play.google.com/store/books/details?id=GyKVDwAAQBAJ&source=gbs_api",
+        "canonicalVolumeLink": "https://play.google.com/store/books/details?id=GyKVDwAAQBAJ"
+      },
+      "saleInfo": {
+        "isEbook": true
+      }
+    },
+    {
+      "id": "cM0-lQEACAAJ",
+      "volumeInfo": {
+        "title": "Stoner",
+        "authors": [
+          "John Williams"
+        ],
+        "publishedDate": "2012",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_10",
+            "identifier": "2290041114"
+          },
+          {
+            "type": "ISBN_13",
+            "identifier": "9782290041116"
+          }
+        ],
+        "pageCount": 377,
+        "printType": "BOOK",
+        "language": "fr",
+        "infoLink": "http://books.google.de/books?id=cM0-lQEACAAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner.html?hl=&id=cM0-lQEACAAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "pxbdMwEACAAJ",
+      "volumeInfo": {
+        "title": "Stoner",
+        "authors": [
+          "John Williams"
+        ],
+        "publishedDate": "2011",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_10",
+            "identifier": "8415019688"
+          },
+          {
+            "type": "ISBN_13",
+            "identifier": "9788415019688"
+          }
+        ],
+        "pageCount": 240,
+        "printType": "BOOK",
+        "language": "es",
+        "infoLink": "http://books.google.de/books?id=pxbdMwEACAAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner.html?hl=&id=pxbdMwEACAAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "-2l-tgAACAAJ",
+      "volumeInfo": {
+        "title": "Stoner",
+        "authors": [
+          "John Williams"
+        ],
+        "publishedDate": "2011",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_10",
+            "identifier": "2842636449"
+          },
+          {
+            "type": "ISBN_13",
+            "identifier": "9782842636449"
+          }
+        ],
+        "pageCount": 380,
+        "printType": "BOOK",
+        "language": "fr",
+        "infoLink": "http://books.google.de/books?id=-2l-tgAACAAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner.html?hl=&id=-2l-tgAACAAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "tZeUxAEACAAJ",
+      "volumeInfo": {
+        "title": "Stoner Sonderausgabe mit einem umfangreichen Anhang zu Leben und Werk",
+        "authors": [
+          "John Williams"
+        ],
+        "publishedDate": "2019-10-25",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_10",
+            "identifier": "3423282096"
+          },
+          {
+            "type": "ISBN_13",
+            "identifier": "9783423282093"
+          }
+        ],
+        "pageCount": 352,
+        "printType": "BOOK",
+        "language": "de",
+        "infoLink": "http://books.google.de/books?id=tZeUxAEACAAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner_Sonderausgabe_mit_einem_umfangrei.html?hl=&id=tZeUxAEACAAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "IW0AvwEACAAJ",
+      "volumeInfo": {
+        "title": "Stoner. Ediz. illustrata",
+        "authors": [
+          "John Edward Williams"
+        ],
+        "publisher": "Le strade",
+        "publishedDate": "2018",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_10",
+            "identifier": "889325333X"
+          },
+          {
+            "type": "ISBN_13",
+            "identifier": "9788893253338"
+          }
+        ],
+        "pageCount": 366,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=IW0AvwEACAAJ&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=IW0AvwEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+        },
+        "language": "it",
+        "infoLink": "http://books.google.de/books?id=IW0AvwEACAAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner_Ediz_illustrata.html?hl=&id=IW0AvwEACAAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "Y79LAQAACAAJ",
+      "volumeInfo": {
+        "title": "Stoner",
+        "authors": [
+          "John Williams (author.)"
+        ],
+        "publishedDate": "2013",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_10",
+            "identifier": "605875397X"
+          },
+          {
+            "type": "ISBN_13",
+            "identifier": "9786058753976"
+          }
+        ],
+        "pageCount": 284,
+        "printType": "BOOK",
+        "language": "tr",
+        "infoLink": "http://books.google.de/books?id=Y79LAQAACAAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner.html?hl=&id=Y79LAQAACAAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "VWteSC-B3qIC",
+      "volumeInfo": {
+        "title": "Stoner",
+        "authors": [
+          "John Williams"
+        ],
+        "publisher": "Ediciones BAILE DEL SOL",
+        "publishedDate": "2013-01-07",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9788415700456"
+          },
+          {
+            "type": "ISBN_10",
+            "identifier": "8415700458"
+          }
+        ],
+        "pageCount": 246,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=VWteSC-B3qIC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=VWteSC-B3qIC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+        },
+        "language": "es",
+        "infoLink": "https://play.google.com/store/books/details?id=VWteSC-B3qIC&source=gbs_api",
+        "canonicalVolumeLink": "https://play.google.com/store/books/details?id=VWteSC-B3qIC"
+      },
+      "saleInfo": {
+        "isEbook": true
+      }
+    },
+    {
+      "id": "qeJQ3iskiYUC",
+      "volumeInfo": {
+        "title": "Stoner",
+        "authors": [
+          "John Edward Williams"
+        ],
+        "publisher": "Fazi Editore",
+        "publishedDate": "2012-05-28T00:00:00+02:00",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9788864116433"
+          },
+          {
+            "type": "ISBN_10",
+            "identifier": "8864116435"
+          }
+        ],
+        "pageCount": 302,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=qeJQ3iskiYUC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=qeJQ3iskiYUC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+        },
+        "language": "it",
+        "infoLink": "http://books.google.de/books?id=qeJQ3iskiYUC&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner.html?hl=&id=qeJQ3iskiYUC"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "K6D6DwAAQBAJ",
+      "volumeInfo": {
+        "title": "Stoner",
+        "authors": [
+          "John Williams"
+        ],
+        "publisher": "Edizioni Mondadori",
+        "publishedDate": "2020-09-29",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9788835704683"
+          },
+          {
+            "type": "ISBN_10",
+            "identifier": "8835704685"
+          }
+        ],
+        "pageCount": 346,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=K6D6DwAAQBAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=K6D6DwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+        },
+        "language": "it",
+        "infoLink": "https://play.google.com/store/books/details?id=K6D6DwAAQBAJ&source=gbs_api",
+        "canonicalVolumeLink": "https://play.google.com/store/books/details?id=K6D6DwAAQBAJ"
+      },
+      "saleInfo": {
+        "isEbook": true
+      }
+    },
+    {
+      "id": "TnjTzgEACAAJ",
+      "volumeInfo": {
+        "title": "Stoner",
+        "authors": [
+          "John Williams"
+        ],
+        "publishedDate": "2020-09",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_10",
+            "identifier": "9750847520"
+          },
+          {
+            "type": "ISBN_13",
+            "identifier": "9789750847523"
+          }
+        ],
+        "pageCount": 232,
+        "printType": "BOOK",
+        "language": "tr",
+        "infoLink": "http://books.google.de/books?id=TnjTzgEACAAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner.html?hl=&id=TnjTzgEACAAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "opLbzQEACAAJ",
+      "volumeInfo": {
+        "title": "Stoner",
+        "authors": [
+          "John Edward Williams"
+        ],
+        "publishedDate": "2020",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_10",
+            "identifier": "8804722231"
+          },
+          {
+            "type": "ISBN_13",
+            "identifier": "9788804722236"
+          }
+        ],
+        "pageCount": 384,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=opLbzQEACAAJ&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=opLbzQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+        },
+        "language": "it",
+        "infoLink": "http://books.google.de/books?id=opLbzQEACAAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Stoner.html?hl=&id=opLbzQEACAAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "b6hNEAAAQBAJ",
+      "volumeInfo": {
+        "title": "John Williams: Collected Novels (LOA #349)",
+        "subtitle": "Butcher's Crossing / Stoner / Augustus",
+        "authors": [
+          "John Williams"
+        ],
+        "publisher": "Library of America",
+        "publishedDate": "2021-10-19",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9781598537024"
+          },
+          {
+            "type": "ISBN_10",
+            "identifier": "1598537024"
+          }
+        ],
+        "pageCount": 0,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=b6hNEAAAQBAJ&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=b6hNEAAAQBAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+        },
+        "language": "en",
+        "infoLink": "http://books.google.de/books?id=b6hNEAAAQBAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/John_Williams_Collected_Novels_LOA_349.html?hl=&id=b6hNEAAAQBAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    },
+    {
+      "id": "tRrMzQEACAAJ",
+      "volumeInfo": {
+        "title": "Artlife Stoner's Coloring Book",
+        "authors": [
+          "Artlifellc",
+          "Donald Barry Williams, Jr"
+        ],
+        "publishedDate": "2020-08-26",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9798679404700"
+          }
+        ],
+        "pageCount": 66,
+        "printType": "BOOK",
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=tRrMzQEACAAJ&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=tRrMzQEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+        },
+        "language": "en",
+        "infoLink": "http://books.google.de/books?id=tRrMzQEACAAJ&dq=intitle:stoner+inauthor:williams&hl=&as_pt=BOOKS&source=gbs_api",
+        "canonicalVolumeLink": "https://books.google.com/books/about/Artlife_Stoner_s_Coloring_Book.html?hl=&id=tRrMzQEACAAJ"
+      },
+      "saleInfo": {
+        "isEbook": false
+      }
+    }
+  ]
+}

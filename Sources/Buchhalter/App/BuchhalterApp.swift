@@ -6,6 +6,8 @@ import BuchhalterCore
 struct BuchhalterApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     private let container: ModelContainer
+    /// The book sources and the Google Books key, shared by the main window and Settings.
+    @State private var sources = BookSources()
 
     init() {
         let url: URL
@@ -27,11 +29,19 @@ struct BuchhalterApp: App {
         Window("Buchhalter", id: "main") {
             RootView()
                 .restoresWindowFrame(named: "main")
+                .environment(sources)
+                .environment(\.bookLookup, sources.lookup)
+                .task { await sources.refreshKey() }
         }
         .modelContainer(container)
         .commands {
             LibraryCommands()
             BookCommands()
+        }
+        Settings {
+            SettingsView()
+                .environment(sources)
+                .task { await sources.refreshKey() }
         }
     }
 }

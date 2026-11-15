@@ -4,7 +4,8 @@ import Foundation
 /// answer and map it to `LookupRecord`s; they do not filter matches or sort.
 public protocol BookLookupService: Sendable {
     var source: LookupSource { get }
-    /// Throws `LookupError.unreachable` for any failure other than cancellation.
+    /// Throws `LookupError.unreachable` for any failure other than cancellation,
+    /// or `.keyRejected` when the service refuses the user's API key.
     func search(_ query: LookupQuery) async throws -> LookupResponse
     /// The cover's bytes, or nil on any failure: no cover, a timeout, an HTML
     /// error page. A missing cover is normal and shows no message.

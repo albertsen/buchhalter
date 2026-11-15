@@ -130,6 +130,7 @@ struct RootView: View {
         } message: {
             Text(model.errorMessage ?? "")
         }
+        .modifier(FindCoverAlertModifier(model: model))
         .focusedSceneValue(\.windowModel, model)
         .focusedSceneValue(\.bookMenu, bookMenuState)
         .onChange(of: model.isSearchFocused) { _, wants in

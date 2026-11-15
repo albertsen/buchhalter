@@ -8,13 +8,14 @@ func fixture(_ name: String, file: StaticString = #filePath) -> Data {
     return (try? Data(contentsOf: url)) ?? Data()
 }
 
-/// Answers every request from a closure and records the URLs it was asked for.
-/// The tests never touch the network.
+/// Answers every request from a closure and records the URLs and headers it
+/// was asked for. The tests never touch the network.
 actor FakeHTTPClient: HTTPClient {
     typealias Handler = @Sendable (URL) throws -> (Data, Int)
 
     private let handler: Handler
     private(set) var requested: [URL] = []
+    private(set) var requestedHeaders: [[String: String]] = []
 
     init(_ handler: @escaping Handler) {
         self.handler = handler
@@ -25,10 +26,39 @@ actor FakeHTTPClient: HTTPClient {
         handler = { _ in (data, status) }
     }
 
-    func get(_ url: URL, timeout: TimeInterval) async throws -> (Data, Int) {
+    func get(_ url: URL, headers: [String: String], timeout: TimeInterval) async throws -> (Data, Int) {
         requested.append(url)
+        requestedHeaders.append(headers)
         return try handler(url)
     }
+}
+
+/// A secret store in memory. `read` can fail, and counts its calls.
+final class FakeSecretStore: SecretStore, @unchecked Sendable {
+    struct Failure: Error {}
+
+    private let lock = NSLock()
+    private var secret: String?
+    private var reads = 0
+    private let failing: Bool
+
+    init(_ secret: String? = nil, failing: Bool = false) {
+        self.secret = secret
+        self.failing = failing
+    }
+
+    var readCount: Int { lock.withLock { reads } }
+
+    func read() async throws -> String? {
+        lock.withLock { reads += 1 }
+        if failing { throw Failure() }
+        return lock.withLock { secret }
+    }
+
+    func save(_ secret: String) async throws { lock.withLock { self.secret = secret } }
+    func delete() async throws { lock.withLock { secret = nil } }
+    func exists() async -> Bool { lock.withLock { secret != nil } }
+    func suffix() async -> String? { lock.withLock { secret.map { String($0.suffix(4)) } } }
 }
 
 /// A service with canned results, for the coordinator tests.
@@ -75,7 +105,7 @@ func makeRecord(
     isbn: [String] = [], source: LookupSource = .dnb, id: String? = nil
 ) -> LookupRecord {
     LookupRecord(
-        id: id ?? "\(source == .dnb ? "dnb" : "openlibrary"):\(title)-\(year ?? 0)-\(isbn.first ?? "")",
+        id: id ?? "\(source.rawValue.lowercased()):\(title)-\(year ?? 0)-\(isbn.first ?? "")",
         source: source, title: title, authors: authors.map { LookupMatching.headingToName($0) },
         year: year, language: language, isbn13s: isbn, isbnDisplay: isbn.first,
         cover: isbn.first.map { .dnb(isbn13: $0) }

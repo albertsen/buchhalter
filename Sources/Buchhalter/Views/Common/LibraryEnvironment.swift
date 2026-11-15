@@ -15,7 +15,9 @@ extension EnvironmentValues {
 }
 
 extension EnvironmentValues {
-    /// The book data services behind Complete. The injection point for
-    /// previews and for the later barcode and assistant features.
+    /// The book data services behind Complete and Find Cover: the sources that
+    /// are on, in the user's order. `BuchhalterApp` sets it from `BookSources`,
+    /// so it follows Settings. The injection point for previews and for the
+    /// later barcode and assistant features.
     @Entry var bookLookup: BookLookup = .live
 }

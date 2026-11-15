@@ -108,6 +108,19 @@ struct LocalizationCatalogTests {
             "Use": "Übernehmen", "Use DNB cover": "DNB-Cover übernehmen", "Undo": "Widerrufen",
             "Try Again": "Erneut versuchen", "Use Open Library cover": "Open-Library-Cover übernehmen",
             "Cancel": "Abbrechen", "Save": "Speichern", "Edit Book": "Buch bearbeiten",
+            // Google Books and Settings
+            "Book Lookup": "Buchsuche", "Sources": "Quellen", "Needs a key": "Schlüssel nötig",
+            "Set up": "Eingerichtet", "API Key": "API-Schlüssel", "Paste your key": "Schlüssel einfügen",
+            "Save Key": "Schlüssel sichern", "Checking…": "Wird geprüft…", "Save Anyway": "Trotzdem sichern",
+            "Change…": "Ändern…", "Remove": "Entfernen", "How to get a key…": "So bekommst du einen Schlüssel…",
+            "Get a Google Books Key": "Google-Books-Schlüssel bekommen",
+            "Open Google Cloud Console": "Google Cloud Console öffnen", "Done": "Fertig",
+            "No cover found": "Kein Coverbild gefunden", "Open Settings…": "Einstellungen öffnen…",
+            "Use Google Books cover": "Google-Books-Cover übernehmen",
+            "Turn on a source in Settings": "Schalte in den Einstellungen eine Quelle ein",
+            "Can't reach any book source": "Keine Buchquelle erreichbar",
+            "Google Books: %@": "Google Books: %@",
+            "Searching Google Books for “%@” by %@…": "Suche in Google Books nach „%1$@“ von %2$@…",
         ]
         for (key, german) in expected {
             let entry = try #require(strings[key], "\(key) is missing")

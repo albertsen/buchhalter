@@ -11,6 +11,8 @@ struct LookupHeader: View {
     var lookup: LookupModel
     /// False until the sheet has a title and an author, or a valid ISBN.
     var canComplete: Bool
+    /// False when every source is switched off in Settings.
+    var hasSources: Bool
     var complete: () -> Void
     var stop: () -> Void
     var undo: () -> Void
@@ -50,10 +52,15 @@ struct LookupHeader: View {
                 Label("Complete", systemImage: "magnifyingglass")
             }
             .buttonStyle(CompleteButtonStyle())
-            .disabled(!canComplete)
+            .disabled(!hasSources || !canComplete)
             // The tooltip says what is missing. It works on a disabled button.
-            .help(canComplete ? "" : String(localized: "Enter a title and author, or an ISBN"))
+            .help(completeHelp)
         }
+    }
+
+    private var completeHelp: String {
+        if !hasSources { return String(localized: "Turn on a source in Settings") }
+        return canComplete ? "" : String(localized: "Enter a title and author, or an ISBN")
     }
 
     // MARK: Strip
@@ -68,13 +75,13 @@ struct LookupHeader: View {
                 .foregroundStyle(.secondary)
         case .noMatch(let query):
             hint(messages.noMatch(query), fill: Theme.warningFill, text: Theme.warningText)
-        case .unreachable(_, let source):
-            hint(messages.unreachable(source), fill: Theme.errorFill, text: Theme.errorText, action: ("Try Again", complete))
+        case .unreachable(_, let sources):
+            hint(messages.unreachable(sources), fill: Theme.errorFill, text: Theme.errorText, action: ("Try Again", complete))
         case .idle:
             if let result = lookup.result {
                 hint(messages.banner(result), fill: Theme.tint, text: Theme.tintText, action: ("Undo", undo))
             } else {
-                Text("Type a title and author, or an ISBN. Complete looks up the rest in the Deutsche Nationalbibliothek, including the cover.")
+                Text("Type a title and author, or an ISBN. Complete looks up the rest in your book sources, including the cover.")
                     .font(.system(size: 12))
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

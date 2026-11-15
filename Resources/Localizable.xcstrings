@@ -401,6 +401,22 @@
         }
       }
     },
+    "API Key" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API-Schlüssel"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "API Key"
+          }
+        }
+      }
+    },
     "Abandon" : {
       "localizations" : {
         "de" : {
@@ -721,6 +737,22 @@
         }
       }
     },
+    "Book Lookup" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buchsuche"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Book Lookup"
+          }
+        }
+      }
+    },
     "Books" : {
       "localizations" : {
         "de" : {
@@ -733,6 +765,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Books"
+          }
+        }
+      }
+    },
+    "Books published in Germany" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In Deutschland erschienene Bücher"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Books published in Germany"
           }
         }
       }
@@ -769,6 +817,38 @@
         }
       }
     },
+    "Can't reach Google Books to check the key. Check the internet connection." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Books ist nicht erreichbar, um den Schlüssel zu prüfen. Prüfe die Internetverbindung."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach Google Books to check the key. Check the internet connection."
+          }
+        }
+      }
+    },
+    "Can't reach Google Books. Check the internet connection. You can still add the book by hand." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Books ist nicht erreichbar. Prüfe die Internetverbindung. Du kannst das Buch trotzdem von Hand eintragen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach Google Books. Check the internet connection. You can still add the book by hand."
+          }
+        }
+      }
+    },
     "Can't reach Open Library. Check the internet connection. You can still add the book by hand." : {
       "localizations" : {
         "de" : {
@@ -785,18 +865,34 @@
         }
       }
     },
-    "Can't reach the Deutsche Nationalbibliothek or Open Library. Check the internet connection." : {
+    "Can't reach any book source" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Deutsche Nationalbibliothek und Open Library sind nicht erreichbar. Prüfe die Internetverbindung."
+            "value" : "Keine Buchquelle erreichbar"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Can't reach the Deutsche Nationalbibliothek or Open Library. Check the internet connection."
+            "value" : "Can't reach any book source"
+          }
+        }
+      }
+    },
+    "Can't reach any book source. Check the internet connection. You can still add the book by hand." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Buchquelle ist erreichbar. Prüfe die Internetverbindung. Du kannst das Buch trotzdem von Hand eintragen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach any book source. Check the internet connection. You can still add the book by hand."
           }
         }
       }
@@ -861,6 +957,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Change Sort Name"
+          }
+        }
+      }
+    },
+    "Change…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ändern…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change…"
+          }
+        }
+      }
+    },
+    "Check the internet connection." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prüfe die Internetverbindung."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check the internet connection."
+          }
+        }
+      }
+    },
+    "Checking…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird geprüft…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checking…"
           }
         }
       }
@@ -977,6 +1121,38 @@
         }
       }
     },
+    "Complete and Find Cover ask the sources that are on, from top to bottom. Drag a source to change the order." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vervollständigen und Coverbild suchen fragen die eingeschalteten Quellen von oben nach unten. Zieh eine Quelle, um die Reihenfolge zu ändern."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete and Find Cover ask the sources that are on, from top to bottom. Drag a source to change the order."
+          }
+        }
+      }
+    },
+    "Copy the key and paste it into Buchhalter's Settings." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopiere den Schlüssel und füge ihn in Buchhalters Einstellungen ein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy the key and paste it into Buchhalter's Settings."
+          }
+        }
+      }
+    },
     "Cover" : {
       "localizations" : {
         "de" : {
@@ -1005,6 +1181,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Create"
+          }
+        }
+      }
+    },
+    "Create a project, for example “Buchhalter”." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leg ein Projekt an, zum Beispiel „Buchhalter“."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create a project, for example “Buchhalter”."
+          }
+        }
+      }
+    },
+    "Create an API key under Credentials." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erstelle unter „Anmeldedaten“ einen API-Schlüssel."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create an API key under Credentials."
           }
         }
       }
@@ -1409,6 +1617,106 @@
         }
       }
     },
+    "Filled in %lld empty fields from Google Books. %lld values differ and stay until you use them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@filled@ aus Google Books ergänzt. %#@differ@"
+          },
+          "substitutions" : {
+            "differ" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Angabe weicht ab und bleibt, bis du sie übernimmst."
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Angaben weichen ab und bleiben, bis du sie übernimmst."
+                    }
+                  }
+                }
+              }
+            },
+            "filled" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg leeres Feld"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg leere Felder"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filled in %#@filled@ from Google Books. %#@differ@"
+          },
+          "substitutions" : {
+            "differ" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg value differs and stays until you use it."
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg values differ and stay until you use them."
+                    }
+                  }
+                }
+              }
+            },
+            "filled" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg empty field"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg empty fields"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Filled in %lld empty fields from Open Library. %lld values differ and stay until you use them." : {
       "localizations" : {
         "de" : {
@@ -1602,6 +1910,46 @@
                       "value" : "%arg empty fields"
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Filled in %lld fields from Google Books. Check them, then add the book." : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Feld aus Google Books ergänzt. Prüfe es, dann füge das Buch hinzu."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Felder aus Google Books ergänzt. Prüfe sie, dann füge das Buch hinzu."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Filled in %lld field from Google Books. Check it, then add the book."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Filled in %lld fields from Google Books. Check them, then add the book."
                 }
               }
             }
@@ -1833,6 +2181,118 @@
         }
       }
     },
+    "Get a Google Books Key" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google-Books-Schlüssel bekommen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get a Google Books Key"
+          }
+        }
+      }
+    },
+    "Google Books" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Books"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Books"
+          }
+        }
+      }
+    },
+    "Google Books can be turned on once a key is saved below. With every source off, Complete and Find Cover are unavailable." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Books lässt sich einschalten, sobald unten ein Schlüssel gesichert ist. Sind alle Quellen aus, sind Vervollständigen und Coverbild suchen nicht verfügbar."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Books can be turned on once a key is saved below. With every source off, Complete and Find Cover are unavailable."
+          }
+        }
+      }
+    },
+    "Google Books has covers for many English editions the other sources miss. It needs your own API key, which Google gives out for free." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Books hat Cover für viele englische Ausgaben, die den anderen Quellen fehlen. Dafür brauchst du einen eigenen API-Schlüssel, den Google kostenlos vergibt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Books has covers for many English editions the other sources miss. It needs your own API key, which Google gives out for free."
+          }
+        }
+      }
+    },
+    "Google Books: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Books: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Books: %@"
+          }
+        }
+      }
+    },
+    "Google didn't accept the key. Check it or enter a new one." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google hat den Schlüssel nicht angenommen. Prüfe ihn oder gib einen neuen ein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google didn't accept the key. Check it or enter a new one."
+          }
+        }
+      }
+    },
+    "Google didn't accept this key. Check that you copied all of it and that the Books API is turned on for it. The key was not saved." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google hat diesen Schlüssel nicht angenommen. Prüfe, ob du ihn vollständig kopiert hast und ob die Books API für ihn eingeschaltet ist. Der Schlüssel wurde nicht gesichert."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google didn't accept this key. Check that you copied all of it and that the Books API is turned on for it. The key was not saved."
+          }
+        }
+      }
+    },
     "Grid" : {
       "localizations" : {
         "de" : {
@@ -1877,6 +2337,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Highest first"
+          }
+        }
+      }
+    },
+    "How to get a key…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "So bekommst du einen Schlüssel…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "How to get a key…"
           }
         }
       }
@@ -2025,6 +2501,22 @@
         }
       }
     },
+    "Mostly English books" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vor allem englische Bücher"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostly English books"
+          }
+        }
+      }
+    },
     "Move Collection" : {
       "localizations" : {
         "de" : {
@@ -2041,6 +2533,38 @@
         }
       }
     },
+    "Move Down" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach unten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move Down"
+          }
+        }
+      }
+    },
+    "Move Up" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nach oben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move Up"
+          }
+        }
+      }
+    },
     "Name" : {
       "localizations" : {
         "de" : {
@@ -2053,6 +2577,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Name"
+          }
+        }
+      }
+    },
+    "Needs a key" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlüssel nötig"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Needs a key"
           }
         }
       }
@@ -2185,18 +2725,58 @@
         }
       }
     },
-    "No cover found for this book." : {
+    "No cover found" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Für dieses Buch wurde kein Coverbild gefunden."
+            "value" : "Kein Coverbild gefunden"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No cover found for this book."
+            "value" : "No cover found"
+          }
+        }
+      }
+    },
+    "No empty fields to fill. %lld values differ from Google Books and stay until you use them." : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Keine leeren Felder zu ergänzen. %lld Angabe weicht von Google Books ab und bleibt, bis du sie übernimmst."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Keine leeren Felder zu ergänzen. %lld Angaben weichen von Google Books ab und bleiben, bis du sie übernimmst."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "No empty fields to fill. %lld value differs from Google Books and stays until you use it."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "No empty fields to fill. %lld values differ from Google Books and stay until you use them."
+                }
+              }
+            }
           }
         }
       }
@@ -2313,6 +2893,38 @@
         }
       }
     },
+    "None of the sources that are on has a cover for this book." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine der eingeschalteten Quellen hat ein Coverbild für dieses Buch."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None of the sources that are on has a cover for this book."
+          }
+        }
+      }
+    },
+    "None of the sources that are on has a cover for this book. Google Books often has one: add a key and turn it on in Settings." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine der eingeschalteten Quellen hat ein Coverbild für dieses Buch. Google Books hat oft eins: Trag in den Einstellungen einen Schlüssel ein und schalte es ein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None of the sources that are on has a cover for this book. Google Books often has one: add a key and turn it on in Settings."
+          }
+        }
+      }
+    },
     "Note" : {
       "localizations" : {
         "de" : {
@@ -2341,6 +2953,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Notes"
+          }
+        }
+      }
+    },
+    "Nothing to fill in. Everything matches Google Books." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nichts zu ergänzen. Alles stimmt mit Google Books überein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing to fill in. Everything matches Google Books."
           }
         }
       }
@@ -2441,6 +3069,22 @@
         }
       }
     },
+    "Open Google Cloud Console" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Cloud Console öffnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Google Cloud Console"
+          }
+        }
+      }
+    },
     "Open Library: %@" : {
       "localizations" : {
         "de" : {
@@ -2453,6 +3097,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open Library: %@"
+          }
+        }
+      }
+    },
+    "Open Settings…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen öffnen…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings…"
           }
         }
       }
@@ -2533,6 +3193,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pages"
+          }
+        }
+      }
+    },
+    "Paste your key" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlüssel einfügen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paste your key"
           }
         }
       }
@@ -2681,6 +3357,22 @@
         }
       }
     },
+    "Remove" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entfernen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove"
+          }
+        }
+      }
+    },
     "Remove %@" : {
       "localizations" : {
         "de" : {
@@ -2825,6 +3517,22 @@
         }
       }
     },
+    "Restrict the key to the Books API." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beschränke den Schlüssel auf die Books API."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restrict the key to the Books API."
+          }
+        }
+      }
+    },
     "Save" : {
       "localizations" : {
         "de" : {
@@ -2841,6 +3549,54 @@
         }
       }
     },
+    "Save Anyway" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trotzdem sichern"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save Anyway"
+          }
+        }
+      }
+    },
+    "Save Key" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schlüssel sichern"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save Key"
+          }
+        }
+      }
+    },
+    "Saving checks the key with one search at Google Books." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Sichern wird der Schlüssel mit einer Suche bei Google Books geprüft."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saving checks the key with one search at Google Books."
+          }
+        }
+      }
+    },
     "Search" : {
       "localizations" : {
         "de" : {
@@ -2853,6 +3609,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Search"
+          }
+        }
+      }
+    },
+    "Searching Google Books for ISBN %@…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche in Google Books nach ISBN %@…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Searching Google Books for ISBN %@…"
+          }
+        }
+      }
+    },
+    "Searching Google Books for “%@” by %@…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche in Google Books nach „%1$@“ von %2$@…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Searching Google Books for “%1$@” by %2$@…"
           }
         }
       }
@@ -2953,6 +3741,22 @@
         }
       }
     },
+    "Set up" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eingerichtet"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set up"
+          }
+        }
+      }
+    },
     "Show Book" : {
       "localizations" : {
         "de" : {
@@ -2965,6 +3769,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Show Book"
+          }
+        }
+      }
+    },
+    "Sign in to the Google Cloud Console with your Google account." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Melde dich mit deinem Google-Konto in der Google Cloud Console an."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to the Google Cloud Console with your Google account."
           }
         }
       }
@@ -3097,6 +3917,22 @@
         }
       }
     },
+    "Sources" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quellen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sources"
+          }
+        }
+      }
+    },
     "Started" : {
       "localizations" : {
         "de" : {
@@ -3221,6 +4057,150 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The finish date can't be before the start date."
+          }
+        }
+      }
+    },
+    "The key couldn't be removed from the Keychain." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Schlüssel konnte nicht aus dem Schlüsselbund entfernt werden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key couldn't be removed from the Keychain."
+          }
+        }
+      }
+    },
+    "The key couldn't be saved in the Keychain." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Schlüssel konnte nicht im Schlüsselbund gesichert werden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key couldn't be saved in the Keychain."
+          }
+        }
+      }
+    },
+    "The key is free. You need a Google account." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Schlüssel ist kostenlos. Du brauchst ein Google-Konto."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key is free. You need a Google account."
+          }
+        }
+      }
+    },
+    "The key is saved but not checked yet." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Schlüssel ist gesichert, aber noch nicht geprüft."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key is saved but not checked yet."
+          }
+        }
+      }
+    },
+    "The key is stored in your Keychain. Searches send the book's ISBN, or its title and author, to Google." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Schlüssel liegt in deinem Schlüsselbund. Suchen schicken die ISBN oder Titel und Autor des Buchs an Google."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key is stored in your Keychain. Searches send the book's ISBN, or its title and author, to Google."
+          }
+        }
+      }
+    },
+    "The key works. Google Books is now on, as the last source." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Schlüssel funktioniert. Google Books ist jetzt eingeschaltet, als letzte Quelle."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key works. Google Books is now on, as the last source."
+          }
+        }
+      }
+    },
+    "The key works. Google Books is now on." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Schlüssel funktioniert. Google Books ist jetzt eingeschaltet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key works. Google Books is now on."
+          }
+        }
+      }
+    },
+    "The key works. Google Books is off." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Schlüssel funktioniert. Google Books ist ausgeschaltet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key works. Google Books is off."
+          }
+        }
+      }
+    },
+    "The key works. Google Books is on." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Schlüssel funktioniert. Google Books ist eingeschaltet."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key works. Google Books is on."
           }
         }
       }
@@ -3401,18 +4381,50 @@
         }
       }
     },
-    "Type a title and author, or an ISBN. Complete looks up the rest in the Deutsche Nationalbibliothek, including the cover." : {
+    "Turn on a source in Settings" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gib einen Titel und Autor oder eine ISBN ein. Vervollständigen sucht den Rest in der Deutschen Nationalbibliothek, auch das Cover."
+            "value" : "Schalte in den Einstellungen eine Quelle ein"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Type a title and author, or an ISBN. Complete looks up the rest in the Deutsche Nationalbibliothek, including the cover."
+            "value" : "Turn on a source in Settings"
+          }
+        }
+      }
+    },
+    "Turn on the Books API for the project." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schalte für das Projekt die Books API ein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn on the Books API for the project."
+          }
+        }
+      }
+    },
+    "Type a title and author, or an ISBN. Complete looks up the rest in your book sources, including the cover." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gib einen Titel und Autor oder eine ISBN ein. Vervollständigen sucht den Rest in deinen Buchquellen, auch das Cover."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type a title and author, or an ISBN. Complete looks up the rest in your book sources, including the cover."
           }
         }
       }
@@ -3477,6 +4489,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Use Found Value"
+          }
+        }
+      }
+    },
+    "Use Google Books cover" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google-Books-Cover übernehmen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Google Books cover"
           }
         }
       }
@@ -3643,16 +4671,16 @@
     },
     "or drop an image here" : {
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "or drop an image here"
-          }
-        },
         "de" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "oder ein Bild hierher ziehen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "or drop an image here"
           }
         }
       }

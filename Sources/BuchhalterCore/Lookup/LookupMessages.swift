@@ -26,6 +26,10 @@ public struct LookupMessages: Sendable {
             return String(localized: "Searching the Deutsche Nationalbibliothek for ISBN \(display)…", locale: locale)
         case let (.isbn(_, display), .openLibrary):
             return String(localized: "Searching Open Library for ISBN \(display)…", locale: locale)
+        case let (.titleAuthor(title, authors), .googleBooks):
+            return String(localized: "Searching Google Books for “\(title)” by \(names(authors))…", locale: locale)
+        case let (.isbn(_, display), .googleBooks):
+            return String(localized: "Searching Google Books for ISBN \(display)…", locale: locale)
         }
     }
 
@@ -40,12 +44,29 @@ public struct LookupMessages: Sendable {
         }
     }
 
-    public func unreachable(_ source: LookupSource) -> String {
+    /// The red hint after every source asked has failed. One source asked: it
+    /// is named, as before. Several: "any book source".
+    public func unreachable(_ sources: [LookupSource]) -> String {
+        guard sources.count == 1, let source = sources.first else {
+            return String(localized: "Can't reach any book source. Check the internet connection. You can still add the book by hand.", locale: locale)
+        }
         switch source {
         case .dnb:
-            String(localized: "Can't reach the Deutsche Nationalbibliothek. Check the internet connection. You can still add the book by hand.", locale: locale)
+            return String(localized: "Can't reach the Deutsche Nationalbibliothek. Check the internet connection. You can still add the book by hand.", locale: locale)
         case .openLibrary:
-            String(localized: "Can't reach Open Library. Check the internet connection. You can still add the book by hand.", locale: locale)
+            return String(localized: "Can't reach Open Library. Check the internet connection. You can still add the book by hand.", locale: locale)
+        case .googleBooks:
+            return String(localized: "Can't reach Google Books. Check the internet connection. You can still add the book by hand.", locale: locale)
+        }
+    }
+
+    /// The message of Find Cover's "No cover found" alert. When Google Books
+    /// is off or has no key, it says that Google Books often has one.
+    public func noCoverMessage(suggestingGoogleBooks: Bool) -> String {
+        if suggestingGoogleBooks {
+            String(localized: "None of the sources that are on has a cover for this book. Google Books often has one: add a key and turn it on in Settings.", locale: locale)
+        } else {
+            String(localized: "None of the sources that are on has a cover for this book.", locale: locale)
         }
     }
 
@@ -72,6 +93,14 @@ public struct LookupMessages: Sendable {
             return String(localized: "Nothing to fill in. Everything matches the Deutsche Nationalbibliothek.", locale: locale)
         case (.openLibrary, false, false):
             return String(localized: "Nothing to fill in. Everything matches Open Library.", locale: locale)
+        case (.googleBooks, true, false):
+            return String(localized: "Filled in \(filled) fields from Google Books. Check them, then add the book.", locale: locale)
+        case (.googleBooks, true, true):
+            return String(localized: "Filled in \(filled) empty fields from Google Books. \(differ) values differ and stay until you use them.", locale: locale)
+        case (.googleBooks, false, true):
+            return String(localized: "No empty fields to fill. \(differ) values differ from Google Books and stay until you use them.", locale: locale)
+        case (.googleBooks, false, false):
+            return String(localized: "Nothing to fill in. Everything matches Google Books.", locale: locale)
         }
     }
 
@@ -93,11 +122,12 @@ public struct LookupMessages: Sendable {
 
     // MARK: Notes next to fields
 
-    /// "DNB: 2009" / "Open Library: 2009". The sheet adds the Use button.
+    /// "DNB: 2009" / "Open Library: 2009" / "Google Books: 2009". The sheet adds the Use button.
     public func offerLabel(source: LookupSource, value: String) -> String {
         switch source {
         case .dnb: String(localized: "DNB: \(value)", locale: locale)
         case .openLibrary: String(localized: "Open Library: \(value)", locale: locale)
+        case .googleBooks: String(localized: "Google Books: \(value)", locale: locale)
         }
     }
 
@@ -105,6 +135,7 @@ public struct LookupMessages: Sendable {
         switch source {
         case .dnb: String(localized: "Use DNB cover", locale: locale)
         case .openLibrary: String(localized: "Use Open Library cover", locale: locale)
+        case .googleBooks: String(localized: "Use Google Books cover", locale: locale)
         }
     }
 

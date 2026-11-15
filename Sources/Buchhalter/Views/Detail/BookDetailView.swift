@@ -7,6 +7,7 @@ import BuchhalterCore
 struct BookDetailView: View {
     @Environment(\.library) private var library
     @Environment(\.bookLookup) private var bookLookup
+    @Environment(BookSources.self) private var sources
     @Environment(\.locale) private var locale
     var model: WindowModel
     var book: Book
@@ -43,7 +44,11 @@ struct BookDetailView: View {
     /// dragged onto it, so the title on the generated cover stays readable
     /// otherwise.
     private var cover: some View {
-        let canFind = !LookupQuery.coverQueries(for: BookDraft(book: book)).isEmpty
+        let hasQueries = !LookupQuery.coverQueries(for: BookDraft(book: book)).isEmpty
+        let hasSources = sources.hasActiveSource
+        let canFind = hasQueries && hasSources
+        // The tooltip works on a disabled button.
+        let findHelp = hasSources ? "" : String(localized: "Turn on a source in Settings")
         return CoverView(book: book, size: CGSize(width: 120, height: 180))
             .overlay {
                 if isFindingCover {
@@ -61,9 +66,11 @@ struct BookDetailView: View {
                                 .padding(4)
                         }
                         VStack(spacing: 8) {
-                            if canFind {
+                            if hasQueries {
                                 Button("Find Cover") { findCover() }
                                     .buttonStyle(CoverOverlayButtonStyle())
+                                    .disabled(!hasSources)
+                                    .help(findHelp)
                             }
                             Text("or drop an image here")
                                 .font(.system(size: 11))
@@ -88,13 +95,15 @@ struct BookDetailView: View {
                 } else {
                     Button("Find Cover") { findCover() }
                         .disabled(isFindingCover || !canFind)
+                        .help(findHelp)
                 }
             }
     }
 
-    /// Asks DNB, then Open Library, with the book's ISBN and then its title
-    /// and authors, and sets the first cover found. A cover set by hand while it
-    /// runs wins.
+    /// Asks the sources that are on, in the user's order, with the book's ISBN
+    /// and then its title and authors, and sets the first cover found. A cover
+    /// set by hand while it runs wins. No cover and no source reached each
+    /// have their own alert (`FindCoverAlertModifier`).
     private func findCover() {
         let queries = LookupQuery.coverQueries(for: BookDraft(book: book))
         guard !queries.isEmpty else { return }
@@ -105,15 +114,13 @@ struct BookDetailView: View {
             defer { isFindingCover = false }
             do {
                 guard let data = try await lookup.findCover(queries, preferredLanguage: language) else {
-                    model.errorMessage = String(localized: "No cover found for this book.")
+                    model.coverAlert = .noCover(suggestsGoogleBooks: sources.suggestsGoogleBooks)
                     return
                 }
                 guard book.coverImage == nil else { return }
                 model.attempt { try library?.setCover(data, for: book) }
             } catch is LookupError {
-                model.errorMessage = String(
-                    localized: "Can't reach the Deutsche Nationalbibliothek or Open Library. Check the internet connection."
-                )
+                model.coverAlert = .noSourceReached
             } catch {
                 // Cancelled: nothing changes.
             }
@@ -302,6 +309,8 @@ private struct SecondaryButtonStyle: ButtonStyle {
 /// The Find Cover button over a missing cover: white on the dark scrim, in
 /// light and dark mode alike.
 private struct CoverOverlayButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 12, weight: .medium))
@@ -310,5 +319,6 @@ private struct CoverOverlayButtonStyle: ButtonStyle {
             .frame(height: 24)
             .background(Capsule().fill(.white.opacity(configuration.isPressed ? 0.75 : 0.95)))
             .contentShape(Capsule())
+            .opacity(isEnabled ? 1 : 0.5)
     }
 }

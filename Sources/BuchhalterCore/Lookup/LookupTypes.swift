@@ -1,8 +1,29 @@
 import Foundation
 
-/// The services Complete asks, in the order it asks them.
-public enum LookupSource: String, Sendable {
-    case dnb, openLibrary
+/// The book sources. The user decides which are on and in which order
+/// Complete and Find Cover ask them (`LookupSourceList`).
+public enum LookupSource: String, CaseIterable, Sendable {
+    case dnb, openLibrary, googleBooks
+
+    /// The source's own name, which is never translated. The Settings rows use it.
+    public var displayName: String {
+        switch self {
+        case .dnb: "Deutsche Nationalbibliothek"
+        case .openLibrary: "Open Library"
+        case .googleBooks: "Google Books"
+        }
+    }
+
+    /// How many records a service returns at most. A list as long as this may
+    /// have lost older records. Google's own total is an estimate and its
+    /// answers are capped at 40, so its lists are never called truncated.
+    public var maximumListedRecords: Int? {
+        switch self {
+        case .dnb: DNBService.maximumRecords
+        case .openLibrary: OpenLibraryService.maximumRecords
+        case .googleBooks: nil
+        }
+    }
 }
 
 /// What Complete searches for, built from the sheet's draft.
@@ -70,6 +91,8 @@ public struct LookupAuthor: Equatable, Sendable {
 public enum CoverReference: Equatable, Sendable {
     case dnb(isbn13: String)
     case openLibrary(coverID: Int)
+    /// The large image is found through the volume, see `GoogleBooksService`.
+    case googleBooks(volumeID: String)
 }
 
 public enum CoverSize: Sendable {
@@ -78,7 +101,7 @@ public enum CoverSize: Sendable {
 
 /// One edition a service found, in the shape both services share.
 public struct LookupRecord: Identifiable, Equatable, Sendable {
-    /// "dnb:<001>" or "openlibrary:<edition key>". Also stored as the book's origin note.
+    /// "dnb:<001>", "openlibrary:<edition key>" or "googlebooks:<volume id>". Also stored as the book's origin note.
     public var id: String
     public var source: LookupSource
     /// With the non-sort markers removed ("The Buddenbrooks").
@@ -100,13 +123,15 @@ public struct LookupRecord: Identifiable, Equatable, Sendable {
     /// Open Library: the work's cover, which may belong to another edition of
     /// the same book. Only Find Cover uses it, after the edition's own.
     public var workCover: CoverReference?
+    /// Google Books: the book's page there, which the edition list must link to.
+    public var webPage: URL?
 
     public init(
         id: String, source: LookupSource, title: String, titleMatchKeys: [String]? = nil,
         subtitle: String? = nil, authors: [LookupAuthor] = [], year: Int? = nil, pages: Int? = nil,
         language: String? = nil, originalLanguage: String? = nil, publisher: String? = nil,
         isbn13s: [String] = [], isbnDisplay: String? = nil, cover: CoverReference? = nil,
-        workCover: CoverReference? = nil
+        workCover: CoverReference? = nil, webPage: URL? = nil
     ) {
         self.id = id
         self.source = source
@@ -123,6 +148,7 @@ public struct LookupRecord: Identifiable, Equatable, Sendable {
         self.isbnDisplay = isbnDisplay
         self.cover = cover
         self.workCover = workCover
+        self.webPage = webPage
     }
 }
 
@@ -138,8 +164,15 @@ public struct LookupResponse: Sendable {
     }
 }
 
+/// Services throw `unreachable` and `keyRejected`; `BookLookup` throws
+/// `noSourceReached` when every source it asked has failed.
 public enum LookupError: Error, Equatable, Sendable {
     /// No connection, timeout, an HTTP status other than 200, a body that
     /// cannot be read, or an SRU diagnostic.
     case unreachable(LookupSource)
+    /// The service refused the user's API key (Google Books): it is invalid,
+    /// revoked, restricted from the Books API, or its quota is used up.
+    case keyRejected(LookupSource)
+    /// Every source that was asked failed. Carries the sources asked, in order.
+    case noSourceReached([LookupSource])
 }

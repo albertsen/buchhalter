@@ -7,6 +7,7 @@ import BuchhalterCore
 struct EditionPickerSheet: View {
     @Environment(\.locale) private var locale
     @Environment(\.bookLookup) private var bookLookup
+    @Environment(\.colorScheme) private var colorScheme
     var list: EditionList
     var query: LookupQuery
     var use: (LookupRecord) -> Void
@@ -19,19 +20,24 @@ struct EditionPickerSheet: View {
     var body: some View {
         let messages = LookupMessages(locale: locale)
         VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Choose an edition")
-                    .font(.system(size: 15, weight: .semibold))
-                Text(verbatim: messages.editionsHeadline(count: list.records.count, query: query))
-                    .font(.system(size: 12))
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                if list.isTruncated {
-                    Text(verbatim: messages.truncatedNote())
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Choose an edition")
+                        .font(.system(size: 15, weight: .semibold))
+                    Text(verbatim: messages.editionsHeadline(count: list.records.count, query: query))
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
+                    if list.isTruncated {
+                        Text(verbatim: messages.truncatedNote())
+                            .font(.system(size: 12))
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                // Google asks for its graphic next to its results.
+                if list.source == .googleBooks { PoweredByGoogleMark() }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 24)
@@ -106,6 +112,12 @@ struct EditionPickerSheet: View {
                 }
             }
             Spacer(minLength: 0)
+            // Google asks for a prominent link to the book's page on every result.
+            if let page = record.webPage {
+                Link(destination: page) { Text(verbatim: "Google Books").underline() }
+                    .font(.system(size: 12))
+                    .foregroundStyle(isSelected ? AnyShapeStyle(.white) : AnyShapeStyle(linkColor))
+            }
         }
         .padding(.vertical, 4)
         .contentShape(Rectangle())
@@ -114,6 +126,9 @@ struct EditionPickerSheet: View {
             if let data = await bookLookup.thumbnail(for: record) { thumbnails[record.id] = data }
         }
     }
+
+    /// The deep green accent is unreadable on a dark list.
+    private var linkColor: Color { colorScheme == .dark ? .primary : Theme.accent }
 
     @ViewBuilder
     private func cover(_ record: LookupRecord) -> some View {

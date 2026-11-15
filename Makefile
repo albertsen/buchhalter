@@ -16,14 +16,16 @@ $(BIN): $(SOURCES)
 
 build: $(BIN)
 
-# The binary, Info.plist and the compiled catalog (en.lproj, de.lproj),
-# ad-hoc signed. Texts live in the main bundle, so SwiftUI and the core find them.
-app: $(BIN) $(CATALOG) Resources/Info.plist Resources/AppIcon.icns
+# The binary, Info.plist, the icon, Google's attribution graphic and the
+# compiled catalog (en.lproj, de.lproj), ad-hoc signed. Texts live in the
+# main bundle, so SwiftUI and the core find them.
+app: $(BIN) $(CATALOG) Resources/Info.plist Resources/AppIcon.icns Resources/PoweredByGoogle.png
 	rm -rf $(APP)
 	mkdir -p $(APP)/Contents/MacOS $(APP)/Contents/Resources
 	cp $(BIN) $(APP)/Contents/MacOS/Buchhalter
 	cp Resources/Info.plist $(APP)/Contents/Info.plist
 	cp Resources/AppIcon.icns $(APP)/Contents/Resources/AppIcon.icns
+	cp Resources/PoweredByGoogle.png $(APP)/Contents/Resources/PoweredByGoogle.png
 	$(XCSTRINGSTOOL) compile $(CATALOG) --output-directory $(APP)/Contents/Resources
 	codesign --force --sign - $(APP)
 	$(LSREGISTER) -f $(APP)

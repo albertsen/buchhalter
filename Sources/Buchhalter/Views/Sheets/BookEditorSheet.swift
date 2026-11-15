@@ -8,6 +8,7 @@ struct BookEditorSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
     @Environment(\.bookLookup) private var bookLookup
+    @Environment(BookSources.self) private var sources
     var model: WindowModel
     /// Nil for Add Book.
     var editing: Book?
@@ -99,6 +100,7 @@ struct BookEditorSheet: View {
         VStack(spacing: 0) {
             LookupHeader(
                 title: isEditing ? "Edit Book" : "Add Book", lookup: lookup, canComplete: lookupQuery != nil,
+                hasSources: sources.hasActiveSource,
                 complete: complete, stop: { lookup.stop() }, undo: { lookup.undo(draft: &draft) }
             )
             // No ScrollView: the sheet grows with the banner, hints and notes,

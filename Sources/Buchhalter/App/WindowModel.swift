@@ -22,6 +22,16 @@ enum ActiveSheet: Identifiable, Hashable {
     }
 }
 
+/// The alerts Find Cover can end in. They have their own state, not
+/// `errorMessage`, because "Open Settings…" needs a button of its own and
+/// the generic alert has the wrong title.
+enum CoverAlert: Equatable {
+    /// Every source that is on was asked and none has a cover. Carries
+    /// whether to point at Google Books (no key, or switched off).
+    case noCover(suggestsGoogleBooks: Bool)
+    case noSourceReached
+}
+
 /// UI state of the one main window. It holds ids and flags only, so nothing
 /// outlives the model objects it points at.
 @Observable
@@ -38,6 +48,8 @@ final class WindowModel {
     var gridPath: [UUID] = []
     /// Shown in an alert when an operation fails.
     var errorMessage: String?
+    /// Shown by `FindCoverAlertModifier` (Mac-only).
+    var coverAlert: CoverAlert?
 
     /// Runs a library operation and shows its error, if any, in the window.
     func attempt(_ body: () throws -> Void) {

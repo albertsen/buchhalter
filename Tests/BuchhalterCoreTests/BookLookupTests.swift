@@ -113,8 +113,8 @@ struct BookLookupTests {
 
     // MARK: Coordinator
 
-    private func lookup(_ primary: FakeLookupService, _ fallback: FakeLookupService) -> BookLookup {
-        BookLookup(primary: primary, fallback: fallback)
+    private func lookup(_ services: FakeLookupService...) -> BookLookup {
+        BookLookup(services: services)
     }
 
     private let query = LookupQuery.titleAuthor(
@@ -152,11 +152,11 @@ struct BookLookupTests {
     @Test func zeroMatchesOnDNBAsksOpenLibrary() async throws {
         let dnb = FakeLookupService(.dnb, records: [makeRecord("Unrelated")])
         let ol = FakeLookupService(.openLibrary, records: [makeRecord("Buddenbrooks", source: .openLibrary)])
-        let asked = SourceLog()
-        let outcome = try await lookup(dnb, ol).run(query, preferredLanguage: nil) { source in asked.add(source) }
+        let events = EventLog()
+        let outcome = try await lookup(dnb, ol).run(query, preferredLanguage: nil) { event in events.add(event) }
         guard case .single(let record) = outcome else { Issue.record("expected single"); return }
         #expect(record.source == .openLibrary)
-        #expect(asked.sources == [.openLibrary])
+        #expect(events.events == [.asking(.dnb), .answered(.dnb), .asking(.openLibrary), .answered(.openLibrary)])
         #expect(dnb.searchCount == 1 && ol.searchCount == 1)
     }
 
@@ -166,21 +166,79 @@ struct BookLookupTests {
         guard case .none = outcome else { Issue.record("expected none"); return }
     }
 
-    @Test func dnbFailureDoesNotFallBack() async {
+    @Test func aFailingSourceIsSkippedAndTheNextFills() async throws {
         let ol = FakeLookupService(.openLibrary, records: [makeRecord("Buddenbrooks", source: .openLibrary)])
         let dnb = FakeLookupService(.dnb, failing: LookupError.unreachable(.dnb))
-        await #expect(throws: LookupError.unreachable(.dnb)) {
-            try await lookup(dnb, ol).run(query, preferredLanguage: nil) { _ in }
-        }
-        #expect(ol.searchCount == 0)
+        let events = EventLog()
+        let outcome = try await lookup(dnb, ol).run(query, preferredLanguage: nil) { events.add($0) }
+        guard case .single(let record) = outcome else { Issue.record("expected single"); return }
+        #expect(record.source == .openLibrary)
+        #expect(events.events == [
+            .asking(.dnb), .failed(.dnb, .unreachable(.dnb)), .asking(.openLibrary), .answered(.openLibrary),
+        ])
     }
 
-    @Test func openLibraryFailureIsReportedForOpenLibrary() async {
+    @Test func everySourceFailingThrowsNoSourceReachedWithTheSourcesAsked() async {
+        let dnb = FakeLookupService(.dnb, failing: LookupError.unreachable(.dnb))
+        let google = FakeLookupService(.googleBooks, failing: LookupError.keyRejected(.googleBooks))
+        await #expect(throws: LookupError.noSourceReached([.dnb, .googleBooks])) {
+            try await lookup(dnb, google).run(query, preferredLanguage: nil) { _ in }
+        }
+        await #expect(throws: LookupError.noSourceReached([.dnb])) {
+            try await lookup(dnb).run(query, preferredLanguage: nil) { _ in }
+        }
+    }
+
+    @Test func oneAnsweredAndOneFailedWithoutAMatchIsNone() async throws {
         let dnb = FakeLookupService(.dnb)
         let ol = FakeLookupService(.openLibrary, failing: LookupError.unreachable(.openLibrary))
-        await #expect(throws: LookupError.unreachable(.openLibrary)) {
-            try await lookup(dnb, ol).run(query, preferredLanguage: nil) { _ in }
+        guard case .none = try await lookup(dnb, ol).run(query, preferredLanguage: nil, onEvent: { _ in }) else {
+            Issue.record("expected none"); return
         }
+        guard case .none = try await lookup(ol, dnb).run(query, preferredLanguage: nil, onEvent: { _ in }) else {
+            Issue.record("expected none"); return
+        }
+    }
+
+    @Test func servicesAreAskedInTheOrderGiven() async throws {
+        let google = FakeLookupService(.googleBooks, records: [makeRecord("Buddenbrooks", source: .googleBooks)])
+        let dnb = FakeLookupService(.dnb, records: [makeRecord("Buddenbrooks")])
+        let outcome = try await lookup(google, dnb).run(query, preferredLanguage: nil) { _ in }
+        guard case .single(let record) = outcome else { Issue.record("expected single"); return }
+        #expect(record.source == .googleBooks)
+        #expect(dnb.searchCount == 0)
+        #expect(lookup(google, dnb).sources == [.googleBooks, .dnb])
+    }
+
+    @Test func noServicesGiveNone() async throws {
+        let empty = BookLookup(services: [])
+        #expect(empty.isEmpty)
+        guard case .none = try await empty.run(query, preferredLanguage: nil, onEvent: { _ in }) else {
+            Issue.record("expected none"); return
+        }
+        #expect(try await empty.findCover([query], preferredLanguage: nil) == nil)
+    }
+
+    @Test func theObserverAndTheCallHearTheSameEvents() async throws {
+        let seen = EventLog()
+        let dnb = FakeLookupService(.dnb, failing: LookupError.unreachable(.dnb))
+        let ol = FakeLookupService(.openLibrary)
+        let coordinator = BookLookup(services: [dnb, ol], observer: { seen.add($0) })
+        let own = EventLog()
+        _ = try await coordinator.run(query, preferredLanguage: nil) { own.add($0) }
+        #expect(seen.events == own.events)
+        #expect(seen.events.count == 4)
+        // Find Cover reports through the same observer.
+        let before = seen.events.count
+        _ = try await coordinator.findCover([query], preferredLanguage: nil)
+        #expect(seen.events.count == before + 4)
+    }
+
+    @Test func googleBooksListsAreNeverTruncated() {
+        let records = [makeRecord("A", source: .googleBooks)]
+        #expect(!EditionList(source: .googleBooks, records: records, totalCount: 5000).isTruncated)
+        #expect(EditionList(source: .openLibrary, records: records, totalCount: 101).isTruncated)
+        #expect(!EditionList(source: .openLibrary, records: records, totalCount: 100).isTruncated)
     }
 
     @Test func cancellingStopsTheLookup() async {
@@ -308,24 +366,45 @@ struct BookLookupTests {
     @Test func findCoverThrowsWhenNoSourceIsReachable() async {
         let dnb = FakeLookupService(.dnb, failing: LookupError.unreachable(.dnb))
         let ol = FakeLookupService(.openLibrary, failing: LookupError.unreachable(.openLibrary))
-        await #expect(throws: LookupError.unreachable(.dnb)) {
+        await #expect(throws: LookupError.noSourceReached([.dnb, .openLibrary])) {
             try await self.lookup(dnb, ol).findCover([self.query], preferredLanguage: nil)
         }
     }
 
-    @Test func coversAreFetchedFromTheRecordsOwnSource() async throws {
+    @Test func findCoverWalksTheUsersOrderAndSkipsFailures() async throws {
+        let png = try makePNG(width: 300, height: 450)
+        let dnb = FakeLookupService(.dnb, failing: LookupError.unreachable(.dnb))
+        let google = FakeLookupService(.googleBooks, records: [
+            LookupRecord(id: "googlebooks:x", source: .googleBooks, title: "Buddenbrooks",
+                         authors: [LookupAuthor(name: "Thomas Mann")], cover: .googleBooks(volumeID: "x")),
+        ], covers: [.large: png])
+        let ol = FakeLookupService(.openLibrary)
+        let events = EventLog()
+        let data = try await lookup(dnb, google, ol).findCover([query], preferredLanguage: nil) { events.add($0) }
+        #expect(data != nil)
+        #expect(events.events == [
+            .asking(.dnb), .failed(.dnb, .unreachable(.dnb)), .asking(.googleBooks), .answered(.googleBooks),
+        ])
+        #expect(ol.searchCount == 0)
+    }
+
+    @Test func coversAndThumbnailsAreFetchedFromTheRecordsOwnSource() async throws {
         let png = try makePNG(width: 100, height: 150)
-        let ol = FakeLookupService(.openLibrary, covers: [.large: png])
+        let ol = FakeLookupService(.openLibrary, covers: [.large: png, .small: png])
         let coordinator = lookup(FakeLookupService(.dnb), ol)
         let record = LookupRecord(id: "openlibrary:x", source: .openLibrary, title: "A", cover: .openLibrary(coverID: 1))
         #expect(await coordinator.cover(for: record) != nil)
+        #expect(await coordinator.thumbnail(for: record) != nil)
+        // A record of a source that is not active has no service to ask.
+        let google = LookupRecord(id: "googlebooks:x", source: .googleBooks, title: "A", cover: .googleBooks(volumeID: "x"))
+        #expect(await coordinator.cover(for: google) == nil)
     }
 }
 
-/// Collects the sources `run` reported, from a `@Sendable` closure.
-final class SourceLog: @unchecked Sendable {
+/// Collects the events `run` reported, from a `@Sendable` closure.
+final class EventLog: @unchecked Sendable {
     private let lock = NSLock()
-    private var values: [LookupSource] = []
-    func add(_ source: LookupSource) { lock.withLock { values.append(source) } }
-    var sources: [LookupSource] { lock.withLock { values } }
+    private var values: [LookupEvent] = []
+    func add(_ event: LookupEvent) { lock.withLock { values.append(event) } }
+    var events: [LookupEvent] { lock.withLock { values } }
 }
