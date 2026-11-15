@@ -8,7 +8,7 @@ SOURCES    := $(shell find Sources -name '*.swift') Package.swift
 
 .DEFAULT_GOAL := build
 
-.PHONY: build app install test strings icon isbn-ranges clean
+.PHONY: build app install cli test strings icon isbn-ranges clean
 
 # Rebuilt only when a source file is newer than the binary.
 $(BIN): $(SOURCES)
@@ -36,6 +36,14 @@ install: app
 	cp -R $(APP) $(INSTALLED)
 	$(LSREGISTER) -u $(CURDIR)/$(APP)
 	$(LSREGISTER) -f $(INSTALLED)
+
+# The command line tool for maintenance on the library (find-covers), as
+# build/buchhalter-cli. `build/buchhalter-cli help` lists the commands.
+CLI := build/buchhalter-cli
+cli:
+	swift build -c release --product buchhalter-cli
+	mkdir -p build
+	cp .build/release/buchhalter-cli $(CLI)
 
 test:
 	swift test

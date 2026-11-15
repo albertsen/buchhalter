@@ -1,6 +1,7 @@
 import Foundation
 import Observation
 import BuchhalterCore
+import BuchhalterKeychain
 
 /// What came of saving a key in Settings.
 enum KeySaveOutcome {

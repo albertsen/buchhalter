@@ -143,9 +143,10 @@ public struct GoogleBooksService: BookLookupService {
         return LookupResponse(records: records, totalCount: list.totalItems ?? records.count)
     }
 
-    /// Small: the content URL with `zoom=1`. Large: the single-volume answer's
-    /// largest image link (guessing a bigger `zoom` returns the placeholder for
-    /// many volumes). Every image must be a real picture and not Google's
+    /// Small: the content URL with `zoom=1`. Large: the content URL at zoom 3,
+    /// then 2, then the single-volume answer's largest image link (often only
+    /// the 128 px thumbnail). Many volumes answer the zoom levels with the
+    /// placeholder, so every image must be a real picture and not Google's
     /// "image not available". Any failure gives nil.
     @concurrent
     public func coverData(for reference: CoverReference, size: CoverSize) async -> Data? {
@@ -155,8 +156,15 @@ public struct GoogleBooksService: BookLookupService {
         case .small:
             url = GoogleBooksCover.smallURL(volumeID: volumeID)
         case .large:
-            guard let key = try? await keys.read(), !key.isEmpty,
-                  let data = try? await fetch(Self.volumeURL(id: volumeID), key: key),
+            guard let key = try? await keys.read(), !key.isEmpty else { return nil }
+            for zoom in GoogleBooksCover.largeZooms {
+                guard let zoomed = GoogleBooksCover.contentURL(volumeID: volumeID, zoom: zoom) else { continue }
+                if let image = await CoverDownload.fetch(zoomed, with: client), !GoogleBooksCover.isPlaceholder(image) {
+                    return image
+                }
+                if Task.isCancelled { return nil }
+            }
+            guard let data = try? await fetch(Self.volumeURL(id: volumeID), key: key),
                   let answer = try? JSONDecoder().decode(GoogleBooksRecordMapper.VolumeImages.self, from: data),
                   let links = answer.volumeInfo?.imageLinks else { return nil }
             url = GoogleBooksCover.bestImageURL(from: links)

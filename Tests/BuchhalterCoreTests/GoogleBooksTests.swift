@@ -207,22 +207,33 @@ struct GoogleBooksTests {
 
     private static let jpeg = Data([0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46])
 
-    @Test func theLargeCoverComesFromTheVolumeAnswer() async throws {
+    @Test func theLargeCoverTriesZoomThreeFirst() async throws {
+        let client = FakeHTTPClient(data: Self.jpeg)
+        let data = await service(client).coverData(for: .googleBooks(volumeID: "23aiRAguYcEC"), size: .large)
+        #expect(data == Self.jpeg)
+        let urls = await client.requested
+        #expect(urls.count == 1 && urls[0].absoluteString.contains("zoom=3"))
+        #expect(await client.requestedHeaders == [[:]])
+    }
+
+    @Test func placeholdersAtTheZoomLevelsFallBackToTheVolumeAnswer() async throws {
         let client = FakeHTTPClient { url in
-            url.host == "www.googleapis.com"
-                ? (fixture("googlebooks-volume-garden.json"), 200)
-                : (Self.jpeg, 200)
+            if url.host == "www.googleapis.com" { return (fixture("googlebooks-volume-garden.json"), 200) }
+            if url.absoluteString.contains("zoom=3") { return (fixture("googlebooks-placeholder-575.png"), 200) }
+            if url.absoluteString.contains("zoom=2") { return (fixture("googlebooks-placeholder-300.png"), 200) }
+            return (Self.jpeg, 200)
         }
         let data = await service(client).coverData(for: .googleBooks(volumeID: "xCVQ0QEACAAJ"), size: .large)
         #expect(data == Self.jpeg)
         let urls = await client.requested
-        #expect(urls.count == 2)
-        #expect(urls[0].path == "/books/v1/volumes/xCVQ0QEACAAJ")
-        #expect(urls[1].scheme == "https" && urls[1].host == "books.google.com")
-        #expect(urls[1].absoluteString.contains("id=xCVQ0QEACAAJ"))
-        #expect(!urls[1].absoluteString.contains("edge=curl"))
-        // The key goes only to the API call, not to the image download.
-        #expect(await client.requestedHeaders == [["X-goog-api-key": Self.testKey], [:]])
+        #expect(urls.count == 4)
+        #expect(urls[0].absoluteString.contains("zoom=3") && urls[1].absoluteString.contains("zoom=2"))
+        #expect(urls[2].path == "/books/v1/volumes/xCVQ0QEACAAJ")
+        #expect(urls[3].scheme == "https" && urls[3].host == "books.google.com")
+        #expect(urls[3].absoluteString.contains("id=xCVQ0QEACAAJ"))
+        #expect(!urls[3].absoluteString.contains("edge=curl"))
+        // The key goes only to the API call, not to the image downloads.
+        #expect(await client.requestedHeaders == [[:], [:], ["X-goog-api-key": Self.testKey], [:]])
     }
 
     @Test func theSmallCoverUsesTheContentURLWithoutTheKey() async {
@@ -239,6 +250,9 @@ struct GoogleBooksTests {
         #expect(CoverDownload.isImage(placeholder))
         #expect(GoogleBooksCover.isPlaceholder(placeholder))
         #expect(!GoogleBooksCover.isPlaceholder(Self.jpeg))
+        for name in ["googlebooks-placeholder-300.png", "googlebooks-placeholder-575.png"] {
+            #expect(GoogleBooksCover.isPlaceholder(fixture(name)), "\(name)")
+        }
         let client = FakeHTTPClient(data: placeholder)
         #expect(await service(client).coverData(for: .googleBooks(volumeID: "pkVFjwEACAAJ"), size: .small) == nil)
     }

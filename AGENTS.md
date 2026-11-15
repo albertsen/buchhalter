@@ -14,7 +14,7 @@ The architecture doc describes the current code and the intended direction. Spec
 |---|---|
 | Status | Library feature built: books, readings, collections, sort, search, undo (`specs/done/library/`). Book lookup built (`specs/done/book-lookup/`). Google Books and the Settings window built (`specs/done/google-books/`) |
 | Toolchain | Xcode 27.2, Swift 6.4.2, macOS 27 SDK |
-| Build | `make app` → `build/Buchhalter.app` (ad-hoc signed). `make install` → `/Applications/Buchhalter.app`. `make strings` syncs new texts into `Resources/Localizable.xcstrings`. `make isbn-ranges` refreshes the ISBN range table |
+| Build | `make app` → `build/Buchhalter.app` (ad-hoc signed). `make install` → `/Applications/Buchhalter.app`. `make strings` syncs new texts into `Resources/Localizable.xcstrings`. `make isbn-ranges` refreshes the ISBN range table. `make cli` → `build/buchhalter-cli` (`find-covers` fills missing covers; the user runs it, with Buchhalter closed) |
 | Test | `swift test` (`BuchhalterCore` only) |
 | Run | The user runs `open build/Buchhalter.app` (real library). Agents only build |
 | Bundle id | `local.buchhalter` until iCloud sync arrives (see architecture.md, Phases) |

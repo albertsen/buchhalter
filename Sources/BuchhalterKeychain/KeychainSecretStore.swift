@@ -3,6 +3,8 @@ import Security
 import BuchhalterCore
 
 /// The Google Books key in the user's login keychain, as a generic password.
+/// Its own target, shared by the app and `buchhalter-cli`, because
+/// `BuchhalterCore` stays Foundation and SwiftData only.
 /// The names carry no bundle id, so the item survives the change from
 /// `local.buchhalter` to a reverse-DNS id later. `kSecAttrComment` holds the
 /// key's last four characters, so the masked key shows without reading the
@@ -15,14 +17,14 @@ import BuchhalterCore
 /// proper signing (see architecture.md, Open points).
 ///
 /// It never logs and never puts a secret in an error.
-actor KeychainSecretStore: SecretStore {
-    struct KeychainError: Error {
+public actor KeychainSecretStore: SecretStore {
+    public struct KeychainError: Error {
         /// The `OSStatus` only, never a value.
-        var status: OSStatus
+        public var status: OSStatus
     }
 
-    nonisolated static let service = "Buchhalter Google Books"
-    nonisolated static let account = "api-key"
+    public nonisolated static let service = "Buchhalter Google Books"
+    public nonisolated static let account = "api-key"
 
     /// The secret after the first read, so one build asks the user once.
     private var cached: String?
@@ -31,7 +33,9 @@ actor KeychainSecretStore: SecretStore {
         [kSecClass: kSecClassGenericPassword, kSecAttrService: Self.service, kSecAttrAccount: Self.account]
     }
 
-    func read() async throws -> String? {
+    public init() {}
+
+    public func read() async throws -> String? {
         if let cached { return cached }
         var query = itemQuery
         query[kSecReturnData] = true
@@ -46,7 +50,7 @@ actor KeychainSecretStore: SecretStore {
         return text
     }
 
-    func save(_ secret: String) async throws {
+    public func save(_ secret: String) async throws {
         let attributes: [CFString: Any] = [
             kSecValueData: Data(secret.utf8), kSecAttrLabel: Self.service, kSecAttrComment: String(secret.suffix(4)),
         ]
@@ -58,20 +62,20 @@ actor KeychainSecretStore: SecretStore {
         cached = secret
     }
 
-    func delete() async throws {
+    public func delete() async throws {
         cached = nil
         let status = SecItemDelete(itemQuery as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else { throw KeychainError(status: status) }
     }
 
     /// Asks for attributes only, which does not touch the secret.
-    func exists() async -> Bool {
+    public func exists() async -> Bool {
         attributes() != nil
     }
 
     /// The comment attribute. An item made elsewhere (`security
     /// add-generic-password`) has none; then the secret is read once.
-    func suffix() async -> String? {
+    public func suffix() async -> String? {
         guard let item = attributes() else { return nil }
         if let comment = item[kSecAttrComment] as? String, !comment.isEmpty { return comment }
         guard let secret = try? await read() else { return nil }

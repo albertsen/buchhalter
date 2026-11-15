@@ -23,7 +23,9 @@ No signing identity is installed on this Mac yet (`security find-identity -p cod
 | Target | Kind | Imports | Contents |
 |---|---|---|---|
 | `BuchhalterCore` | library | Foundation, SwiftData, ImageIO | The `@Model` types, the versioned schemas and the migration plan, container setup (store location, in-memory for tests), `Library` with the operations that change data (add and edit a book, finish, abandon and repeat a reading, collections, list settings) and its undo, and pure logic (ISBN parsing and checking, author sort names, text folding, sorting, search, list membership, drafts, duplicate check, cover normalizing, formatting), and book lookup (the HTTP client, the Deutsche Nationalbibliothek, Open Library and Google Books services, MARC parsing, matching, merge into a draft, the user's source order, the `SecretStore` protocol, messages). Texts it produces (status names, sort field names, errors, sentences) come from the app's catalog. Fully unit-tested |
-| `Buchhalter` | executable `buchhalter` | SwiftUI, Security, AppKit (Mac-only files), BuchhalterCore | The Mac app: `App`, the one window, the Settings window, menus, views, the Keychain store. Every declaration is `@MainActor` by default (`defaultIsolation`) |
+| `BuchhalterKeychain` | library | Foundation, Security, BuchhalterCore | `KeychainSecretStore`: the Google Books key in the login keychain. Its own target because the core stays Foundation and SwiftData only; the app and `buchhalter-cli` share it |
+| `Buchhalter` | executable `buchhalter` | SwiftUI, AppKit (Mac-only files), BuchhalterCore, BuchhalterKeychain | The Mac app: `App`, the one window, the Settings window, menus, views. Every declaration is `@MainActor` by default (`defaultIsolation`) |
+| `BuchhalterCLI` | executable `buchhalter-cli` | Foundation, AppKit, SwiftData, BuchhalterCore, BuchhalterKeychain | Maintenance commands on the library, English only, Mac only. `find-covers` runs Find Cover for every book without a cover (`MissingCovers` in the core) with the sources and order from Settings (read from the app's UserDefaults domain `local.buchhalter`), pauses 300 ms after each request that found nothing, saves every 10 books, and can write a tab-separated report (`--report`, `--limit`, `--dry-run`). It works on the same store as the app (`$BUCHHALTER_HOME` overrides it) and refuses to run on the app's library while the app is open |
 | `BuchhalterCoreTests` | Swift Testing | BuchhalterCore | One test file per core area, against in-memory containers |
 
 `Package.swift` excludes `Tests/BuchhalterCoreTests/Fixtures` from the test target (the files are read through `#filePath`, not as resources). It uses tools version 6.2 with the Swift 6 language mode (strict concurrency) and platforms `.macOS("27.0")`, plus `.iOS("27.0")` so nothing Mac-only creeps into the core. There are no package resources and no `defaultLocalization`: the one String Catalog sits outside any target and the Makefile compiles it into the app bundle (see Localization).
@@ -48,9 +50,11 @@ Sources/
     Model/              @Model types in SchemaV1 and SchemaV2 (current), migration plan, enums, derived helpers
     Store/              container, location, Library, operations, undo snapshots
     Logic/              ISBN (checking, hyphenation, generated range table), names, folding, sort, search, lists, draft, duplicates, covers, formatting
-    Lookup/             book lookup: HTTP client, DNB, Open Library and Google Books services, MARC parser and mapper, matching, coordinator, merge, source list, key state, secret store protocol, messages
+    Lookup/             book lookup: HTTP client, DNB, Open Library and Google Books services, MARC parser and mapper, matching, coordinator, merge, source list, key state, secret store protocol, messages, missing covers (batch Find Cover)
+  BuchhalterKeychain/   KeychainSecretStore, shared by the app and the CLI
+  BuchhalterCLI/        buchhalter-cli (find-covers)
   Buchhalter/
-    App/                App, WindowModel, BookSources, KeychainSecretStore
+    App/                App, WindowModel, BookSources
     Views/              shared-ready views (no AppKit): Sidebar, Toolbar, Books, Detail, Sheets (Sheets/Lookup: header, edition picker, lookup model), Settings (Book Lookup pane, key section, help sheet), Common
     Mac/                Mac-only code: AppDelegate, menus, paste, navigation subtitle, store failure alert, window frame and column width restoration, Settings scene content, Find Cover alerts
 Tests/
@@ -174,7 +178,7 @@ The third source. The user creates a free key in the Google Cloud Console (the a
 - **Failures:** 401, 403 and 429 mean a rejected key (revoked, API not enabled, quota used up); 400 only when the answer names the key (`API_KEY_INVALID`, `keyInvalid`, "API key not valid"); anything else is unreachable. A rejected key turns the Settings line red but leaves Google Books on.
 - **Checking a key:** Save Key runs one search (`isbn:9781804993750`, `maxResults=1`) with the key under test, before anything is saved. Works: saved, Google Books switched on where it stands. Rejected: nothing saved. Unreachable: Save Anyway saves it unchecked.
 - **Records:** printed books only (`printType` is `BOOK`, `saleInfo.isEbook` is not true; Google has no audiobook flag). Authors come as "Nick Newman" (a role in brackets is cut), the language as a two-letter code ("pt-BR" gives "pt"), a page count of 0 means none. The record id "googlebooks:<volume id>" is the book's origin note.
-- **Covers:** a record has a cover reference when the list answer has `imageLinks.thumbnail`. Small: the content URL with `zoom=1`. Large: a single-volume request (`fields=volumeInfo/imageLinks`), then the largest link on offer, as https and without `edge=curl`. Google serves a grey "image not available" picture for a volume without a cover; `GoogleBooksCover.isPlaceholder` recognizes it by pixel size and byte count (recorded in `googlebooks-placeholder.png`) and it counts as no cover. For some volumes the only links are small (128 px wide); `zoom=2` gave 300 px for the one volume tried, but `zoom=3` returned a grey picture of another size, which the placeholder check would not recognize, so no size is guessed.
+- **Covers:** a record has a cover reference when the list answer has `imageLinks.thumbnail`. Small: the content URL with `zoom=1`. Large: the content URL with `zoom=3` (about 575 px wide), then `zoom=2` (about 300 px), then a single-volume request (`fields=volumeInfo/imageLinks`) and the largest link on offer, as https and without `edge=curl`; the single-volume answer often offers only the 128 px thumbnail. Google answers each zoom level of a volume without a scan with a grey "image not available" picture of that size: 128 x 170 (1269 bytes), 300 x 391 (15567 bytes) and 575 x 750 (9103 bytes). `GoogleBooksCover.isPlaceholder` recognizes all three by pixel size and byte count (recorded in `googlebooks-placeholder*.png`), and they count as no cover. In a sample of 8 volumes on 2026-11-15, 2 had a real cover at `zoom=3`, the others only the 128 px thumbnail.
 - **Branding:** Google's rules ask for the "powered by Google" graphic next to results and a prominent link to the book's page on each. The edition picker shows both for Google results. The rules also forbid reordering or filtering results; the app filters to printed matches and shows newest first, like for the other sources. This is a deliberate reading for a lookup aid.
 - **Lists are never truncated:** Google's `totalItems` is an estimate and answers stop at 40, so "100 newest records" would be wrong (`LookupSource.maximumListedRecords`).
 - Phase 2's sandbox needs `com.apple.security.network.client` (already noted above). A proper signature also allows the data protection keychain (`kSecUseDataProtectionKeychain` with a `keychain-access-groups` entitlement), which avoids the per-build prompt.
@@ -203,13 +207,12 @@ A chat window, like Claude Desktop, for researching book recommendations. The us
 
 ## Build and test
 
-Following swell and fluff:
-
 | Command | Result |
 |---|---|
 | `make` / `make build` | `swift build -c release` → `.build/release/buchhalter`, rebuilt only when sources changed |
 | `make app` | `build/Buchhalter.app` (binary + `Resources/Info.plist` + `AppIcon.icns` + `PoweredByGoogle.png` + compiled catalog), ad-hoc signed with `codesign --sign -`, registered with `lsregister -f` |
 | `make install` | Copies the bundle to `/Applications/Buchhalter.app`, unregisters the build copy. Only on the user's request |
+| `make cli` | `swift build -c release --product buchhalter-cli` → `build/buchhalter-cli`. `build/buchhalter-cli help` lists the commands; the user runs it on the real library with Buchhalter closed |
 | `make test` / `swift test` | `BuchhalterCore` tests, including the catalog test |
 | `make strings` | Extracts the texts through the compiler and syncs them into `Resources/Localizable.xcstrings` |
 | `make isbn-ranges` | Downloads the International ISBN Agency's range message to `build/RangeMessage.xml` and regenerates `Sources/BuchhalterCore/Logic/ISBNRanges.swift` (committed). Run it when new ISBN ranges matter |

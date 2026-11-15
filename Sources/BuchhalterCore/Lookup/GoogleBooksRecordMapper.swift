@@ -122,11 +122,20 @@ enum GoogleBooksRecordMapper {
 /// the "image not available" picture recognized.
 enum GoogleBooksCover {
     /// The content URL of a volume's cover. `zoom=1` is a small image.
-    static func smallURL(volumeID: String) -> URL? {
+    static func smallURL(volumeID: String) -> URL? { contentURL(volumeID: volumeID, zoom: 1) }
+
+    /// The zoom levels tried for a large cover, largest first: 3 is about
+    /// 575 px wide, 2 about 300 px. Many volumes answer them with the
+    /// placeholder, so each result is checked; the single-volume answer's
+    /// links (often only the 128 px thumbnail) are the fallback.
+    static let largeZooms = [3, 2]
+
+    /// A volume's cover at a zoom level. Needs no key.
+    static func contentURL(volumeID: String, zoom: Int) -> URL? {
         var components = URLComponents(string: "https://books.google.com/books/content")
         components?.queryItems = [
             URLQueryItem(name: "id", value: volumeID), URLQueryItem(name: "printsec", value: "frontcover"),
-            URLQueryItem(name: "img", value: "1"), URLQueryItem(name: "zoom", value: "1"),
+            URLQueryItem(name: "img", value: "1"), URLQueryItem(name: "zoom", value: String(zoom)),
             URLQueryItem(name: "source", value: "gbs_api"),
         ]
         return components?.url
@@ -152,19 +161,21 @@ enum GoogleBooksCover {
 
     // MARK: Placeholder
 
-    /// The "image not available" picture Google serves for a volume without a
-    /// cover: a 128 x 170 grayscale PNG of 1269 bytes, recorded in the
-    /// fixture `googlebooks-placeholder.png`. Matching size and byte count
-    /// recognize it; a real cover has neither.
-    static let placeholderPixelSize = (width: 128, height: 170)
-    static let placeholderByteCount = 1269
+    /// The "image not available" pictures Google serves for a volume without
+    /// a cover, one per size: 128 x 170 (1269 bytes, zoom 1), 300 x 391
+    /// (15567 bytes, zoom 2) and 575 x 750 (9103 bytes, zoom 3), recorded in
+    /// the fixtures `googlebooks-placeholder*.png`. Matching size and byte
+    /// count recognize them; a real cover has neither.
+    static let placeholders: [(width: Int, height: Int, bytes: Int)] = [
+        (128, 170, 1269), (300, 391, 15567), (575, 750, 9103),
+    ]
 
     static func isPlaceholder(_ data: Data) -> Bool {
-        guard data.count == placeholderByteCount,
+        guard placeholders.contains(where: { $0.bytes == data.count }),
               let source = CGImageSourceCreateWithData(data as CFData, nil),
               let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
               let width = properties[kCGImagePropertyPixelWidth] as? Int,
               let height = properties[kCGImagePropertyPixelHeight] as? Int else { return false }
-        return width == placeholderPixelSize.width && height == placeholderPixelSize.height
+        return placeholders.contains { $0.width == width && $0.height == height && $0.bytes == data.count }
     }
 }
