@@ -93,7 +93,7 @@ Enums are stored as their `String` raw value, so an unknown value from a newer a
 - If the store cannot be opened, the app shows an alert with the path and the error, logs it to stderr and quits. It never deletes, moves or recreates `library.store`.
 - At launch the app logs `library: <path>` to stderr.
 - Phase 2 turns on `cloudKitDatabase: .private(<container id>)` in the `ModelConfiguration`. Before the first sync, the existing local store is backed up next to itself.
-- Export to a plain file (JSON or CSV) comes early, so the user's data never depends on the store alone.
+- Until phase 2 the library exists only on this Mac. iCloud sync is its only protection: there is no file export and no separate backup (see Decisions, 20).
 
 ## Data flow
 
@@ -227,6 +227,7 @@ BUCHHALTER_HOME=<folder> build/Buchhalter.app/Contents/MacOS/Buchhalter 2> <fold
 17. **The merge is derived, not flagged.** `LookupResult` keeps the draft before Complete and the record's values; highlights, notes and Undo are functions of that and the current draft, so they cannot drift from what the user edits.
 18. **ISBN hyphens from the official range table, generated into code.** Hyphen positions depend on the registration group and the publisher, so no fixed pattern is right. `make isbn-ranges` downloads the International ISBN Agency's `export_rangemessage.xml` and `Scripts/make-isbn-ranges.swift` writes `Logic/ISBNRanges.swift` (one text table, parsed once), which is committed: no package resources, no network at build time. An ISBN outside known ranges prints as the prefix and ten digits.
 19. **Half stars as a new attribute, not a changed one.** `Reading.stars: Double?` sits next to SchemaV1's `rating: Int?` instead of changing its type: a type change is not allowed once CloudKit sync is on, and a lightweight-compatible additive change plus one copy in `didMigrate` keeps the old value.
+20. **Sync, no export and no backup.** The user decided on 2026-11-15 to rely on iCloud sync (phase 2), the way Health or Notes keep their data in iCloud. Sync protects against losing a device, not against a mistake: a deletion reaches iCloud within seconds. That trade-off is accepted; no file export, no in-app backup.
 
 ## Open points
 
