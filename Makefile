@@ -8,7 +8,7 @@ SOURCES    := $(shell find Sources -name '*.swift') Package.swift
 
 .DEFAULT_GOAL := build
 
-.PHONY: build app install test strings clean
+.PHONY: build app install test strings icon clean
 
 # Rebuilt only when a source file is newer than the binary.
 $(BIN): $(SOURCES)
@@ -18,11 +18,12 @@ build: $(BIN)
 
 # The binary, Info.plist and the compiled catalog (en.lproj, de.lproj),
 # ad-hoc signed. Texts live in the main bundle, so SwiftUI and the core find them.
-app: $(BIN) $(CATALOG) Resources/Info.plist
+app: $(BIN) $(CATALOG) Resources/Info.plist Resources/AppIcon.icns
 	rm -rf $(APP)
 	mkdir -p $(APP)/Contents/MacOS $(APP)/Contents/Resources
 	cp $(BIN) $(APP)/Contents/MacOS/Buchhalter
 	cp Resources/Info.plist $(APP)/Contents/Info.plist
+	cp Resources/AppIcon.icns $(APP)/Contents/Resources/AppIcon.icns
 	$(XCSTRINGSTOOL) compile $(CATALOG) --output-directory $(APP)/Contents/Resources
 	codesign --force --sign - $(APP)
 	$(LSREGISTER) -f $(APP)
@@ -49,6 +50,14 @@ strings:
 	swift build --scratch-path build/strings-build \
 		-Xswiftc -emit-localized-strings -Xswiftc -emit-localized-strings-path -Xswiftc $(STRINGS_DIR)
 	$(XCSTRINGSTOOL) sync $(CATALOG) --stringsdata $(STRINGS_DIR)/*.stringsdata
+
+# Redraws the app icon (Scripts/make-icon.swift) into Resources/AppIcon.icns,
+# which is committed, so `make app` needs no drawing step.
+icon:
+	rm -rf build/AppIcon.iconset
+	mkdir -p build
+	swift Scripts/make-icon.swift build/AppIcon.iconset
+	iconutil -c icns build/AppIcon.iconset -o Resources/AppIcon.icns
 
 clean:
 	rm -rf .build build

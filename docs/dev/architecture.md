@@ -38,6 +38,9 @@ Makefile
 Resources/
   Info.plist            CFBundleLocalizations en, de; exported type local.buchhalter.book
   Localizable.xcstrings the one String Catalog, English and German
+  AppIcon.icns          the app icon, drawn by Scripts/make-icon.swift (committed)
+Scripts/
+  make-icon.swift       draws the icon iconset; `make icon` builds AppIcon.icns
 Sources/
   BuchhalterCore/
     Model/              @Model types in SchemaV1, migration plan, enums, derived helpers
@@ -167,10 +170,11 @@ Following swell and fluff:
 | Command | Result |
 |---|---|
 | `make` / `make build` | `swift build -c release` → `.build/release/buchhalter`, rebuilt only when sources changed |
-| `make app` | `build/Buchhalter.app` (binary + `Resources/Info.plist` + compiled catalog), ad-hoc signed with `codesign --sign -`, registered with `lsregister -f` |
+| `make app` | `build/Buchhalter.app` (binary + `Resources/Info.plist` + `AppIcon.icns` + compiled catalog), ad-hoc signed with `codesign --sign -`, registered with `lsregister -f` |
 | `make install` | Copies the bundle to `/Applications/Buchhalter.app`, unregisters the build copy. Only on the user's request |
 | `make test` / `swift test` | `BuchhalterCore` tests, including the catalog test |
 | `make strings` | Extracts the texts through the compiler and syncs them into `Resources/Localizable.xcstrings` |
+| `make icon` | Redraws the app icon with `Scripts/make-icon.swift` and builds `Resources/AppIcon.icns` with `iconutil`. The artwork is full-bleed and opaque, because macOS 26 and later mask such an icon to their rounded square and shrink an icon with its own margin onto a grey plate |
 
 The user starts the app: `open build/Buchhalter.app` runs it on the real library, and manual checks happen there. Agents build and do not start it. For German: `open build/Buchhalter.app --args -AppleLanguages '(de)' -AppleLocale de_DE`.
 
