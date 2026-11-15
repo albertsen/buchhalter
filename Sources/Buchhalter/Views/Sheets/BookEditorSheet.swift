@@ -7,6 +7,7 @@ struct BookEditorSheet: View {
     @Environment(\.library) private var library
     @Environment(\.dismiss) private var dismiss
     @Environment(\.locale) private var locale
+    @Environment(\.bookLookup) private var bookLookup
     var model: WindowModel
     /// Nil for Add Book.
     var editing: Book?
@@ -18,6 +19,7 @@ struct BookEditorSheet: View {
     @State private var pendingAuthor = ""
     @State private var duplicates: DuplicateIndex
     @State private var usedLanguages: [String]
+    @State private var lookup = LookupModel()
     @FocusState private var isbnFocused: Bool
     @State private var isbnLeft = false
 
@@ -44,6 +46,39 @@ struct BookEditorSheet: View {
     private var isEditing: Bool { editing != nil }
     private var duplicate: DuplicateIndex.Entry? { duplicates.match(for: draft) }
 
+    // MARK: Lookup
+
+    /// What Complete would search for, or nil while the sheet has too little.
+    private var lookupQuery: LookupQuery? { LookupQuery(draft: draft, pendingAuthor: pendingAuthor) }
+
+    private func isFilled(_ field: LookupField) -> Bool {
+        lookup.result?.isHighlighted(field, in: draft) ?? false
+    }
+
+    /// The note under a field whose value differs from the found one.
+    @ViewBuilder
+    private func offerNote(_ field: LookupField) -> some View {
+        if let result = lookup.result, result.showsOffer(field, in: draft) {
+            let messages = LookupMessages(locale: locale)
+            let value = result.offerValue(field, formatting: BookFormatting(locale: locale))
+            LookupOfferNote(label: messages.offerLabel(source: result.source, value: value)) {
+                lookup.use(field, draft: &draft)
+            }
+        }
+    }
+
+    private var coverOffer: (label: String, action: () -> Void)? {
+        guard let result = lookup.result, result.showsOffer(.cover, in: draft) else { return nil }
+        return (LookupMessages(locale: locale).coverOffer(source: result.source), { lookup.use(.cover, draft: &draft) })
+    }
+
+    private func complete() {
+        guard let library else { return }
+        commitPendingAuthor(library)
+        guard let query = LookupQuery(draft: draft) else { return }
+        lookup.start(query, draft: $draft, using: bookLookup, library: library)
+    }
+
     // MARK: ISBN
 
     private var isbnCheck: ISBN.Check { ISBN.parse(draft.isbnText) }
@@ -62,27 +97,26 @@ struct BookEditorSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text(isEditing ? "Edit Book" : "Add Book")
-                .font(.system(size: 17, weight: .semibold))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 24)
-                .padding(.top, 20)
-                .padding(.bottom, 8)
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    form
-                    if let duplicate { duplicateBanner(duplicate) }
-                }
-                .padding(.horizontal, 24)
-                // The ScrollView clips to its bounds; the top inset keeps the
-                // first field's focus ring visible.
-                .padding(.top, 4)
-                .padding(.bottom, 12)
+            LookupHeader(
+                title: isEditing ? "Edit Book" : "Add Book", lookup: lookup, canComplete: lookupQuery != nil,
+                complete: complete, stop: { lookup.stop() }, undo: { lookup.undo(draft: &draft) }
+            )
+            // No ScrollView: the sheet grows with the banner, hints and notes,
+            // so every field stays in view.
+            VStack(alignment: .leading, spacing: 14) {
+                form
+                if let duplicate { duplicateBanner(duplicate) }
             }
+            .padding(.horizontal, 24)
+            .padding(.top, 4)
+            .padding(.bottom, 12)
             Divider()
             HStack {
                 Spacer()
-                Button("Cancel") { dismiss() }
+                Button("Cancel") {
+                    lookup.stop()
+                    dismiss()
+                }
                     .keyboardShortcut(.cancelAction)
                 Button(isEditing ? "Save" : "Add Book") { save() }
                     .keyboardShortcut(.defaultAction)
@@ -92,14 +126,43 @@ struct BookEditorSheet: View {
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
         }
-        .frame(width: 620)
-        .frame(minHeight: 420, idealHeight: 640, maxHeight: 760)
+        .frame(width: 650)
+        .fixedSize(horizontal: false, vertical: true)
         .onChange(of: draft.status) { _, status in
             if status == .reading, draft.startedAt == nil {
                 draft.startedAt = Calendar.current.startOfDay(for: .now)
             }
         }
-        .onChange(of: isbnFocused) { _, focused in if !focused { isbnLeft = true } }
+        .onChange(of: isbnFocused) { _, focused in
+            guard !focused else { return }
+            isbnLeft = true
+            // A valid ISBN takes its one hyphenated form as soon as the field is left.
+            let formatted = ISBN.formatted(draft.isbnText)
+            if formatted != draft.isbnText { draft.isbnText = formatted }
+        }
+        // A hint goes away when what it is about changes.
+        .onChange(of: draft.title) { lookup.clearHint() }
+        .onChange(of: draft.authors) { lookup.clearHint() }
+        .onChange(of: draft.isbnText) { lookup.clearHint() }
+        .onDisappear { lookup.stop() }
+        .sheet(isPresented: Binding(
+            get: { lookup.editions != nil },
+            set: { if !$0 { lookup.cancelEditions() } }
+        )) { editionPicker }
+    }
+
+    @ViewBuilder
+    private var editionPicker: some View {
+        if let list = lookup.editions, let query = lookup.query {
+            EditionPickerSheet(
+                list: list, query: query,
+                use: { record in
+                    guard let library else { return }
+                    lookup.choose(record, draft: $draft, using: bookLookup, library: library)
+                },
+                cancel: { lookup.cancelEditions() }
+            )
+        }
     }
 
     // MARK: Fields
@@ -119,38 +182,63 @@ struct BookEditorSheet: View {
     @ViewBuilder
     private var fields: some View {
         row("Title") {
-            TextField("Title", text: $draft.title).labelsHidden()
+            noted(.title) {
+                TextField("Title", text: $draft.title).labelsHidden().lookupFilled(isFilled(.title))
+            }
         }
         row("Subtitle") {
-            TextField("Optional", text: $draft.subtitle).labelsHidden()
+            noted(.subtitle) {
+                TextField("Optional", text: $draft.subtitle).labelsHidden().lookupFilled(isFilled(.subtitle))
+            }
         }
         row("Authors") {
-            AuthorField(authors: $draft.authors, pendingName: $pendingAuthor)
+            noted(.authors) {
+                AuthorField(authors: $draft.authors, pendingName: $pendingAuthor)
+                    // The highlight gets room around the chips without moving the layout.
+                    .padding(.horizontal, 4)
+                    .padding(.vertical, 3)
+                    .lookupFilled(isFilled(.authors))
+                    .padding(.horizontal, -4)
+                    .padding(.vertical, -3)
+            }
         }
         row("Year") {
-            HStack(spacing: 12) {
-                TextField("Year", text: $draft.yearText)
-                    .labelsHidden()
-                    .frame(width: 70)
-                    .overlay(alignment: .trailing) { invalidMark(draft.issues.contains(.invalidYear)) }
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                noted(.year) {
+                    TextField("Year", text: $draft.yearText)
+                        .labelsHidden()
+                        .frame(width: 70)
+                        .overlay(alignment: .trailing) { invalidMark(draft.issues.contains(.invalidYear)) }
+                        .lookupFilled(isFilled(.year))
+                }
                 Text("Pages").foregroundStyle(.secondary)
-                TextField("Pages", text: $draft.pagesText)
-                    .labelsHidden()
-                    .frame(width: 70)
-                    .overlay(alignment: .trailing) { invalidMark(draft.issues.contains(.invalidPages)) }
+                noted(.pages) {
+                    TextField("Pages", text: $draft.pagesText)
+                        .labelsHidden()
+                        .frame(width: 70)
+                        .overlay(alignment: .trailing) { invalidMark(draft.issues.contains(.invalidPages)) }
+                        .lookupFilled(isFilled(.pages))
+                }
                 Spacer(minLength: 0)
             }
         }
         row("Language") {
-            HStack(spacing: 12) {
-                languagePicker("Language", selection: $draft.language)
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                noted(.language) {
+                    languagePicker("Language", selection: $draft.language).lookupFilled(isFilled(.language))
+                }
                 Text("Original Language").foregroundStyle(.secondary)
-                languagePicker("Original Language", selection: $draft.originalLanguage)
+                noted(.originalLanguage) {
+                    languagePicker("Original Language", selection: $draft.originalLanguage)
+                        .lookupFilled(isFilled(.originalLanguage))
+                }
                 Spacer(minLength: 0)
             }
         }
         row("Publisher") {
-            TextField("Optional", text: $draft.publisher).labelsHidden()
+            noted(.publisher) {
+                TextField("Optional", text: $draft.publisher).labelsHidden().lookupFilled(isFilled(.publisher))
+            }
         }
         row("ISBN") {
             VStack(alignment: .leading, spacing: 3) {
@@ -161,19 +249,30 @@ struct BookEditorSheet: View {
                         RoundedRectangle(cornerRadius: 5)
                             .strokeBorder(Theme.error, lineWidth: showISBNError ? 1.5 : 0)
                     }
+                    .lookupFilled(isFilled(.isbn))
                     .accessibilityLabel("ISBN")
                 if showISBNError {
                     Text("This ISBN is not valid. Check the last digit.")
                         .font(.system(size: 12))
                         .foregroundStyle(Theme.error)
                 }
+                offerNote(.isbn)
             }
         }
         row("Cover") {
             CoverPicker(
                 coverData: $draft.coverData, title: draft.title,
-                author: draft.authors.map(\.name).joined(separator: ", ")
+                author: draft.authors.map(\.name).joined(separator: ", "),
+                highlighted: isFilled(.cover), offer: coverOffer
             )
+        }
+    }
+
+    /// A field with the lookup's offer note under it.
+    private func noted<Content: View>(_ field: LookupField, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 3) {
+            content()
+            offerNote(field)
         }
     }
 
@@ -227,12 +326,12 @@ struct BookEditorSheet: View {
         switch draft.status {
         case .reading:
             row("Started") {
-                DatePicker("Started", selection: startedBinding, displayedComponents: .date).labelsHidden()
+                DateField(label: "Started", date: startedBinding)
             }
         case .read:
             row("Started") { OptionalDatePicker(date: $draft.startedAt) }
             row("Finished on") {
-                DatePicker("Finished", selection: $draft.finishedAt, displayedComponents: .date).labelsHidden()
+                DateField(label: "Finished", date: $draft.finishedAt)
             }
             if draft.issues.contains(.finishBeforeStart) {
                 GridRow {
@@ -254,6 +353,9 @@ struct BookEditorSheet: View {
             EmptyView()
         }
         row("Collections") { collectionChips }
+        row("Date Added") {
+            DateField(label: "Date Added", date: $draft.addedAt, through: Date.now)
+        }
     }
 
     private var startedBinding: Binding<Date> {
@@ -320,14 +422,22 @@ struct BookEditorSheet: View {
 
     private func save(ignoringDuplicate: Bool = false) {
         guard let library else { return }
+        // A running lookup ends here; the book is saved with what the user entered.
+        lookup.stop()
         commitPendingAuthor(library)
         guard draft.canSave, ignoringDuplicate || duplicate == nil else { return }
         model.attempt {
             if let editing {
                 try library.updateBook(editing, with: draft)
             } else {
-                let book = try library.addBook(draft)
-                onAdded(book.id)
+                // Origin and lookup id only when something from the lookup is still in the draft.
+                if let result = lookup.result, result.hasHighlight(in: draft) {
+                    let book = try library.addBook(draft, origin: .lookup, originNote: result.recordID)
+                    onAdded(book.id)
+                } else {
+                    let book = try library.addBook(draft)
+                    onAdded(book.id)
+                }
             }
             dismiss()
         }
@@ -357,10 +467,9 @@ struct OptionalDatePicker: View {
             .toggleStyle(.checkbox)
             .labelsHidden()
             if date != nil {
-                DatePicker("Date", selection: Binding(
+                DateField(label: "Date", date: Binding(
                     get: { date ?? .now }, set: { date = $0 }
-                ), displayedComponents: .date)
-                .labelsHidden()
+                ))
             } else {
                 Text("Optional").foregroundStyle(.secondary)
             }

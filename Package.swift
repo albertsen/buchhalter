@@ -26,6 +26,8 @@ let package = Package(
         .testTarget(
             name: "BuchhalterCoreTests",
             dependencies: ["BuchhalterCore"],
+            // The fixtures are read through #filePath, not as package resources.
+            exclude: ["Fixtures"],
             swiftSettings: [.swiftLanguageMode(.v6)]
         ),
     ]

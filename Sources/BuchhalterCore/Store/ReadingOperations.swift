@@ -8,7 +8,7 @@ extension Library {
     /// Only a book that is being read can be finished. The finish date is the
     /// only required field; it cannot be before the start.
     public func finishReading(
-        _ book: Book, on date: Date, rating: Int?, notes: String?
+        _ book: Book, on date: Date, rating: Double?, notes: String?
     ) throws {
         guard let reading = book.currentReading, reading.status == .reading else {
             throw LibraryError.noOpenReading
@@ -18,7 +18,7 @@ extension Library {
         try change("Finish Reading") {
             reading.statusRaw = ReadingStatus.finished.rawValue
             reading.endedAt = date
-            reading.rating = rating
+            reading.stars = rating
             reading.notes = trimmedOrNil(notes)
         }
     }
@@ -50,14 +50,14 @@ extension Library {
     // MARK: Edit and delete
 
     public func updateReading(
-        _ reading: Reading, startedAt: Date?, endedAt: Date?, rating: Int?, notes: String?
+        _ reading: Reading, startedAt: Date?, endedAt: Date?, rating: Double?, notes: String?
     ) throws {
         try validate(rating: rating)
         if let start = startedAt, let end = endedAt, end < start { throw LibraryError.finishBeforeStart }
         try change("Edit Reading") {
             reading.startedAt = startedAt
             reading.endedAt = endedAt
-            reading.rating = rating
+            reading.stars = rating
             reading.notes = trimmedOrNil(notes)
         }
     }
@@ -121,14 +121,14 @@ extension Library {
             guard let current, current.status != .abandoned else {
                 let reading = newReading(for: book, status: .finished, startedAt: draft.startedAt)
                 reading.endedAt = draft.finishedAt
-                reading.rating = draft.rating
+                reading.stars = draft.rating
                 reading.notes = notes
                 return
             }
             current.statusRaw = ReadingStatus.finished.rawValue
             current.startedAt = draft.startedAt
             current.endedAt = draft.finishedAt
-            current.rating = draft.rating
+            current.stars = draft.rating
             current.notes = notes
         }
     }
@@ -143,7 +143,9 @@ extension Library {
         return reading
     }
 
-    func validate(rating: Int?) throws {
-        if let rating, !(1...5).contains(rating) { throw LibraryError.invalidRating }
+    /// A rating is 0.5 to 5 stars in half steps.
+    func validate(rating: Double?) throws {
+        guard let rating else { return }
+        if !(0.5...5).contains(rating) || (rating * 2).rounded() != rating * 2 { throw LibraryError.invalidRating }
     }
 }

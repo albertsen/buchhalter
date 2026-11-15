@@ -17,6 +17,10 @@ struct RootView: View {
     @Query private var settings: [ListSettings]
 
     @AppStorage("selectedList") private var selectedListRaw = LibraryListID.all.rawValue
+    /// The selected book and, in grid mode, the book whose detail is open, so
+    /// the window comes back as it was left.
+    @AppStorage("selectedBook") private var selectedBookRaw = ""
+    @AppStorage("openBook") private var openBookRaw = ""
     @State private var model = WindowModel()
     @FocusState private var searchFocused: Bool
 
@@ -96,8 +100,8 @@ struct RootView: View {
         .searchFocused($searchFocused)
         .toolbar {
             LibraryToolbar(
-                listName: listName, preferences: preferences,
-                onSort: { levels in model.attempt { try library.setSortLevels(levels, for: listID) } },
+                preferences: preferences,
+                onSort: { levels in model.attempt { try library.setSortLevels(levels) } },
                 onViewMode: { mode in
                     model.attempt { try library.setViewMode(mode, for: listID) }
                     model.gridPath = []
@@ -138,6 +142,9 @@ struct RootView: View {
             model.selectedBookID = nil
             model.gridPath = []
         }
+        .onAppear { restoreSelection() }
+        .onChange(of: model.selectedBookID) { _, id in selectedBookRaw = id?.uuidString ?? "" }
+        .onChange(of: model.gridPath) { _, path in openBookRaw = path.last?.uuidString ?? "" }
         .onReceive(NotificationCenter.default.publisher(for: .selectCollection)) { note in
             if let id = note.object as? UUID { selectedListRaw = LibraryListID.collection(id).rawValue }
         }
@@ -216,6 +223,16 @@ struct RootView: View {
     }
 
     private func book(_ id: UUID) -> Book? { books.first { $0.id == id } }
+
+    /// Selects the book saved at the last quit, and reopens its detail in grid
+    /// mode, if it still exists and is in the selected list.
+    private func restoreSelection() {
+        let visible = Set(listBooks.map(\.id))
+        if let id = UUID(uuidString: selectedBookRaw), visible.contains(id) { model.selectedBookID = id }
+        if preferences.viewMode == .grid, let id = UUID(uuidString: openBookRaw), visible.contains(id) {
+            model.gridPath = [id]
+        }
+    }
 
     /// Selects a book, switching to All Books when the current list (or the
     /// search) would hide it.

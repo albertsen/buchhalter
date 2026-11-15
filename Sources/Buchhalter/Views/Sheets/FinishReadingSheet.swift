@@ -9,7 +9,7 @@ struct FinishReadingSheet: View {
     var model: WindowModel
     var book: Book
     @State private var finishedAt = Calendar.current.startOfDay(for: .now)
-    @State private var rating: Int?
+    @State private var rating: Double?
     @State private var notes = ""
 
     var body: some View {
@@ -27,8 +27,7 @@ struct FinishReadingSheet: View {
                 }
                 GridRow(alignment: .firstTextBaseline) {
                     label("Finished on")
-                    DatePicker("Finished", selection: $finishedAt, in: (started ?? .distantPast)..., displayedComponents: .date)
-                        .labelsHidden()
+                    DateField(label: "Finished", date: $finishedAt, range: (started ?? .distantPast)...)
                 }
                 GridRow(alignment: .firstTextBaseline) {
                     label("Rating")

@@ -15,7 +15,7 @@ struct BookOperationsTests {
         #expect(reading.currentReading?.startedAt == date(2026, 10, 3))
         #expect(read.status == .finished)
         #expect(read.currentReading?.endedAt == date(2026, 2, 1))
-        #expect(read.currentReading?.rating == 4)
+        #expect(read.currentReading?.stars == 4)
         #expect(read.currentReading?.notes == "Nice")
         #expect(want.originRaw == "manual")
     }
@@ -191,5 +191,77 @@ struct BookOperationsTests {
         #expect(book.coverImage == Data([9, 9]))
         try t.library.setCover(nil, for: book)
         #expect(book.coverImage == nil)
+    }
+    // MARK: Lookup
+
+    @Test func lookupAuthorsReuseAnExistingAuthorWithItsSortName() throws {
+        let t = try TestLibrary()
+        let book = try t.add("A", by: ["Thomas Mann"])
+        let author = try #require(book.orderedAuthors.first)
+        try t.library.setSortName("Mann, Thomas (Autor)", for: author)
+        let drafts = t.library.lookupAuthors([
+            LookupAuthor(name: "thomas mann", sortName: "Mann, Thomas"),
+            LookupAuthor(name: "Thomas Mann"),
+        ])
+        #expect(drafts.count == 1)
+        #expect(drafts.first?.name == "Thomas Mann")
+        #expect(drafts.first?.sortName == "Mann, Thomas (Autor)")
+        #expect(drafts.first?.isExisting == true)
+    }
+
+    @Test func lookupAuthorsGiveNewAuthorsTheHeadingSortNameOrAGuess() throws {
+        let t = try TestLibrary()
+        let drafts = t.library.lookupAuthors([
+            LookupAuthor(name: "Ryū Murakami", sortName: "Murakami, Ryū"),
+            LookupAuthor(name: "John Williams"),
+        ])
+        #expect(drafts.map(\.name) == ["Ryū Murakami", "John Williams"])
+        #expect(drafts.map(\.sortName) == ["Murakami, Ryū", "Williams, John"])
+        #expect(drafts.allSatisfy { !$0.isExisting })
+        // Nothing was inserted.
+        #expect(try t.context.fetchCount(FetchDescriptor<Author>()) == 0)
+    }
+
+    @Test func addWithLookupOriginStoresItAndUndoRedoRestoresIt() throws {
+        let t = try TestLibrary(undo: true)
+        var draft = BookDraft()
+        draft.title = "Piercing"
+        let book = try t.library.addBook(draft, origin: .lookup, originNote: "dnb:991442512")
+        #expect(book.originRaw == "lookup")
+        #expect(book.originNote == "dnb:991442512")
+
+        t.undo?.undo()
+        #expect(try t.context.fetchCount(FetchDescriptor<Book>()) == 0)
+        t.undo?.redo()
+        let restored = try #require(try t.context.fetch(FetchDescriptor<Book>()).first)
+        #expect(restored.originRaw == "lookup")
+        #expect(restored.originNote == "dnb:991442512")
+    }
+}
+
+@MainActor
+struct DateAddedTests {
+    @Test func dateAddedIsSetEditedAndUndone() throws {
+        let t = try TestLibrary(undo: true)
+        let book = try t.add("A")
+        #expect(abs(book.addedAt.timeIntervalSinceNow) < 60)
+        var draft = BookDraft(book: book)
+        #expect(draft.addedAt == book.addedAt)
+        let before = book.addedAt
+        draft.addedAt = date(2019, 5, 1)
+        try t.library.updateBook(book, with: draft)
+        #expect(book.addedAt == date(2019, 5, 1))
+        t.undo?.undo()
+        #expect(book.addedAt == before)
+    }
+
+    @Test func addingWithAnEarlierDay() throws {
+        let t = try TestLibrary()
+        var draft = BookDraft()
+        draft.title = "Old shelf book"
+        draft.addedAt = date(2020, 1, 15)
+        let book = try t.library.addBook(draft)
+        #expect(book.addedAt == date(2020, 1, 15))
+        #expect(BookFormatting(locale: Locale(identifier: "en"), timeZone: .current).added(book).hasPrefix("Added "))
     }
 }

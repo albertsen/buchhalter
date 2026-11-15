@@ -36,13 +36,14 @@ struct BookDetailView: View {
                         }
                         let authors = book.orderedAuthors.map(\.name).joined(separator: ", ")
                         if !authors.isEmpty { Text(authors).font(.system(size: 15)) }
-                        let meta = formatting.metaLine(book)
-                        if !meta.isEmpty {
-                            Text(meta)
-                                .font(.system(size: 12))
-                                .foregroundStyle(.secondary)
-                                .padding(.top, 4)
+                        VStack(alignment: .leading, spacing: 2) {
+                            let meta = formatting.metaLine(book)
+                            if !meta.isEmpty { Text(meta) }
+                            Text(formatting.added(book))
                         }
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 4)
                         if let reading = book.currentReading {
                             StatusBadge(reading: reading).padding(.top, 8)
                         }

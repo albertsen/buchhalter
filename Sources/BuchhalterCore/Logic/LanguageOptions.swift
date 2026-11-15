@@ -14,6 +14,14 @@ public enum LanguageOptions {
         return (usedCodes, others)
     }
 
+    /// True for a code the Language popups offer: two letters, in the ISO 639
+    /// list, with a name in the locale. A lookup leaves the field alone for any other.
+    public static func isOffered(_ code: String, locale: Locale = .current) -> Bool {
+        code.count == 2
+            && Locale.LanguageCode.isoLanguageCodes.contains { $0.identifier == code }
+            && locale.localizedString(forLanguageCode: code) != nil
+    }
+
     public static func name(_ code: String, _ locale: Locale = .current) -> String {
         locale.localizedString(forLanguageCode: code) ?? code
     }

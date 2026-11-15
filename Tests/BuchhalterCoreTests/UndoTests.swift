@@ -34,7 +34,7 @@ struct UndoTests {
         let books = t.library.fetchBooks().sorted { $0.title < $1.title }
         let lines = books.map { book -> String in
             let readings = book.readingsByCreation.map {
-                "\($0.statusRaw)/\($0.startedAt?.timeIntervalSince1970 ?? -1)/\($0.endedAt?.timeIntervalSince1970 ?? -1)/\($0.rating ?? 0)/\($0.notes ?? "")"
+                "\($0.statusRaw)/\($0.startedAt?.timeIntervalSince1970 ?? -1)/\($0.endedAt?.timeIntervalSince1970 ?? -1)/\($0.stars ?? 0)/\($0.notes ?? "")"
             }.joined(separator: ";")
             let authors = book.orderedAuthors.map { "\($0.name)=\($0.sortName)" }.joined(separator: ";")
             let collections = (book.collections ?? []).map(\.name).sorted().joined(separator: ";")
@@ -136,8 +136,8 @@ struct UndoTests {
         let t = try TestLibrary(undo: true)
         let undo = try #require(t.undo)
         try t.library.setViewMode(.grid, for: .all)
-        try t.library.setSortLevels(SortLevels(levels: [SortLevel(field: .title)]), for: .all)
-        try t.library.resetSort(for: .reading)
+        try t.library.setSortLevels(SortLevels(levels: [SortLevel(field: .title)]))
+        try t.library.resetSort()
         #expect(!undo.canUndo)
         // And the settings survive an undo of an earlier data change.
         try t.add("A")

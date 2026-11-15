@@ -72,7 +72,7 @@ struct UndoPersistenceTests {
             var draft = BookDraft(book: book)
             draft.status = nil
             try t.library.updateBook(book, with: draft)
-        }, before: ["wantToRead|rating:0|"], after: [])
+        }, before: ["wantToRead|rating:0.0|"], after: [])
     }
 
     @Test func finishReading() throws {
@@ -80,7 +80,7 @@ struct UndoPersistenceTests {
         let book = try t.add("A", status: .reading, started: date(2026, 10, 3))
         try values(t, { $0.readingSummary() }, {
             try t.library.finishReading(book, on: date(2026, 11, 1), rating: 4, notes: "Good")
-        }, before: ["reading|rating:0|"], after: ["finished|rating:4|Good"])
+        }, before: ["reading|rating:0.0|"], after: ["finished|rating:4.0|Good"])
     }
 
     @Test func abandonReading() throws {
@@ -88,7 +88,7 @@ struct UndoPersistenceTests {
         let book = try t.add("A", status: .reading, started: date(2026, 10, 3))
         try values(t, { $0.readingSummary() }, {
             try t.library.abandonReading(book, on: date(2026, 11, 5), notes: "Boring")
-        }, before: ["reading|rating:0|"], after: ["abandoned|rating:0|Boring"])
+        }, before: ["reading|rating:0.0|"], after: ["abandoned|rating:0.0|Boring"])
     }
 
     @Test func setCoverAndDeleteBookKeepTheirBytes() throws {
@@ -118,7 +118,7 @@ private extension ModelContext {
 
     func readingSummary() -> [String] {
         ((try? fetch(FetchDescriptor<Reading>())) ?? []).map {
-            "\($0.statusRaw)|rating:\($0.rating ?? 0)|\($0.notes ?? "")"
+            "\($0.statusRaw)|rating:\($0.stars ?? 0)|\($0.notes ?? "")"
         }.sorted()
     }
 

@@ -26,6 +26,7 @@ struct BuchhalterApp: App {
         // One window, so one undo stack.
         Window("Buchhalter", id: "main") {
             RootView()
+                .restoresWindowFrame(named: "main")
         }
         .modelContainer(container)
         .commands {

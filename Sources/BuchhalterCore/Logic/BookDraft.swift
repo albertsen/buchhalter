@@ -38,12 +38,16 @@ public struct BookDraft: Equatable, Sendable {
     public var publisher = ""
     public var isbnText = ""
     public var coverData: Data?
+    /// When the book came into the library. Now for a new book; the user can
+    /// set an earlier day for books they had before.
+    public var addedAt = Date.now
     /// Nil for a book without readings or with an abandoned current reading:
     /// saving then leaves its readings alone.
     public var status: DraftStatus? = .wantToRead
     public var startedAt: Date?
     public var finishedAt: Date = Calendar.current.startOfDay(for: .now)
-    public var rating: Int?
+    /// Half stars, 0.5 to 5.0.
+    public var rating: Double?
     public var notes = ""
     public var collectionIDs: [UUID] = []
 
@@ -97,8 +101,10 @@ extension BookDraft {
         language = book.language
         originalLanguage = book.originalLanguage
         publisher = book.publisher ?? ""
-        isbnText = book.isbnText ?? ""
+        // Books saved before ISBNs were normalized show the hyphenated form too.
+        isbnText = ISBN.formatted(book.isbnText ?? "")
         coverData = book.coverImage
+        addedAt = book.addedAt
         collectionIDs = (book.collections ?? []).map(\.id)
         if let reading = book.currentReading {
             switch reading.status {
@@ -110,7 +116,7 @@ extension BookDraft {
                 status = .read
                 startedAt = reading.startedAt
                 finishedAt = reading.endedAt ?? finishedAt
-                rating = reading.rating
+                rating = reading.stars
                 notes = reading.notes ?? ""
             case .abandoned:
                 status = nil

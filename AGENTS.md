@@ -1,6 +1,6 @@
 # Buchhalter
 
-A personal app for keeping track of the books the user reads: what they own or want to read, what they are reading now, and what they finished, when, and what they thought of it. The user groups books into their own collections ("Read in 2026", "Classics to Read"). SwiftUI and SwiftData, Swift 6 toolchain, Swift Package Manager. macOS 27 first; one iOS 27 app for iPhone and iPad follows and shares the data through iCloud (CloudKit). The UI is in English and German. Planned for later, not in the first version: looking up book data and covers from a service, barcode scanning, and an AI assistant (a chat like Claude Desktop, using the Anthropic or OpenAI API) that researches recommendations and adds them to Want to Read or a collection. See the Roadmap in architecture.md and keep the code ready for them. A personal tool for one user: no App Store, no distribution.
+A personal app for keeping track of the books the user reads: what they own or want to read, what they are reading now, and what they finished, when, and what they thought of it. The user groups books into their own collections ("Read in 2026", "Classics to Read"). SwiftUI and SwiftData, Swift 6 toolchain, Swift Package Manager. macOS 27 first; one iOS 27 app for iPhone and iPad follows and shares the data through iCloud (CloudKit). The UI is in English and German. Book lookup (Complete in Add and Edit Book, from the Deutsche Nationalbibliothek and Open Library) is built. Planned for later: barcode scanning, and an AI assistant (a chat like Claude Desktop, using the Anthropic or OpenAI API) that researches recommendations and adds them to Want to Read or a collection. See the Roadmap in architecture.md and keep the code ready for them. A personal tool for one user: no App Store, no distribution.
 
 Read this before changing anything:
 
@@ -12,13 +12,14 @@ The architecture doc describes the current code and the intended direction. Spec
 
 | | |
 |---|---|
-| Status | Library feature built: books, readings, collections, sort, search, undo (`specs/done/library/`) |
+| Status | Library feature built: books, readings, collections, sort, search, undo (`specs/done/library/`). Book lookup built (`specs/done/book-lookup/`) |
 | Toolchain | Xcode 27.2, Swift 6.4.2, macOS 27 SDK |
-| Build | `make app` → `build/Buchhalter.app` (ad-hoc signed). `make install` → `/Applications/Buchhalter.app`. `make strings` syncs new texts into `Resources/Localizable.xcstrings` |
+| Build | `make app` → `build/Buchhalter.app` (ad-hoc signed). `make install` → `/Applications/Buchhalter.app`. `make strings` syncs new texts into `Resources/Localizable.xcstrings`. `make isbn-ranges` refreshes the ISBN range table |
 | Test | `swift test` (`BuchhalterCore` only) |
 | Run | The user runs `open build/Buchhalter.app` (real library). Agents only build |
 | Bundle id | `local.buchhalter` until iCloud sync arrives (see architecture.md, Phases) |
 | Library | `~/Library/Application Support/Buchhalter/` (SwiftData store). `$BUCHHALTER_HOME` overrides the folder |
+| Design | [Buchhalter design canvas](https://claude.ai/artifact/KWjhfRAqkfyM8d4sYB3ggT), one section per feature |
 | Branch | `main`, remote `origin` on GitHub |
 
 ## Rules
@@ -36,7 +37,7 @@ The architecture doc describes the current code and the intended direction. Spec
 ## How the user works
 
 - **Spec-driven workflow, design first.** Every new feature goes through these steps, in order:
-  1. `/dev:spec <name>` starts with a visual mockup of the feature as a Claude design artifact: the screens, their states (empty, loading, error, filled) and the interactions. The user iterates on it until it is right. Then it interviews the user and writes `specs/planned/<name>/spec.md`: the design link and the experience only (what the user sees and does), no architecture or code. The first design sets the app's visual language; later designs reuse it. Designs and specs use the English texts; the spec lists the German text next to each English one where the wording matters (menu items, buttons, status names), and the design leaves room for German, which runs about a third longer.
+  1. `/dev:spec <name>` starts with a visual mockup of the feature as a Claude design artifact: the screens, their states (empty, loading, error, filled) and the interactions. The user iterates on it until it is right. Then it interviews the user and writes `specs/planned/<name>/spec.md`: the design link and the experience only (what the user sees and does), no architecture or code. All designs live in one canvas, [Buchhalter design](https://claude.ai/artifact/KWjhfRAqkfyM8d4sYB3ggT), with one titled section per feature ("Library window", "Book Lookup"). A new feature adds its artboards there as a new section, never a new artifact, and reuses the visual language of the existing screens. Designs and specs use the English texts; the spec lists the German text next to each English one where the wording matters (menu items, buttons, status names), and the design leaves room for German, which runs about a third longer.
   2. `/dev:plan <name>` audits the code, researches frameworks against the installed versions, and writes `specs/planned/<name>/plan.md`: architecture decisions, components, interactions, changes by file, testing. Conceptual; snippets are directional and never compiled.
   3. `/dev:implement <name>` hands spec and plan to a Sonnet sub-agent that writes the code, builds and tests. The design artifact linked in the spec is the reference for the look.
   4. `/dev:archive <name>` updates the docs and moves the finished spec to `specs/done/<name>/`.

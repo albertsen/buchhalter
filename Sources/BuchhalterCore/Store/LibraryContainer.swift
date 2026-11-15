@@ -5,7 +5,7 @@ import SwiftData
 /// It never deletes, moves or overwrites an existing store: when the store
 /// cannot be opened, the error goes to the caller.
 public enum LibraryContainer {
-    public static var schema: Schema { Schema(versionedSchema: SchemaV1.self) }
+    public static var schema: Schema { Schema(versionedSchema: SchemaV2.self) }
 
     public static func make(at url: URL) throws -> ModelContainer {
         let configuration = ModelConfiguration(schema: schema, url: url)

@@ -56,7 +56,7 @@ struct ReadingRecord: LibraryRecord {
     var statusRaw: String
     var startedAt: Date?
     var endedAt: Date?
-    var rating: Int?
+    var stars: Double?
     var notes: String?
     var createdAt: Date
     var bookID: UUID?
@@ -119,7 +119,7 @@ struct LibrarySnapshot: Equatable, Sendable {
         for reading in (try? context.fetch(FetchDescriptor<Reading>())) ?? [] {
             snapshot.readings[reading.id] = ReadingRecord(
                 id: reading.id, statusRaw: reading.statusRaw, startedAt: reading.startedAt,
-                endedAt: reading.endedAt, rating: reading.rating, notes: reading.notes,
+                endedAt: reading.endedAt, stars: reading.stars, notes: reading.notes,
                 createdAt: reading.createdAt, bookID: reading.book?.id
             )
         }
@@ -244,7 +244,7 @@ extension Library {
             reading.statusRaw = record.statusRaw
             reading.startedAt = record.startedAt
             reading.endedAt = record.endedAt
-            reading.rating = record.rating
+            reading.stars = record.stars
             reading.notes = record.notes
             reading.createdAt = record.createdAt
             context.insert(reading)
@@ -307,7 +307,7 @@ extension Library {
             if old.statusRaw != new.statusRaw { reading.statusRaw = new.statusRaw }
             if old.startedAt != new.startedAt { reading.startedAt = new.startedAt }
             if old.endedAt != new.endedAt { reading.endedAt = new.endedAt }
-            if old.rating != new.rating { reading.rating = new.rating }
+            if old.stars != new.stars { reading.stars = new.stars }
             if old.notes != new.notes { reading.notes = new.notes }
             if old.createdAt != new.createdAt { reading.createdAt = new.createdAt }
             if old.bookID != new.bookID { reading.book = new.bookID.flatMap { books[$0] } }

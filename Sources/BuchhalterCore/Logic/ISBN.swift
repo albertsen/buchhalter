@@ -5,6 +5,16 @@ public struct ISBN: Equatable, Sendable {
     /// The 13 digits, converted from ISBN-10 when needed.
     public let isbn13: String
 
+    /// The one way the app writes an ISBN: the ISBN-13 with its hyphens in the
+    /// places the International ISBN Agency assigns, "978-3-15-011537-4".
+    public var hyphenated: String { ISBNHyphenation.shared.hyphenate(isbn13) }
+
+    /// The hyphenated form of a valid ISBN, or the text unchanged.
+    public static func formatted(_ text: String) -> String {
+        if case .valid(let isbn) = parse(text) { return isbn.hyphenated }
+        return text
+    }
+
     public enum Check: Equatable, Sendable {
         case empty
         /// Fewer than 10 significant characters, or between 11 and 12.

@@ -11,17 +11,31 @@ struct ListSettingsTests {
         #expect(t.library.preferences(for: .collection(UUID())) == .default)
     }
 
-    @Test func perListAndPerCollection() throws {
+    @Test func sortIsGlobalViewModeIsPerList() throws {
         let t = try TestLibrary()
         let collection = try t.library.createCollection(named: "A")
         let title = SortLevels(levels: [SortLevel(field: .title)])
-        let rating = SortLevels(levels: [SortLevel(field: .rating, direction: .descending)])
-        try t.library.setSortLevels(title, for: .reading)
-        try t.library.setSortLevels(rating, for: .collection(collection.id))
+        try t.library.setSortLevels(title)
         try t.library.setViewMode(.grid, for: .collection(collection.id))
         #expect(t.library.preferences(for: .reading) == ListPreferences(sortLevels: title, viewMode: .list))
-        #expect(t.library.preferences(for: .collection(collection.id)) == ListPreferences(sortLevels: rating, viewMode: .grid))
-        #expect(t.library.preferences(for: .all) == .default)
+        #expect(t.library.preferences(for: .all).sortLevels == title)
+        #expect(t.library.preferences(for: .collection(collection.id)) == ListPreferences(sortLevels: title, viewMode: .grid))
+    }
+
+    @Test func aPerListSortFromBeforeCarriesOverUntilTheGlobalOneIsSet() throws {
+        let t = try TestLibrary()
+        for (key, raw, year) in [("reading", "title:asc", 2025), ("read", "pages:desc", 2026), ("all", "", 2027)] {
+            let old = ListSettings()
+            old.key = key
+            old.sortLevelsRaw = raw
+            old.updatedAt = date(year, 1, 1)
+            t.context.insert(old)
+        }
+        #expect(t.library.preferences(for: .wantToRead).sortLevels.raw == "pages:desc")
+        try t.library.setSortLevels(SortLevels(levels: [SortLevel(field: .year)]))
+        #expect(t.library.preferences(for: .reading).sortLevels.raw == "year:asc")
+        try t.library.resetSort()
+        #expect(t.library.preferences(for: .read).sortLevels == .default)
     }
 
     @Test func newestDuplicateWins() throws {
@@ -41,8 +55,8 @@ struct ListSettingsTests {
 
     @Test func resetRestoresTheDefault() throws {
         let t = try TestLibrary()
-        try t.library.setSortLevels(SortLevels(levels: [SortLevel(field: .pages)]), for: .read)
-        try t.library.resetSort(for: .read)
+        try t.library.setSortLevels(SortLevels(levels: [SortLevel(field: .pages)]))
+        try t.library.resetSort()
         #expect(t.library.preferences(for: .read).sortLevels == .default)
         #expect(try t.context.fetchCount(FetchDescriptor<ListSettings>()) == 1)
     }

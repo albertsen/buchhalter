@@ -2,7 +2,7 @@
 
 Keeps track of the books I read: the ones I want to read, the ones I'm reading, and the ones I finished, with dates, ratings and notes, grouped into my own collections.
 
-Later: book data and covers from an online service, barcode scanning, and an AI assistant that researches recommendations and adds them to my lists.
+Book data and covers come from the Deutsche Nationalbibliothek and Open Library. Later: barcode scanning, and an AI assistant that researches recommendations and adds them to my lists.
 
 Native SwiftUI app with SwiftData, in English and German. macOS first; an app for iPhone and iPad follows and syncs through iCloud. No third-party dependencies.
 
@@ -14,7 +14,7 @@ swift test    # BuchhalterCore unit tests
 
 Requirements: Xcode 27 with the macOS 27 SDK.
 
-Status: the library feature is built: books, readings, collections, sort, search, undo.
+Status: the library feature is built (books, readings, collections, sort, search, undo), and book lookup.
 
 ## Documentation
 

@@ -8,6 +8,10 @@ struct CoverPicker: View {
     @Binding var coverData: Data?
     var title: String
     var author: String
+    /// True while the cover is the one Complete filled in: a green outline.
+    var highlighted = false
+    /// "Use DNB cover", offered when the book has a cover of its own.
+    var offer: (label: String, action: () -> Void)?
     @State private var previewID = UUID()
     @State private var isImporting = false
     @State private var isTargeted = false
@@ -19,6 +23,12 @@ struct CoverPicker: View {
             preview
                 .frame(width: 60, height: 90)
                 .clipShape(RoundedRectangle(cornerRadius: 3))
+                .overlay {
+                    // A 2 pt outline with a 2 pt gap, like the design.
+                    if highlighted {
+                        RoundedRectangle(cornerRadius: 5).strokeBorder(Theme.filledBorder, lineWidth: 2).padding(-4)
+                    }
+                }
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 8) {
                 VStack(spacing: 6) {
@@ -49,6 +59,11 @@ struct CoverPicker: View {
                     handle(data)
                     return true
                 } isTargeted: { isTargeted = $0 }
+                if let offer {
+                    Button(action: offer.action) { Text(verbatim: offer.label) }
+                        .buttonStyle(.link)
+                        .font(.system(size: 11))
+                }
                 if failed {
                     Text("This image can't be used.")
                         .font(.caption)

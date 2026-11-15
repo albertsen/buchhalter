@@ -37,8 +37,8 @@ extension Book {
     }
 
     /// Rating of the most recent reading that has one.
-    public var displayRating: Int? {
-        readingsByCreation.first { $0.rating != nil }?.rating
+    public var displayRating: Double? {
+        readingsByCreation.first { $0.stars != nil }?.stars
     }
 
     /// Readings that are a read-through (reading, finished, abandoned), newest first.

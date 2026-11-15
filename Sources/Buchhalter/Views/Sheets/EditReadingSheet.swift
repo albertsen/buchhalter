@@ -9,7 +9,7 @@ struct EditReadingSheet: View {
     var reading: Reading
     @State private var startedAt: Date?
     @State private var endedAt: Date?
-    @State private var rating: Int?
+    @State private var rating: Double?
     @State private var notes: String
 
     init(model: WindowModel, reading: Reading) {
@@ -17,7 +17,7 @@ struct EditReadingSheet: View {
         self.reading = reading
         _startedAt = State(initialValue: reading.startedAt)
         _endedAt = State(initialValue: reading.endedAt)
-        _rating = State(initialValue: reading.rating)
+        _rating = State(initialValue: reading.stars)
         _notes = State(initialValue: reading.notes ?? "")
     }
 
@@ -80,7 +80,7 @@ struct EditReadingSheet: View {
                     model.attempt {
                         try library?.updateReading(
                             reading, startedAt: startedAt, endedAt: status == .reading || status == .wantToRead ? nil : endedAt,
-                            rating: status == .finished ? rating : reading.rating, notes: notes
+                            rating: status == .finished ? rating : reading.stars, notes: notes
                         )
                         dismiss()
                     }

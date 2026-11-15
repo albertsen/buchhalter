@@ -10,6 +10,17 @@ enum Theme {
     static let tintText = Color(hex: 0x14503F)
     static let error = Color(hex: 0xB3261E)
 
+    // Book lookup. A filled field is the accent at low opacity over whatever
+    // the field draws, so it reads in light and dark mode.
+    static let filledFill = accent.opacity(0.09)
+    static let filledBorder = accent.opacity(0.5)
+    /// The amber "no book found" hint and the red "can't reach" hint: fixed
+    /// background and text pairs, like the green banner (`tint`, `tintText`).
+    static let warningFill = Color(hex: 0xFDF1DC)
+    static let warningText = Color(hex: 0x6B4A00)
+    static let errorFill = Color(hex: 0xFBE4E2)
+    static let errorText = Color(hex: 0x8C1D16)
+
     static func coverColor(for id: UUID) -> Color {
         Color(hex: CoverPalette.color(for: id))
     }

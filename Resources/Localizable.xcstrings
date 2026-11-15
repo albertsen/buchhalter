@@ -17,6 +17,22 @@
         }
       }
     },
+    "%@ stars" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ Sterne"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ stars"
+          }
+        }
+      }
+    },
     "%lld books" : {
       "localizations" : {
         "de" : {
@@ -50,6 +66,126 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld books"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld books match ISBN %@. Newest first." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@books@ zu ISBN %2$@. Neueste zuerst."
+          },
+          "substitutions" : {
+            "books" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Buch passt"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Bücher passen"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@books@ ISBN %2$@. Newest first."
+          },
+          "substitutions" : {
+            "books" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg book matches"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg books match"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld books match “%@” by %@. Newest first." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@books@ zu „%2$@“ von %3$@. Neueste zuerst."
+          },
+          "substitutions" : {
+            "books" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Buch passt"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Bücher passen"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@books@ “%2$@” by %3$@. Newest first."
+          },
+          "substitutions" : {
+            "books" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg book matches"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg books match"
+                    }
+                  }
                 }
               }
             }
@@ -233,18 +369,18 @@
         }
       }
     },
-    "A rating is 1 to 5 stars." : {
+    "A rating is half a star to 5 stars." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Eine Bewertung hat 1 bis 5 Sterne."
+            "value" : "Eine Bewertung hat einen halben bis 5 Sterne."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A rating is 1 to 5 stars."
+            "value" : "A rating is half a star to 5 stars."
           }
         }
       }
@@ -473,6 +609,22 @@
         }
       }
     },
+    "Added %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hinzugefügt am %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Added %@"
+          }
+        }
+      }
+    },
     "All Books" : {
       "localizations" : {
         "de" : {
@@ -501,6 +653,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Already in your library: %@"
+          }
+        }
+      }
+    },
+    "Applies to every list and collection." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gilt für alle Listen und Sammlungen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applies to every list and collection."
           }
         }
       }
@@ -601,6 +769,38 @@
         }
       }
     },
+    "Can't reach Open Library. Check the internet connection. You can still add the book by hand." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Library ist nicht erreichbar. Prüfe die Internetverbindung. Du kannst das Buch trotzdem von Hand eintragen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach Open Library. Check the internet connection. You can still add the book by hand."
+          }
+        }
+      }
+    },
+    "Can't reach the Deutsche Nationalbibliothek. Check the internet connection. You can still add the book by hand." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Deutsche Nationalbibliothek ist nicht erreichbar. Prüfe die Internetverbindung. Du kannst das Buch trotzdem von Hand eintragen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach the Deutsche Nationalbibliothek. Check the internet connection. You can still add the book by hand."
+          }
+        }
+      }
+    },
     "Cancel" : {
       "localizations" : {
         "de" : {
@@ -661,6 +861,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose File…"
+          }
+        }
+      }
+    },
+    "Choose an edition" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausgabe wählen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose an edition"
           }
         }
       }
@@ -729,6 +945,22 @@
         }
       }
     },
+    "Complete" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vervollständigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Complete"
+          }
+        }
+      }
+    },
     "Cover" : {
       "localizations" : {
         "de" : {
@@ -757,6 +989,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Create"
+          }
+        }
+      }
+    },
+    "DNB: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DNB: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DNB: %@"
           }
         }
       }
@@ -985,6 +1233,22 @@
         }
       }
     },
+    "Double-click a row to use it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Doppelklicke eine Zeile, um sie zu übernehmen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Double-click a row to use it."
+          }
+        }
+      }
+    },
     "Double-click to edit" : {
       "localizations" : {
         "de" : {
@@ -1081,6 +1345,22 @@
         }
       }
     },
+    "Enter a title and author, or an ISBN" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gib einen Titel und Autor oder eine ISBN ein"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter a title and author, or an ISBN"
+          }
+        }
+      }
+    },
     "Field" : {
       "localizations" : {
         "de" : {
@@ -1109,6 +1389,286 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fields: Author, Title, Year Published, Date Added, Date Started, Date Finished, Rating, Pages. Books that match on every level are sorted by title."
+          }
+        }
+      }
+    },
+    "Filled in %lld empty fields from Open Library. %lld values differ and stay until you use them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@filled@ aus Open Library ergänzt. %#@differ@"
+          },
+          "substitutions" : {
+            "differ" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Angabe weicht ab und bleibt, bis du sie übernimmst."
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Angaben weichen ab und bleiben, bis du sie übernimmst."
+                    }
+                  }
+                }
+              }
+            },
+            "filled" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg leeres Feld"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg leere Felder"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filled in %#@filled@ from Open Library. %#@differ@"
+          },
+          "substitutions" : {
+            "differ" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg value differs and stays until you use it."
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg values differ and stay until you use them."
+                    }
+                  }
+                }
+              }
+            },
+            "filled" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg empty field"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg empty fields"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Filled in %lld empty fields from the Deutsche Nationalbibliothek. %lld values differ and stay until you use them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@filled@ aus der Deutschen Nationalbibliothek ergänzt. %#@differ@"
+          },
+          "substitutions" : {
+            "differ" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Angabe weicht ab und bleibt, bis du sie übernimmst."
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg Angaben weichen ab und bleiben, bis du sie übernimmst."
+                    }
+                  }
+                }
+              }
+            },
+            "filled" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg leeres Feld"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg leere Felder"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filled in %#@filled@ from the Deutsche Nationalbibliothek. %#@differ@"
+          },
+          "substitutions" : {
+            "differ" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg value differs and stays until you use it."
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg values differ and stay until you use them."
+                    }
+                  }
+                }
+              }
+            },
+            "filled" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg empty field"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg empty fields"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Filled in %lld fields from Open Library. Check them, then add the book." : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Feld aus Open Library ergänzt. Prüfe es, dann füge das Buch hinzu."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Felder aus Open Library ergänzt. Prüfe sie, dann füge das Buch hinzu."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Filled in %lld field from Open Library. Check it, then add the book."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Filled in %lld fields from Open Library. Check them, then add the book."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Filled in %lld fields from the Deutsche Nationalbibliothek. Check them, then add the book." : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Feld aus der Deutschen Nationalbibliothek ergänzt. Prüfe es, dann füge das Buch hinzu."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Felder aus der Deutschen Nationalbibliothek ergänzt. Prüfe sie, dann füge das Buch hinzu."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Filled in %lld field from the Deutsche Nationalbibliothek. Check it, then add the book."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Filled in %lld fields from the Deutsche Nationalbibliothek. Check them, then add the book."
+                }
+              }
+            }
           }
         }
       }
@@ -1369,6 +1929,22 @@
         }
       }
     },
+    "Looking up…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird gesucht…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Looking up…"
+          }
+        }
+      }
+    },
     "Lowest first" : {
       "localizations" : {
         "de" : {
@@ -1381,6 +1957,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lowest first"
+          }
+        }
+      }
+    },
+    "Matches" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Treffer"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Matches"
           }
         }
       }
@@ -1465,6 +2057,38 @@
         }
       }
     },
+    "No book found for ISBN %@. Check the number, or enter the title and author instead." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Buch gefunden für ISBN %@. Prüfe die Nummer oder gib stattdessen Titel und Autor ein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No book found for ISBN %@. Check the number, or enter the title and author instead."
+          }
+        }
+      }
+    },
+    "No book found for “%@” by %@. Check the spelling, or enter the ISBN and try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Buch gefunden für „%1$@“ von %2$@. Prüfe die Schreibweise oder gib die ISBN ein und versuche es noch einmal."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No book found for “%1$@” by %2$@. Check the spelling, or enter the ISBN and try again."
+          }
+        }
+      }
+    },
     "No books" : {
       "localizations" : {
         "de" : {
@@ -1509,6 +2133,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No books match “%@”"
+          }
+        }
+      }
+    },
+    "No empty fields to fill. %lld values differ from Open Library and stay until you use them." : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Keine leeren Felder zu ergänzen. %lld Angabe weicht von Open Library ab und bleibt, bis du sie übernimmst."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Keine leeren Felder zu ergänzen. %lld Angaben weichen von Open Library ab und bleiben, bis du sie übernimmst."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "No empty fields to fill. %lld value differs from Open Library and stays until you use it."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "No empty fields to fill. %lld values differ from Open Library and stay until you use them."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "No empty fields to fill. %lld values differ from the Deutsche Nationalbibliothek and stay until you use them." : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Keine leeren Felder zu ergänzen. %lld Angabe weicht von der Deutschen Nationalbibliothek ab und bleibt, bis du sie übernimmst."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Keine leeren Felder zu ergänzen. %lld Angaben weichen von der Deutschen Nationalbibliothek ab und bleiben, bis du sie übernimmst."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "No empty fields to fill. %lld value differs from the Deutsche Nationalbibliothek and stays until you use it."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "No empty fields to fill. %lld values differ from the Deutsche Nationalbibliothek and stay until you use them."
+                }
+              }
+            }
           }
         }
       }
@@ -1577,6 +2281,38 @@
         }
       }
     },
+    "Nothing to fill in. Everything matches Open Library." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nichts zu ergänzen. Alles stimmt mit Open Library überein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing to fill in. Everything matches Open Library."
+          }
+        }
+      }
+    },
+    "Nothing to fill in. Everything matches the Deutsche Nationalbibliothek." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nichts zu ergänzen. Alles stimmt mit der Deutschen Nationalbibliothek überein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing to fill in. Everything matches the Deutsche Nationalbibliothek."
+          }
+        }
+      }
+    },
     "OK" : {
       "localizations" : {
         "de" : {
@@ -1609,6 +2345,22 @@
         }
       }
     },
+    "Only the 100 newest records were searched. Enter the ISBN to find a specific edition." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Es wurden nur die 100 neuesten Datensätze durchsucht. Gib die ISBN ein, um eine bestimmte Ausgabe zu finden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only the 100 newest records were searched. Enter the ISBN to find a specific edition."
+          }
+        }
+      }
+    },
     "Open" : {
       "localizations" : {
         "de" : {
@@ -1621,6 +2373,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open"
+          }
+        }
+      }
+    },
+    "Open Library: %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Library: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Library: %@"
           }
         }
       }
@@ -1737,18 +2505,18 @@
         }
       }
     },
-    "Rated %lld of 5" : {
+    "Rated %@ of 5" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Bewertet mit %lld von 5"
+            "value" : "Bewertet mit %@ von 5"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Rated %lld of 5"
+            "value" : "Rated %@ of 5"
           }
         }
       }
@@ -2025,6 +2793,70 @@
         }
       }
     },
+    "Searching Open Library for ISBN %@…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche in Open Library nach ISBN %@…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Searching Open Library for ISBN %@…"
+          }
+        }
+      }
+    },
+    "Searching Open Library for “%@” by %@…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche in Open Library nach „%1$@“ von %2$@…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Searching Open Library for “%1$@” by %2$@…"
+          }
+        }
+      }
+    },
+    "Searching the Deutsche Nationalbibliothek for ISBN %@…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche in der Deutschen Nationalbibliothek nach ISBN %@…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Searching the Deutsche Nationalbibliothek for ISBN %@…"
+          }
+        }
+      }
+    },
+    "Searching the Deutsche Nationalbibliothek for “%@” by %@…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche in der Deutschen Nationalbibliothek nach „%1$@“ von %2$@…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Searching the Deutsche Nationalbibliothek for “%1$@” by %2$@…"
+          }
+        }
+      }
+    },
     "Select a book" : {
       "localizations" : {
         "de" : {
@@ -2105,18 +2937,18 @@
         }
       }
     },
-    "Sort %@" : {
+    "Sort Books" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@ sortieren"
+            "value" : "Bücher sortieren"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sort %@"
+            "value" : "Sort Books"
           }
         }
       }
@@ -2245,6 +3077,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Status"
+          }
+        }
+      }
+    },
+    "Stop" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stopp"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        }
+      }
+    },
+    "Stop Lookup" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche stoppen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop Lookup"
           }
         }
       }
@@ -2421,6 +3285,134 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Title"
+          }
+        }
+      }
+    },
+    "Try Again" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erneut versuchen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try Again"
+          }
+        }
+      }
+    },
+    "Type a title and author, or an ISBN. Complete looks up the rest in the Deutsche Nationalbibliothek, including the cover." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gib einen Titel und Autor oder eine ISBN ein. Vervollständigen sucht den Rest in der Deutschen Nationalbibliothek, auch das Cover."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type a title and author, or an ISBN. Complete looks up the rest in the Deutsche Nationalbibliothek, including the cover."
+          }
+        }
+      }
+    },
+    "Undo" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widerrufen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Undo"
+          }
+        }
+      }
+    },
+    "Use" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Übernehmen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use"
+          }
+        }
+      }
+    },
+    "Use DNB cover" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DNB-Cover übernehmen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use DNB cover"
+          }
+        }
+      }
+    },
+    "Use Found Value" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gefundenen Wert übernehmen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Found Value"
+          }
+        }
+      }
+    },
+    "Use Open Library cover" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open-Library-Cover übernehmen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Open Library cover"
+          }
+        }
+      }
+    },
+    "Use This Edition" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Ausgabe übernehmen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use This Edition"
           }
         }
       }

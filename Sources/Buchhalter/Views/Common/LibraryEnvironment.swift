@@ -13,3 +13,9 @@ extension EnvironmentValues {
         set { self[LibraryKey.self] = newValue }
     }
 }
+
+extension EnvironmentValues {
+    /// The book data services behind Complete. The injection point for
+    /// previews and for the later barcode and assistant features.
+    @Entry var bookLookup: BookLookup = .live
+}

@@ -29,7 +29,7 @@ struct PersistenceTests {
             draft.collectionIDs = [collection.id]
             try library.addBook(draft)
             try library.setViewMode(.grid, for: .collection(collection.id))
-            try library.setSortLevels(SortLevels(levels: [SortLevel(field: .rating, direction: .descending)]), for: .reading)
+            try library.setSortLevels(SortLevels(levels: [SortLevel(field: .rating, direction: .descending)]))
         }
 
         let container = try LibraryContainer.make(at: url)
@@ -38,10 +38,10 @@ struct PersistenceTests {
         #expect(book.title == "Der Zauberberg")
         #expect(book.orderedAuthors.first?.sortName == "Mann, Thomas")
         #expect(book.status == .finished)
-        #expect(book.currentReading?.rating == 4)
+        #expect(book.currentReading?.stars == 4)
         #expect(book.coverImage?.count == 50_000)
         #expect(book.collections?.first?.id == collectionID)
         #expect(library.preferences(for: .collection(collectionID)).viewMode == .grid)
-        #expect(library.preferences(for: .reading).sortLevels.raw == "rating:desc")
+        #expect(library.preferences(for: .collection(collectionID)).sortLevels.raw == "rating:desc")
     }
 }

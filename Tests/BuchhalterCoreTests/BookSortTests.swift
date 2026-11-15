@@ -5,7 +5,7 @@ import Testing
 struct BookSortTests {
     private func key(
         _ title: String, author: String? = nil, year: Int? = nil, added: Int = 0,
-        started: Date? = nil, finished: Date? = nil, rating: Int? = nil, pages: Int? = nil
+        started: Date? = nil, finished: Date? = nil, rating: Double? = nil, pages: Int? = nil
     ) -> BookSortKey {
         BookSortKey(
             id: UUID(), authorSortName: author, titleKey: TextFolding.titleSortKey(title), year: year,

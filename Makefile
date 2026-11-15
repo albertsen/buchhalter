@@ -8,7 +8,7 @@ SOURCES    := $(shell find Sources -name '*.swift') Package.swift
 
 .DEFAULT_GOAL := build
 
-.PHONY: build app install test strings icon clean
+.PHONY: build app install test strings icon isbn-ranges clean
 
 # Rebuilt only when a source file is newer than the binary.
 $(BIN): $(SOURCES)
@@ -50,6 +50,14 @@ strings:
 	swift build --scratch-path build/strings-build \
 		-Xswiftc -emit-localized-strings -Xswiftc -emit-localized-strings-path -Xswiftc $(STRINGS_DIR)
 	$(XCSTRINGSTOOL) sync $(CATALOG) --stringsdata $(STRINGS_DIR)/*.stringsdata
+
+# Downloads the International ISBN Agency's current range message and
+# regenerates Sources/BuchhalterCore/Logic/ISBNRanges.swift, which is
+# committed, so the build needs no network. Run it when new ranges matter.
+isbn-ranges:
+	mkdir -p build
+	curl -fsS -o build/RangeMessage.xml https://www.isbn-international.org/export_rangemessage.xml
+	swift Scripts/make-isbn-ranges.swift build/RangeMessage.xml Sources/BuchhalterCore/Logic/ISBNRanges.swift
 
 # Redraws the app icon (Scripts/make-icon.swift) into Resources/AppIcon.icns,
 # which is committed, so `make app` needs no drawing step.

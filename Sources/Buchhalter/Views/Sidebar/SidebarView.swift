@@ -8,14 +8,21 @@ struct SidebarView: View {
     var collections: [Collection]
     var counts: [LibraryListID: Int]
     @Binding var selection: LibraryListID
+    /// The user's order of the four built-in lists (`LibraryListOrder`).
+    @AppStorage("libraryListOrder") private var libraryOrderRaw = LibraryListOrder().raw
 
     var body: some View {
-        List(selection: Binding<LibraryListID?>(get: { selection }, set: { selection = $0 ?? .all })) {
+        // A click on empty space deselects; the list stays as it was.
+        List(selection: Binding<LibraryListID?>(get: { selection }, set: { if let list = $0 { selection = list } })) {
             Section("Library") {
-                row("Reading", symbol: "book", list: .reading)
-                row("Want to Read", symbol: "bookmark", list: .wantToRead)
-                row("Read", symbol: "checkmark.circle", list: .read)
-                row("All Books", symbol: "books.vertical", list: .all)
+                ForEach(LibraryListOrder(raw: libraryOrderRaw).lists, id: \.self) { list in
+                    builtInRow(list)
+                }
+                .onMove { offsets, destination in
+                    var order = LibraryListOrder(raw: libraryOrderRaw)
+                    order.move(fromOffsets: offsets, toOffset: destination)
+                    libraryOrderRaw = order.raw
+                }
             }
             Section("Collections") {
                 if collections.isEmpty && !model.isCreatingCollection {
@@ -49,6 +56,17 @@ struct SidebarView: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
+        }
+    }
+
+    @ViewBuilder
+    private func builtInRow(_ list: LibraryListID) -> some View {
+        switch list {
+        case .reading: row("Reading", symbol: "book", list: .reading)
+        case .wantToRead: row("Want to Read", symbol: "bookmark", list: .wantToRead)
+        case .read: row("Read", symbol: "checkmark.circle", list: .read)
+        case .all: row("All Books", symbol: "books.vertical", list: .all)
+        case .collection: EmptyView()
         }
     }
 

@@ -156,13 +156,13 @@ public struct BookSortKey: Sendable {
     public var addedAt: Date
     public var startedAt: Date?
     public var finishedAt: Date?
-    public var rating: Int?
+    public var rating: Double?
     public var pages: Int?
 
     public init(
         id: UUID = UUID(), authorSortName: String? = nil, titleKey: String,
         year: Int? = nil, addedAt: Date = .distantPast, startedAt: Date? = nil,
-        finishedAt: Date? = nil, rating: Int? = nil, pages: Int? = nil
+        finishedAt: Date? = nil, rating: Double? = nil, pages: Int? = nil
     ) {
         self.id = id
         self.authorSortName = authorSortName

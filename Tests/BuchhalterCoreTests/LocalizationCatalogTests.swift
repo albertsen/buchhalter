@@ -63,6 +63,36 @@ struct LocalizationCatalogTests {
         }
     }
 
+    /// The sentences with two counts keep their plurals in `substitutions`,
+    /// which `units` does not read. Each one needs `one` and `other` in both languages.
+    @Test func substitutionPluralsHaveOneAndOtherInBothLanguages() throws {
+        let strings = try loadStrings()
+        var checked = 0
+        for (key, entry) in strings {
+            for language in ["en", "de"] {
+                guard let substitutions = localization(entry, language)?["substitutions"] as? JSON else { continue }
+                for (name, value) in substitutions {
+                    let plural = ((value as? JSON)?["variations"] as? JSON)?["plural"] as? JSON
+                    let forms = Set(plural?.keys.map { $0 } ?? [])
+                    #expect(forms.isSuperset(of: ["one", "other"]), "\(key) \(language) \(name)")
+                    for (form, variation) in plural ?? [:] {
+                        let unit = (variation as? JSON)?["stringUnit"] as? JSON
+                        #expect(unit?["state"] as? String == "translated", "\(key) \(language) \(name) \(form)")
+                        let text = unit?["value"] as? String ?? ""
+                        #expect(text.isEmpty == false, "\(key) \(language) \(name) \(form)")
+                    }
+                    checked += 1
+                }
+                // Every %#@name@ in the text has its substitution.
+                let text = (localization(entry, language)?["stringUnit"] as? JSON)?["value"] as? String ?? ""
+                for name in substitutions.keys {
+                    #expect(text.contains("%#@\(name)@"), "\(key) \(language) does not use \(name)")
+                }
+            }
+        }
+        #expect(checked >= 4, "the two-count banner sentences use substitutions")
+    }
+
     @Test func germanTermsFromTheSpec() throws {
         let strings = try loadStrings()
         let expected: [String: String] = [
@@ -72,6 +102,12 @@ struct LocalizationCatalogTests {
             "Abandon": "Lektüre abbrechen", "Abandoned": "Nicht zu Ende gelesen", "Edit": "Bearbeiten",
             "Add to Collection": "Zu Sammlung hinzufügen", "Sort": "Sortieren", "Search": "Suchen",
             "abandonSheet.confirm": "Lektüre abbrechen",
+            // Book lookup
+            "Complete": "Vervollständigen", "Looking up…": "Wird gesucht…", "Stop": "Stopp",
+            "Choose an edition": "Ausgabe wählen", "Use This Edition": "Diese Ausgabe übernehmen",
+            "Use": "Übernehmen", "Use DNB cover": "DNB-Cover übernehmen", "Undo": "Widerrufen",
+            "Try Again": "Erneut versuchen", "Use Open Library cover": "Open-Library-Cover übernehmen",
+            "Cancel": "Abbrechen", "Save": "Speichern", "Edit Book": "Buch bearbeiten",
         ]
         for (key, german) in expected {
             let entry = try #require(strings[key], "\(key) is missing")

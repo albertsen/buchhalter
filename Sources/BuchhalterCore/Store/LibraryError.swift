@@ -15,7 +15,7 @@ public enum LibraryError: LocalizedError {
         switch self {
         case .emptyTitle: String(localized: "A book needs a title.")
         case .invalidISBN: String(localized: "This ISBN is not valid. Check the last digit.")
-        case .invalidRating: String(localized: "A rating is 1 to 5 stars.")
+        case .invalidRating: String(localized: "A rating is half a star to 5 stars.")
         case .emptyCollectionName: String(localized: "A collection needs a name.")
         case .duplicateCollectionName: String(localized: "A collection with this name already exists.")
         case .finishBeforeStart: String(localized: "The finish date can't be before the start date.")

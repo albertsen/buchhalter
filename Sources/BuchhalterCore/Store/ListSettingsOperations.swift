@@ -1,7 +1,8 @@
 import Foundation
 import SwiftData
 
-/// The sort levels and view mode of a list as the views need them.
+/// The sort levels (one setting for every list) and the view mode of a list
+/// as the views need them.
 public struct ListPreferences: Equatable, Sendable {
     public var sortLevels: SortLevels
     public var viewMode: ViewMode
@@ -10,6 +11,10 @@ public struct ListPreferences: Equatable, Sendable {
 }
 
 extension ListSettings {
+    /// The `key` of the one row whose sort levels apply to every list and
+    /// collection. Never a list's own key.
+    public static let sortKey = "sort"
+
     /// Duplicates can exist (no unique constraint with CloudKit); the newest wins.
     @MainActor
     public static func resolve(
@@ -26,13 +31,30 @@ extension ListSettings {
         }
     }
 
+    /// The global sort row; the newest wins.
+    @MainActor
+    static func resolveSort(among settings: [ListSettings]) -> ListSettings? {
+        settings.filter { $0.collection == nil && $0.key == sortKey }.max { $0.updatedAt < $1.updatedAt }
+    }
+
+    /// The sort levels for every list. Until the global row exists, the sort
+    /// the user last chose for any one list (from before sorting was global).
+    @MainActor
+    public static func sortLevels(among settings: [ListSettings], collections: [Collection]) -> SortLevels {
+        if let global = resolveSort(among: settings) { return SortLevels(raw: global.sortLevelsRaw) }
+        let lists = settings + collections.compactMap(\.settings)
+        let latest = lists.filter { $0.key != sortKey && !$0.sortLevelsRaw.isEmpty }.max { $0.updatedAt < $1.updatedAt }
+        return latest.map { SortLevels(raw: $0.sortLevelsRaw) } ?? .default
+    }
+
     @MainActor
     public static func preferences(
         for list: LibraryListID, among settings: [ListSettings], collections: [Collection]
     ) -> ListPreferences {
-        guard let found = resolve(for: list, among: settings, collections: collections) else { return .default }
+        let own = resolve(for: list, among: settings, collections: collections)
         return ListPreferences(
-            sortLevels: SortLevels(raw: found.sortLevelsRaw), viewMode: ViewMode(raw: found.viewModeRaw)
+            sortLevels: sortLevels(among: settings, collections: collections),
+            viewMode: own.map { ViewMode(raw: $0.viewModeRaw) } ?? .list
         )
     }
 }
@@ -44,16 +66,25 @@ extension Library {
         return ListSettings.preferences(for: list, among: all, collections: fetchCollections())
     }
 
-    public func setSortLevels(_ levels: SortLevels, for list: LibraryListID) throws {
+    /// Sets the sort of every list and collection.
+    public func setSortLevels(_ levels: SortLevels) throws {
         try withoutUndo {
-            let settings = settingsObject(for: list)
-            settings?.sortLevelsRaw = levels.isDefault ? "" : levels.raw
-            settings?.updatedAt = .now
+            let all = (try? context.fetch(FetchDescriptor<ListSettings>())) ?? []
+            let settings: ListSettings
+            if let existing = ListSettings.resolveSort(among: all) {
+                settings = existing
+            } else {
+                settings = ListSettings()
+                settings.key = ListSettings.sortKey
+                context.insert(settings)
+            }
+            settings.sortLevelsRaw = levels.isDefault ? "" : levels.raw
+            settings.updatedAt = .now
         }
     }
 
-    public func resetSort(for list: LibraryListID) throws {
-        try setSortLevels(.default, for: list)
+    public func resetSort() throws {
+        try setSortLevels(.default)
     }
 
     public func setViewMode(_ mode: ViewMode, for list: LibraryListID) throws {

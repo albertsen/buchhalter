@@ -24,7 +24,7 @@ struct ReadingsSection: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(formatting.readingSummary(reading))
                                     .font(.system(size: 13))
-                                if let rating = reading.rating { StarRatingView(rating: rating) }
+                                if let rating = reading.stars { StarRatingView(rating: rating) }
                                 if let notes = reading.notes {
                                     Text(notes)
                                         .font(.system(size: 13))

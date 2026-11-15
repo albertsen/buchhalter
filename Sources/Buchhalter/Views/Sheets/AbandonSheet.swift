@@ -21,8 +21,7 @@ struct AbandonSheet: View {
                 GridRow(alignment: .firstTextBaseline) {
                     Toggle("Date", isOn: $hasDate)
                         .fixedSize().frame(minWidth: 70, alignment: .trailing).gridColumnAlignment(.trailing)
-                    DatePicker("Date", selection: $date, in: (book.currentReading?.startedAt ?? .distantPast)..., displayedComponents: .date)
-                        .labelsHidden()
+                    DateField(label: "Date", date: $date, range: (book.currentReading?.startedAt ?? .distantPast)...)
                         .disabled(!hasDate)
                 }
                 GridRow(alignment: .firstTextBaseline) {

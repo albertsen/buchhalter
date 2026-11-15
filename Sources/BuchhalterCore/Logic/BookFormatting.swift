@@ -34,11 +34,39 @@ public struct BookFormatting: Sendable {
     /// 1901 prints as "1901", never "1.901".
     public func year(_ year: Int) -> String { String(year) }
 
+    /// "3.5" / "3,5", "4" for whole stars.
+    public func starNumber(_ stars: Double) -> String {
+        stars.formatted(.number.precision(.fractionLength(0...1)).locale(locale))
+    }
+
+    /// "1 star", "3.5 stars" / "1 Stern", "3,5 Sterne". Half values are
+    /// plural in both languages, so only whole ones go through the plural rule.
+    public func stars(_ stars: Double) -> String {
+        if stars == stars.rounded() {
+            let count = Int(stars)
+            return String(localized: "\(count) stars", locale: locale)
+        }
+        let number = starNumber(stars)
+        return String(localized: "\(number) stars", locale: locale)
+    }
+
+    /// "Rated 3.5 of 5" / "Bewertet mit 3,5 von 5".
+    public func rated(_ stars: Double) -> String {
+        let number = starNumber(stars)
+        return String(localized: "Rated \(number) of 5", locale: locale)
+    }
+
     public func languageName(_ code: String) -> String {
         locale.localizedString(forLanguageCode: code)?.localizedCapitalizedFirst(locale: locale) ?? code
     }
 
     // MARK: Sentences
+
+    /// "Added 3 Oct 2026" / "Hinzugefügt am 3. Okt. 2026".
+    public func added(_ book: Book) -> String {
+        let date = day(book.addedAt)
+        return String(localized: "Added \(date)", locale: locale)
+    }
 
     /// "1901 · 759 pages · German · ISBN 978-…", and for a translation
     /// "1994 · 176 pages · German (original: Japanese) · ISBN 978-…".
@@ -56,7 +84,10 @@ public struct BookFormatting: Sendable {
         case (nil, nil):
             break
         }
-        if let isbn = book.isbnText, !isbn.isEmpty { parts.append(String(localized: "ISBN \(isbn)", locale: locale)) }
+        if let text = book.isbnText, !text.isEmpty {
+            let isbn = ISBN.formatted(text)
+            parts.append(String(localized: "ISBN \(isbn)", locale: locale))
+        }
         return parts.joined(separator: " · ")
     }
 
@@ -66,6 +97,28 @@ public struct BookFormatting: Sendable {
 
     public func bookCount(_ count: Int) -> String {
         count == 0 ? String(localized: "No books", locale: locale) : String(localized: "\(count) books", locale: locale)
+    }
+
+    /// "Thomas Mann · Reclam · 2026": the authors, the publisher and the year of a lookup record.
+    public func editionByline(_ record: LookupRecord) -> String {
+        var parts: [String] = []
+        let names = record.authors.map(\.name)
+        if !names.isEmpty { parts.append(names.formatted(.list(type: .and).locale(locale))) }
+        if let publisher = record.publisher, !publisher.isEmpty { parts.append(publisher) }
+        if let value = record.year { parts.append(year(value)) }
+        return parts.joined(separator: " · ")
+    }
+
+    /// "781 pages · German · ISBN 978-3-15-011537-4".
+    public func editionDetails(_ record: LookupRecord) -> String {
+        var parts: [String] = []
+        if let pages = record.pages { parts.append(pageCount(pages)) }
+        if let code = record.language { parts.append(languageName(code)) }
+        if let display = record.isbnDisplay, !display.isEmpty {
+            let isbn = ISBN.formatted(display)
+            parts.append(String(localized: "ISBN \(isbn)", locale: locale))
+        }
+        return parts.joined(separator: " · ")
     }
 
     /// The row's status line: "Started 3 Oct 2026", "Finished 2 Mar 2019", "Abandoned 5 Nov 2026".

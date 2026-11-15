@@ -29,7 +29,7 @@ struct TestLibrary {
     func add(
         _ title: String, by authors: [String] = [], status: DraftStatus? = .wantToRead,
         year: Int? = nil, pages: Int? = nil, isbn: String = "", collections: [UUID] = [],
-        started: Date? = nil, finished: Date? = nil, rating: Int? = nil, notes: String = ""
+        started: Date? = nil, finished: Date? = nil, rating: Double? = nil, notes: String = ""
     ) throws -> Book {
         var draft = BookDraft()
         draft.title = title

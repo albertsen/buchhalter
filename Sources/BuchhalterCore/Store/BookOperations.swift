@@ -124,8 +124,10 @@ extension Library {
         book.language = draft.language
         book.originalLanguage = draft.originalLanguage == draft.language ? nil : draft.originalLanguage
         book.coverImage = draft.coverData
+        book.addedAt = draft.addedAt
         let isbn = trimmedOrNil(draft.isbnText)
-        book.isbnText = isbn
+        // A valid ISBN is always stored in its one hyphenated form.
+        book.isbnText = isbn.map(ISBN.formatted)
         if let isbn, case .valid(let value) = ISBN.parse(isbn) {
             book.isbn13 = value.isbn13
         } else {

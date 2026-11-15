@@ -62,4 +62,29 @@ struct BookFormattingTests {
         #expect(plain(en.readingSummary(reading)) == "3 Oct – 1 Nov 2026")
         #expect(en.sortButtonLabel(.default) == "Sort: Author, Year")
     }
+
+    // MARK: Lookup rows
+
+    private var edition: LookupRecord {
+        LookupRecord(
+            id: "dnb:1", source: .dnb, title: "Buddenbrooks",
+            authors: [LookupAuthor(name: "Thomas Mann")], year: 2026, pages: 781, language: "de",
+            publisher: "Reclam", isbn13s: ["9783150115374"], isbnDisplay: "978-3-15-011537-4"
+        )
+    }
+
+    @Test func editionLines() {
+        #expect(en.editionByline(edition) == "Thomas Mann · Reclam · 2026")
+        #expect(en.editionDetails(edition) == "781 pages · German · ISBN 978-3-15-011537-4")
+        #expect(de.editionByline(edition) == "Thomas Mann · Reclam · 2026")
+        var sparse = edition
+        sparse.authors = []
+        sparse.publisher = nil
+        sparse.pages = nil
+        sparse.isbnDisplay = nil
+        #expect(en.editionByline(sparse) == "2026")
+        #expect(en.editionDetails(sparse) == "German")
+        sparse.authors = [LookupAuthor(name: "A"), LookupAuthor(name: "B")]
+        #expect(en.editionByline(sparse) == "A and B · 2026")
+    }
 }
