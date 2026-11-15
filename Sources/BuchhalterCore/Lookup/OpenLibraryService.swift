@@ -50,6 +50,7 @@ public struct OpenLibraryService: BookLookupService {
         var title: String?
         var subtitle: String?
         var author_name: [String]?
+        var cover_i: Int?
         var editions: Editions?
     }
 
@@ -128,7 +129,8 @@ public struct OpenLibraryService: BookLookupService {
             publisher: trimmedOrNil(edition?.publisher.first),
             isbn13s: unique, isbnDisplay: unique.first,
             // The edition's own cover. The work's cover belongs to another edition.
-            cover: edition?.cover_i.map { .openLibrary(coverID: $0) }
+            cover: edition?.cover_i.map { .openLibrary(coverID: $0) },
+            workCover: work.cover_i.map { .openLibrary(coverID: $0) }
         )
     }
 

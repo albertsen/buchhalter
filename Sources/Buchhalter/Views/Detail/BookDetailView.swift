@@ -1,54 +1,31 @@
 import SwiftUI
 import BuchhalterCore
 
-/// The selected book: large cover, title, status, buttons, collections, readings.
+/// The selected book: large cover, title, status, buttons, collections,
+/// readings. Title, subtitle, authors, the meta line and Date Added are
+/// edited in place; a book without a cover can look one up from its menu.
 struct BookDetailView: View {
     @Environment(\.library) private var library
+    @Environment(\.bookLookup) private var bookLookup
     @Environment(\.locale) private var locale
     var model: WindowModel
     var book: Book
     var collections: [Collection]
+    /// Language codes already in the library, offered first in the language menus.
+    var usedLanguages: [String]
+
+    /// While the pointer is over the header, empty fields show their placeholders.
+    @State private var headerHovered = false
+    @State private var isFindingCover = false
+    @State private var coverHovered = false
+    @State private var coverTargeted = false
 
     var body: some View {
-        let formatting = BookFormatting(locale: locale)
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
                 HStack(alignment: .top, spacing: 24) {
-                    CoverView(book: book, size: CGSize(width: 120, height: 180))
-                        .dropDestination(for: DroppedImage.self) { items, _ in
-                            guard let data = items.first?.data else { return false }
-                            setCover(data)
-                            return true
-                        }
-                        .contextMenu {
-                            if book.coverImage != nil {
-                                Button("Remove Cover Image") {
-                                    model.attempt { try library?.setCover(nil, for: book) }
-                                }
-                            }
-                        }
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(book.title)
-                            .font(Theme.serif(28))
-                            .textSelection(.enabled)
-                        if let subtitle = book.subtitle {
-                            Text(subtitle).font(.system(size: 15)).foregroundStyle(.secondary)
-                        }
-                        let authors = book.orderedAuthors.map(\.name).joined(separator: ", ")
-                        if !authors.isEmpty { Text(authors).font(.system(size: 15)) }
-                        VStack(alignment: .leading, spacing: 2) {
-                            let meta = formatting.metaLine(book)
-                            if !meta.isEmpty { Text(meta) }
-                            Text(formatting.added(book))
-                        }
-                        .font(.system(size: 12))
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 4)
-                        if let reading = book.currentReading {
-                            StatusBadge(reading: reading).padding(.top, 8)
-                        }
-                        buttons.padding(.top, 6)
-                    }
+                    cover
+                    header
                 }
                 CollectionChips(model: model, book: book, collections: collections)
                 ReadingsSection(model: model, book: book)
@@ -57,6 +34,199 @@ struct BookDetailView: View {
             .padding(.vertical, 28)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    // MARK: Cover
+
+    /// A book without a cover shows a Find Cover button and a drop hint over
+    /// the generated cover while the pointer is over it or an image is
+    /// dragged onto it, so the title on the generated cover stays readable
+    /// otherwise.
+    private var cover: some View {
+        let canFind = !LookupQuery.coverQueries(for: BookDraft(book: book)).isEmpty
+        return CoverView(book: book, size: CGSize(width: 120, height: 180))
+            .overlay {
+                if isFindingCover {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 3).fill(.black.opacity(0.45))
+                        ProgressView().controlSize(.small).tint(.white)
+                    }
+                    .accessibilityLabel("Finding Cover…")
+                } else if book.coverImage == nil, coverHovered || coverTargeted {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 3).fill(.black.opacity(0.55))
+                        if coverTargeted {
+                            RoundedRectangle(cornerRadius: 3)
+                                .strokeBorder(.white.opacity(0.9), style: StrokeStyle(lineWidth: 2, dash: [4, 3]))
+                                .padding(4)
+                        }
+                        VStack(spacing: 8) {
+                            if canFind {
+                                Button("Find Cover") { findCover() }
+                                    .buttonStyle(CoverOverlayButtonStyle())
+                            }
+                            Text("or drop an image here")
+                                .font(.system(size: 11))
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(.white.opacity(0.85))
+                        }
+                        .padding(8)
+                    }
+                }
+            }
+            .onHover { coverHovered = $0 }
+            .dropDestination(for: DroppedImage.self) { items, _ in
+                guard let data = items.first?.data else { return false }
+                setCover(data)
+                return true
+            } isTargeted: { coverTargeted = $0 }
+            .contextMenu {
+                if book.coverImage != nil {
+                    Button("Remove Cover Image") {
+                        model.attempt { try library?.setCover(nil, for: book) }
+                    }
+                } else {
+                    Button("Find Cover") { findCover() }
+                        .disabled(isFindingCover || !canFind)
+                }
+            }
+    }
+
+    /// Asks DNB, then Open Library, with the book's ISBN and then its title
+    /// and authors, and sets the first cover found. A cover set by hand while it
+    /// runs wins.
+    private func findCover() {
+        let queries = LookupQuery.coverQueries(for: BookDraft(book: book))
+        guard !queries.isEmpty else { return }
+        let lookup = bookLookup
+        let language = book.language
+        isFindingCover = true
+        Task {
+            defer { isFindingCover = false }
+            do {
+                guard let data = try await lookup.findCover(queries, preferredLanguage: language) else {
+                    model.errorMessage = String(localized: "No cover found for this book.")
+                    return
+                }
+                guard book.coverImage == nil else { return }
+                model.attempt { try library?.setCover(data, for: book) }
+            } catch is LookupError {
+                model.errorMessage = String(
+                    localized: "Can't reach the Deutsche Nationalbibliothek or Open Library. Check the internet connection."
+                )
+            } catch {
+                // Cancelled: nothing changes.
+            }
+        }
+    }
+
+    // MARK: Header
+
+    private var header: some View {
+        let formatting = BookFormatting(locale: locale)
+        return VStack(alignment: .leading, spacing: 6) {
+            InlineTextField(
+                value: book.title, placeholder: "Title", font: Theme.serif(28),
+                revealsEmpty: true, fillsWidth: true
+            ) { text in save { $0.title = text } }
+            InlineTextField(
+                value: book.subtitle ?? "", placeholder: "Subtitle", font: .system(size: 15),
+                revealsEmpty: headerHovered, fillsWidth: true
+            ) { text in save { $0.subtitle = text } }
+                .foregroundStyle(.secondary)
+            InlineTextField(
+                value: book.orderedAuthors.map(\.name).joined(separator: ", "),
+                placeholder: "Authors", font: .system(size: 15), revealsEmpty: headerHovered, fillsWidth: true
+            ) { text in saveAuthors(text) }
+            VStack(alignment: .leading, spacing: 2) {
+                metaLine(formatting)
+                InlineAddedDate(date: book.addedAt, display: formatting.added(book)) { date in
+                    _ = save { $0.addedAt = date }
+                }
+            }
+            .font(.system(size: 12))
+            .foregroundStyle(.secondary)
+            .padding(.top, 4)
+            if let reading = book.currentReading {
+                StatusBadge(reading: reading).padding(.top, 8)
+            }
+            buttons.padding(.top, 6)
+        }
+        .onHover { headerHovered = $0 }
+    }
+
+    /// "1901 · 759 pages · German · Original: Japanese · Reclam · ISBN 978-…",
+    /// each piece editable. Empty pieces appear while the header is hovered.
+    private func metaLine(_ formatting: BookFormatting) -> some View {
+        let reveal = headerHovered
+        let original = book.originalLanguage.flatMap { $0 == book.language ? nil : $0 }
+        var pieces: [AnyView] = []
+        if book.year != nil || reveal {
+            pieces.append(AnyView(InlineTextField(
+                value: book.year.map(formatting.year) ?? "", placeholder: "Year", font: .system(size: 12),
+                revealsEmpty: true
+            ) { text in save { $0.yearText = text } }))
+        }
+        if book.pageCount != nil || reveal {
+            pieces.append(AnyView(InlineTextField(
+                value: book.pageCount.map(String.init) ?? "", display: book.pageCount.map(formatting.pageCount),
+                placeholder: "Pages", font: .system(size: 12), revealsEmpty: true
+            ) { text in save { $0.pagesText = text } }))
+        }
+        if book.language != nil || reveal {
+            pieces.append(AnyView(InlineLanguageMenu(
+                code: book.language, display: book.language.map(formatting.languageName) ?? "",
+                placeholder: "Language", usedLanguages: usedLanguages, revealsEmpty: true
+            ) { code in _ = save { $0.language = code } }))
+        }
+        if original != nil || reveal {
+            let name = original.map(formatting.languageName) ?? ""
+            pieces.append(AnyView(InlineLanguageMenu(
+                code: original, display: String(localized: "Original: \(name)"),
+                placeholder: "Original Language", usedLanguages: usedLanguages, revealsEmpty: true
+            ) { code in _ = save { $0.originalLanguage = code } }))
+        }
+        if book.publisher != nil || reveal {
+            pieces.append(AnyView(InlineTextField(
+                value: book.publisher ?? "", placeholder: "Publisher", font: .system(size: 12), revealsEmpty: true
+            ) { text in save { $0.publisher = text } }))
+        }
+        let isbn = book.isbnText.map(ISBN.formatted) ?? ""
+        if !isbn.isEmpty || reveal {
+            pieces.append(AnyView(InlineTextField(
+                value: isbn, display: String(localized: "ISBN \(isbn)"), placeholder: "ISBN",
+                font: .system(size: 12), revealsEmpty: true
+            ) { text in save { $0.isbnText = text } }))
+        }
+        return FlowLayout(spacing: 0) {
+            ForEach(pieces.indices, id: \.self) { index in
+                if index > 0 { Text(verbatim: " · ") }
+                pieces[index]
+            }
+        }
+    }
+
+    // MARK: Saving
+
+    /// One inline change, one undo step. Returns the library's message for a
+    /// value it refuses, which the field shows.
+    private func save(_ edit: (inout BookDraft) -> Void) -> String? {
+        guard let library else { return nil }
+        do {
+            try library.updateDetails(of: book, edit)
+            return nil
+        } catch {
+            return error.localizedDescription
+        }
+    }
+
+    /// "Thomas Mann, Heinrich Mann": names separated by commas. A known
+    /// author keeps their sort name; a new one gets the guessed one.
+    private func saveAuthors(_ text: String) -> String? {
+        guard let library else { return nil }
+        let names = text.split(separator: ",").map { AuthorName.normalize(String($0)) }.filter { !$0.isEmpty }
+        let drafts = names.map { library.suggestedAuthor(for: $0) }
+        return save { $0.authors = drafts }
     }
 
     @ViewBuilder
@@ -126,5 +296,19 @@ private struct SecondaryButtonStyle: ButtonStyle {
             )
             .contentShape(RoundedRectangle(cornerRadius: 6))
             .opacity(isEnabled ? 1 : 0.4)
+    }
+}
+
+/// The Find Cover button over a missing cover: white on the dark scrim, in
+/// light and dark mode alike.
+private struct CoverOverlayButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 12, weight: .medium))
+            .foregroundStyle(.black)
+            .padding(.horizontal, 10)
+            .frame(height: 24)
+            .background(Capsule().fill(.white.opacity(configuration.isPressed ? 0.75 : 0.95)))
+            .contentShape(Capsule())
     }
 }

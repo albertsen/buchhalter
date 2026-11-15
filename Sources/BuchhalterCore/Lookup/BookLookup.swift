@@ -76,6 +76,54 @@ public struct BookLookup: Sendable {
         return try? await CoverImage.normalize(data)
     }
 
+    /// Find Cover in the detail's cover menu: the first cover either source
+    /// has for the book. The queries run in order (see
+    /// `LookupQuery.coverQueries`); for each, both sources are asked, and a
+    /// source's edition covers are tried before its work covers. Unlike
+    /// `run`, a source without a cover (or one that cannot be reached) falls
+    /// through to the other: only the image is used, so an Open Library cover
+    /// for a German book is fine. At most `maximumCandidates` matching
+    /// editions per source and query; a cover is downloaded only once.
+    ///
+    /// - Returns: the normalized cover, or nil when no source has one.
+    /// - Throws: `LookupError.unreachable` for the first failure when no
+    ///   source could be reached, and `CancellationError`.
+    @concurrent
+    public func findCover(_ queries: [LookupQuery], preferredLanguage: String?) async throws -> Data? {
+        var failure: LookupError?
+        var reached = false
+        var tried = Set<String>()
+        for query in queries {
+            for service in [primary, fallback] {
+                let response: LookupResponse
+                do {
+                    response = try await service.search(query)
+                    reached = true
+                } catch let error as LookupError {
+                    failure = failure ?? error
+                    continue
+                }
+                try Task.checkCancellation()
+                let candidates = LookupMatching.ordered(
+                    LookupMatching.matches(response.records, for: query), preferredLanguage: preferredLanguage
+                ).prefix(Self.maximumCandidates)
+                let references = candidates.compactMap(\.cover) + candidates.compactMap(\.workCover)
+                for reference in references where tried.insert(String(describing: reference)).inserted {
+                    if let data = await service.coverData(for: reference, size: .large),
+                       let normalized = try? await CoverImage.normalize(data) {
+                        return normalized
+                    }
+                    try Task.checkCancellation()
+                }
+            }
+        }
+        if !reached, let failure { throw failure }
+        return nil
+    }
+
+    /// Editions tried per source by `findCover`.
+    public static let maximumCandidates = 5
+
     /// A small cover for a row of the edition list.
     @concurrent
     public func thumbnail(for record: LookupRecord) async -> Data? {

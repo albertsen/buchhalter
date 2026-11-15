@@ -30,6 +30,25 @@ public enum LookupQuery: Equatable, Sendable {
         self = .titleAuthor(title: title, authors: authors)
     }
 
+    /// The searches Find Cover runs, in order: the ISBN when it is valid, then
+    /// title and authors. The cover search cuts the title at the first colon
+    /// or parenthesis ("Galveston: A Novel", "On the Road (Penguin Classics)"),
+    /// because a match needs the record's title to start with the typed one.
+    public static func coverQueries(for draft: BookDraft) -> [LookupQuery] {
+        var result: [LookupQuery] = []
+        if case .valid(let isbn) = ISBN.parse(draft.isbnText) {
+            result.append(.isbn(isbn, display: draft.isbnText.trimmingCharacters(in: .whitespacesAndNewlines)))
+        }
+        let full = AuthorName.normalize(draft.title)
+        let cut = full.firstIndex { $0 == ":" || $0 == "(" }.map { AuthorName.normalize(String(full[..<$0])) } ?? full
+        let title = cut.isEmpty ? full : cut
+        let authors = draft.authors.filter { !AuthorName.normalize($0.name).isEmpty }
+        if !title.isEmpty, !authors.isEmpty {
+            result.append(.titleAuthor(title: title, authors: authors))
+        }
+        return result
+    }
+
     /// The typed ISBN as the user wrote it. Empty for a title-and-author search.
     public var isbnDisplay: String {
         if case .isbn(_, let display) = self { display } else { "" }
@@ -78,12 +97,16 @@ public struct LookupRecord: Identifiable, Equatable, Sendable {
     public var isbn13s: [String]
     public var isbnDisplay: String?
     public var cover: CoverReference?
+    /// Open Library: the work's cover, which may belong to another edition of
+    /// the same book. Only Find Cover uses it, after the edition's own.
+    public var workCover: CoverReference?
 
     public init(
         id: String, source: LookupSource, title: String, titleMatchKeys: [String]? = nil,
         subtitle: String? = nil, authors: [LookupAuthor] = [], year: Int? = nil, pages: Int? = nil,
         language: String? = nil, originalLanguage: String? = nil, publisher: String? = nil,
-        isbn13s: [String] = [], isbnDisplay: String? = nil, cover: CoverReference? = nil
+        isbn13s: [String] = [], isbnDisplay: String? = nil, cover: CoverReference? = nil,
+        workCover: CoverReference? = nil
     ) {
         self.id = id
         self.source = source
@@ -99,6 +122,7 @@ public struct LookupRecord: Identifiable, Equatable, Sendable {
         self.isbn13s = isbn13s
         self.isbnDisplay = isbnDisplay
         self.cover = cover
+        self.workCover = workCover
     }
 }
 

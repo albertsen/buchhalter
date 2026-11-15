@@ -264,4 +264,44 @@ struct DateAddedTests {
         #expect(book.addedAt == date(2020, 1, 15))
         #expect(BookFormatting(locale: Locale(identifier: "en"), timeZone: .current).added(book).hasPrefix("Added "))
     }
+
+    // MARK: Inline details
+
+    @Test func updateDetailsChangesFieldsAndLeavesReadingsAlone() throws {
+        let t = try TestLibrary()
+        let book = try t.add("Old", by: ["Thomas Mann"], status: .read, finished: date(2026, 2, 1), rating: 4)
+        // A finished reading without a date, as the LibraryThing import made them.
+        book.currentReading?.endedAt = nil
+        book.coverImage = Data([1, 2, 3])
+        try t.library.updateDetails(of: book) { draft in
+            draft.title = "New"
+            draft.yearText = "1901"
+            draft.authors = [AuthorDraft(name: "Heinrich Mann", sortName: "Mann, Heinrich")]
+        }
+        #expect(book.title == "New")
+        #expect(book.year == 1901)
+        #expect(book.orderedAuthors.map(\.name) == ["Heinrich Mann"])
+        #expect(book.currentReading?.endedAt == nil)
+        #expect(book.currentReading?.stars == 4)
+        #expect(book.readings?.count == 1)
+        #expect(book.coverImage == Data([1, 2, 3]))
+    }
+
+    @Test func updateDetailsRejectsInvalidValues() throws {
+        let t = try TestLibrary()
+        let book = try t.add("A", year: 2000)
+        #expect(throws: LibraryError.self) { try t.library.updateDetails(of: book) { $0.title = " " } }
+        #expect(throws: LibraryError.self) { try t.library.updateDetails(of: book) { $0.yearText = "19x" } }
+        #expect(throws: LibraryError.self) { try t.library.updateDetails(of: book) { $0.pagesText = "0" } }
+        #expect(throws: LibraryError.self) { try t.library.updateDetails(of: book) { $0.isbnText = "978-3" } }
+        #expect(book.title == "A" && book.year == 2000)
+    }
+
+    @Test func updateDetailsIsOneUndoStep() throws {
+        let t = try TestLibrary(undo: true)
+        let book = try t.add("A")
+        try t.library.updateDetails(of: book) { $0.title = "B" }
+        try #require(t.undo).undo()
+        #expect(book.title == "A")
+    }
 }

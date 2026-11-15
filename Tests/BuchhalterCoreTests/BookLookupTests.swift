@@ -234,6 +234,85 @@ struct BookLookupTests {
         #expect(await none.cover(for: makeRecord("A", isbn: ["9783935890595"])) == nil)
     }
 
+    // MARK: Find Cover
+
+    @Test func findCoverTakesTheFirstMatchWithACover() async throws {
+        let png = try makePNG(width: 300, height: 450)
+        let dnb = FakeLookupService(.dnb, records: [makeRecord("Buddenbrooks", isbn: ["9783935890595"])], covers: [.large: png])
+        let data = try await lookup(dnb, FakeLookupService(.openLibrary)).findCover([query], preferredLanguage: "de")
+        #expect(data != nil)
+    }
+
+    @Test func findCoverFallsBackWhenDNBHasNoCover() async throws {
+        let png = try makePNG(width: 300, height: 450)
+        // DNB matches, but its cover service answers with nothing.
+        let dnb = FakeLookupService(.dnb, records: [makeRecord("Buddenbrooks", isbn: ["9783935890595"])])
+        let ol = FakeLookupService(.openLibrary, records: [
+            LookupRecord(id: "openlibrary:x", source: .openLibrary, title: "Buddenbrooks",
+                         authors: [LookupAuthor(name: "Thomas Mann")], cover: .openLibrary(coverID: 1)),
+        ], covers: [.large: png])
+        let data = try await lookup(dnb, ol).findCover([query], preferredLanguage: "de")
+        #expect(data != nil)
+        #expect(ol.searchCount == 1)
+    }
+
+    @Test func findCoverFallsBackWhenDNBIsUnreachable() async throws {
+        let png = try makePNG(width: 300, height: 450)
+        let dnb = FakeLookupService(.dnb, failing: LookupError.unreachable(.dnb))
+        let ol = FakeLookupService(.openLibrary, records: [
+            LookupRecord(id: "openlibrary:x", source: .openLibrary, title: "Buddenbrooks",
+                         authors: [LookupAuthor(name: "Thomas Mann")], cover: .openLibrary(coverID: 1)),
+        ], covers: [.large: png])
+        #expect(try await lookup(dnb, ol).findCover([query], preferredLanguage: "de") != nil)
+    }
+
+    @Test func findCoverWithoutAnyCoverIsNil() async throws {
+        let dnb = FakeLookupService(.dnb, records: [makeRecord("Buddenbrooks")])
+        #expect(try await lookup(dnb, FakeLookupService(.openLibrary)).findCover([query], preferredLanguage: nil) == nil)
+    }
+
+    @Test func findCoverUsesTheWorkCoverWhenTheEditionHasNone() async throws {
+        let png = try makePNG(width: 300, height: 450)
+        let ol = FakeLookupService(.openLibrary, records: [
+            LookupRecord(id: "openlibrary:x", source: .openLibrary, title: "Buddenbrooks",
+                         authors: [LookupAuthor(name: "Thomas Mann")], workCover: .openLibrary(coverID: 2)),
+        ], covers: [.large: png])
+        #expect(try await lookup(FakeLookupService(.dnb), ol).findCover([query], preferredLanguage: nil) != nil)
+    }
+
+    @Test func findCoverTriesTheNextQuery() async throws {
+        let png = try makePNG(width: 300, height: 450)
+        // The ISBN search matches nothing; the title search finds a cover.
+        let isbn = try isbnQuery("9783935890595")
+        let dnb = FakeLookupService(.dnb, records: [makeRecord("Buddenbrooks", isbn: ["9783935890596"])], covers: [.large: png])
+        #expect(try await lookup(dnb, FakeLookupService(.openLibrary)).findCover([isbn, query], preferredLanguage: nil) != nil)
+        #expect(dnb.searchCount == 2)
+    }
+
+    @Test func coverQueriesCutTheTitleAndKeepTheISBNFirst() {
+        var draft = BookDraft()
+        draft.title = "Galveston: A Novel"
+        draft.authors = [AuthorDraft(name: "Nic Pizzolatto", sortName: "Pizzolatto, Nic")]
+        draft.isbnText = "9783935890595"
+        let queries = LookupQuery.coverQueries(for: draft)
+        #expect(queries.count == 2)
+        if case .isbn = queries.first {} else { Issue.record("ISBN first") }
+        if case .titleAuthor(let title, _)? = queries.last { #expect(title == "Galveston") } else { Issue.record("title second") }
+        draft.title = "On the Road (Penguin 20th Century Classics)"
+        draft.isbnText = ""
+        if case .titleAuthor(let title, _)? = LookupQuery.coverQueries(for: draft).first {
+            #expect(title == "On the Road")
+        } else { Issue.record("title query") }
+    }
+
+    @Test func findCoverThrowsWhenNoSourceIsReachable() async {
+        let dnb = FakeLookupService(.dnb, failing: LookupError.unreachable(.dnb))
+        let ol = FakeLookupService(.openLibrary, failing: LookupError.unreachable(.openLibrary))
+        await #expect(throws: LookupError.unreachable(.dnb)) {
+            try await self.lookup(dnb, ol).findCover([self.query], preferredLanguage: nil)
+        }
+    }
+
     @Test func coversAreFetchedFromTheRecordsOwnSource() async throws {
         let png = try makePNG(width: 100, height: 150)
         let ol = FakeLookupService(.openLibrary, covers: [.large: png])

@@ -785,6 +785,22 @@
         }
       }
     },
+    "Can't reach the Deutsche Nationalbibliothek or Open Library. Check the internet connection." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Deutsche Nationalbibliothek und Open Library sind nicht erreichbar. Prüfe die Internetverbindung."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Can't reach the Deutsche Nationalbibliothek or Open Library. Check the internet connection."
+          }
+        }
+      }
+    },
     "Can't reach the Deutsche Nationalbibliothek. Check the internet connection. You can still add the book by hand." : {
       "localizations" : {
         "de" : {
@@ -1689,6 +1705,38 @@
         }
       }
     },
+    "Find Cover" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coverbild suchen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find Cover"
+          }
+        }
+      }
+    },
+    "Finding Cover…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coverbild wird gesucht…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finding Cover…"
+          }
+        }
+      }
+    },
     "Finish" : {
       "localizations" : {
         "de" : {
@@ -2133,6 +2181,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No books match “%@”"
+          }
+        }
+      }
+    },
+    "No cover found for this book." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für dieses Buch wurde kein Coverbild gefunden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No cover found for this book."
           }
         }
       }
@@ -3193,6 +3257,38 @@
         }
       }
     },
+    "The page count is a number from 1 to 99999." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Seitenzahl ist eine Zahl von 1 bis 99999."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The page count is a number from 1 to 99999."
+          }
+        }
+      }
+    },
+    "The year is a number from 1 to 9999." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Jahr ist eine Zahl von 1 bis 9999."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The year is a number from 1 to 9999."
+          }
+        }
+      }
+    },
     "This ISBN is not valid. Check the last digit." : {
       "localizations" : {
         "de" : {
@@ -3541,6 +3637,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abandon Reading"
+          }
+        }
+      }
+    },
+    "or drop an image here" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "or drop an image here"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "oder ein Bild hierher ziehen"
           }
         }
       }

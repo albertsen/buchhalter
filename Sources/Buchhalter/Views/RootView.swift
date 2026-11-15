@@ -180,7 +180,10 @@ struct RootView: View {
     @ViewBuilder
     private func detail(for book: Book?) -> some View {
         if let book {
-            BookDetailView(model: model, book: book, collections: collections)
+            BookDetailView(
+                model: model, book: book, collections: collections,
+                usedLanguages: Array(Set(books.compactMap(\.language)))
+            )
                 .id(book.id)
         } else {
             Text("Select a book")

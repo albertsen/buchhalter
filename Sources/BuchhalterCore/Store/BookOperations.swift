@@ -35,6 +35,24 @@ extension Library {
         }
     }
 
+    /// Inline editing in the detail: changes the book's own fields (title,
+    /// subtitle, authors, year, pages, languages, publisher, ISBN, added date)
+    /// in one undo step. Unlike `updateBook` it never touches the readings,
+    /// the collections or the cover: a draft cannot hold a finished reading
+    /// without a date, so going through the status would date it today.
+    public func updateDetails(of book: Book, _ edit: (inout BookDraft) -> Void) throws {
+        var draft = BookDraft(book: book)
+        edit(&draft)
+        try validate(draft)
+        let issues = draft.issues
+        if issues.contains(.invalidYear) { throw LibraryError.invalidYear }
+        if issues.contains(.invalidPages) { throw LibraryError.invalidPages }
+        try change("Edit Book") {
+            apply(draft, to: book, includingCover: false)
+            setAuthors(draft.authors, on: book)
+        }
+    }
+
     /// Deletes the book with its readings and authorships. Authors stay, which
     /// keeps their corrected sort names. Collections keep their other books.
     public func deleteBook(_ book: Book) throws {
@@ -115,7 +133,7 @@ extension Library {
         if issues.contains(.finishBeforeStart) { throw LibraryError.finishBeforeStart }
     }
 
-    private func apply(_ draft: BookDraft, to book: Book) {
+    private func apply(_ draft: BookDraft, to book: Book, includingCover: Bool = true) {
         book.title = AuthorName.normalize(draft.title)
         book.subtitle = trimmedOrNil(draft.subtitle)
         book.publisher = trimmedOrNil(draft.publisher)
@@ -123,7 +141,7 @@ extension Library {
         book.pageCount = draft.pages
         book.language = draft.language
         book.originalLanguage = draft.originalLanguage == draft.language ? nil : draft.originalLanguage
-        book.coverImage = draft.coverData
+        if includingCover { book.coverImage = draft.coverData }
         book.addedAt = draft.addedAt
         let isbn = trimmedOrNil(draft.isbnText)
         // A valid ISBN is always stored in its one hyphenated form.
