@@ -330,9 +330,7 @@ struct BookEditorSheet: View {
             }
         case .read:
             row("Started") { OptionalDatePicker(date: $draft.startedAt) }
-            row("Finished on") {
-                DateField(label: "Finished", date: $draft.finishedAt)
-            }
+            row("Finished on") { OptionalDatePicker(date: $draft.finishedAt) }
             if draft.issues.contains(.finishBeforeStart) {
                 GridRow {
                     Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])

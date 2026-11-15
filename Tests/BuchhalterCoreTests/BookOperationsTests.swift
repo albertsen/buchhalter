@@ -287,6 +287,20 @@ struct DateAddedTests {
         #expect(book.coverImage == Data([1, 2, 3]))
     }
 
+    @Test func editBookKeepsAnUndatedFinishedReadingUndated() throws {
+        let t = try TestLibrary()
+        let book = try t.add("A", status: .read, finished: date(2026, 2, 1), rating: 4)
+        book.currentReading?.endedAt = nil
+        var draft = BookDraft(book: book)
+        #expect(draft.finishedAt == nil)
+        draft.title = "B"
+        try t.library.updateBook(book, with: draft)
+        #expect(book.title == "B")
+        #expect(book.currentReading?.endedAt == nil)
+        #expect(book.currentReading?.stars == 4)
+        #expect(book.readings?.count == 1)
+    }
+
     @Test func updateDetailsRejectsInvalidValues() throws {
         let t = try TestLibrary()
         let book = try t.add("A", year: 2000)

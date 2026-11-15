@@ -45,7 +45,9 @@ public struct BookDraft: Equatable, Sendable {
     /// saving then leaves its readings alone.
     public var status: DraftStatus? = .wantToRead
     public var startedAt: Date?
-    public var finishedAt: Date = Calendar.current.startOfDay(for: .now)
+    /// Today for a new finished reading. Nil keeps a finished reading without
+    /// a date (the LibraryThing bulk import has 462) undated when the book is saved.
+    public var finishedAt: Date? = Calendar.current.startOfDay(for: .now)
     /// Half stars, 0.5 to 5.0.
     public var rating: Double?
     public var notes = ""
@@ -62,7 +64,7 @@ public struct BookDraft: Equatable, Sendable {
         }
         if Self.parseNumber(yearText, range: 1...9999) == .invalid { result.insert(.invalidYear) }
         if Self.parseNumber(pagesText, range: 1...99_999) == .invalid { result.insert(.invalidPages) }
-        if status == .read, let start = startedAt, finishedAt < start { result.insert(.finishBeforeStart) }
+        if status == .read, let start = startedAt, let finish = finishedAt, finish < start { result.insert(.finishBeforeStart) }
         return result
     }
 
@@ -115,7 +117,7 @@ extension BookDraft {
             case .finished:
                 status = .read
                 startedAt = reading.startedAt
-                finishedAt = reading.endedAt ?? finishedAt
+                finishedAt = reading.endedAt
                 rating = reading.stars
                 notes = reading.notes ?? ""
             case .abandoned:
