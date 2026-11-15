@@ -4,7 +4,7 @@ Keeps track of the books I read: the ones I want to read, the ones I'm reading, 
 
 Later: book data and covers from an online service, barcode scanning, and an AI assistant that researches recommendations and adds them to my lists.
 
-Native SwiftUI app with SwiftData, in English and German. macOS first; an iOS app follows and syncs through iCloud. No third-party dependencies.
+Native SwiftUI app with SwiftData, in English and German. macOS first; an app for iPhone and iPad follows and syncs through iCloud. No third-party dependencies.
 
 ```
 make app      # build/Buchhalter.app
@@ -14,7 +14,7 @@ swift test    # BuchhalterCore unit tests
 
 Requirements: Xcode 27 with the macOS 27 SDK.
 
-Status: no code yet. The first feature sets up the package and the app shell.
+Status: the library feature is built: books, readings, collections, sort, search, undo.
 
 ## Documentation
 

@@ -1,10 +1,10 @@
 # Architecture
 
-Buchhalter is a SwiftUI app over a SwiftData store of books and readings. The Mac app comes first. An iOS app follows later; it shares the core library and most views, and the two apps share one library through iCloud (CloudKit).
+Buchhalter is a SwiftUI app over a SwiftData store of books and readings. The Mac app comes first. An app for iPhone and iPad follows later: one iOS app target that runs on both. It shares the core library and most views, and the Mac and iOS apps share one library through iCloud (CloudKit).
 
 The UI is in English and German.
 
-This doc sets the direction before any code exists. The [Roadmap](#roadmap) lists the features that are planned but not in the first version; the architecture leaves room for them now, so they don't force a rewrite later. Each feature's plan decides the details and updates this doc when it is archived. Sections marked **Direction** describe intent, not code.
+This doc describes the code as it is and the direction it takes. The library feature (books, readings, collections, sort, search, undo) exists; the [Roadmap](#roadmap) lists the features that are planned but not in the first version. The architecture leaves room for them now, so they don't force a rewrite later. Each feature's plan decides the details and updates this doc when it is archived. Sections marked **Direction** describe intent, not code.
 
 ## Phases
 
@@ -12,45 +12,41 @@ This doc sets the direction before any code exists. The [Roadmap](#roadmap) list
 |---|---|---|
 | 1. Mac, local | macOS app, local SwiftData store, no sync. SwiftPM + `make`, ad-hoc signed, bundle id `local.buchhalter` | Nothing beyond Xcode |
 | 2. iCloud sync | The same store, mirrored to a private CloudKit database | A paid Apple Developer team, a CloudKit container, a reverse-DNS bundle id under that team, an Xcode project for entitlements and provisioning |
-| 3. iOS | iOS 27 app target in the same Xcode project, using `BuchhalterCore` and the shared views | Phase 2 |
+| 3. iPhone and iPad | One iOS 27 app target (iPhone and iPad) in the same Xcode project, using `BuchhalterCore` and the shared views. Installing on the user's own devices needs the Developer team from phase 2 (a free account's installs expire after 7 days) | Phase 2 |
 
-The features in the [Roadmap](#roadmap) are independent of the phases: book lookup and the assistant can come in phase 1 on the Mac; barcode scanning is best on iOS.
+The features in the [Roadmap](#roadmap) are independent of the phases: book lookup and the assistant can come in phase 1 on the Mac; barcode scanning is best on iPhone and iPad.
 
 No signing identity is installed on this Mac yet (`security find-identity -p codesigning` finds none), so phase 1 stays unsigned apart from the ad-hoc signature. The data model follows CloudKit's rules from phase 1, so turning on sync in phase 2 needs no migration of the model's shape.
 
 ## Targets
 
-**Direction.**
-
 | Target | Kind | Imports | Contents |
 |---|---|---|---|
-| `BuchhalterCore` | library | Foundation, SwiftData | Its own String Catalog for the texts it produces (status names, statistics, errors). The `@Model` types, the versioned schemas and the migration plan, container setup (store location, in-memory for tests), the operations that change data (add a book, start and finish a reading, rate, shelve, delete), queries and sort descriptors used by more than one view, and pure logic (ISBN parsing and checking, statistics, search folding, import and export). Fully unit-tested |
-| `Buchhalter` | executable `buchhalter` | SwiftUI, AppKit (Mac-only files), BuchhalterCore | The Mac app: `App`, scenes, menus, `Settings`, views |
+| `BuchhalterCore` | library | Foundation, SwiftData, ImageIO | The `@Model` types, the versioned schemas and the migration plan, container setup (store location, in-memory for tests), `Library` with the operations that change data (add and edit a book, finish, abandon and repeat a reading, collections, list settings) and its undo, and pure logic (ISBN parsing and checking, author sort names, text folding, sorting, search, list membership, drafts, duplicate check, cover normalizing, formatting). Texts it produces (status names, sort field names, errors, sentences) come from the app's catalog. Fully unit-tested |
+| `Buchhalter` | executable `buchhalter` | SwiftUI, AppKit (Mac-only files), BuchhalterCore | The Mac app: `App`, the one window, menus, views. Every declaration is `@MainActor` by default (`defaultIsolation`) |
 | `BuchhalterCoreTests` | Swift Testing | BuchhalterCore | One test file per core area, against in-memory containers |
 
-`Package.swift` uses a Swift 6 tools version with the Swift 6 language mode (strict concurrency) and platforms `.macOS("27.0")`, plus `.iOS("27.0")` for the core from the start, so nothing Mac-only creeps into it. `defaultLocalization` is `"en"`, and each target with texts declares its `Resources/` folder with the String Catalog.
+`Package.swift` uses tools version 6.2 with the Swift 6 language mode (strict concurrency) and platforms `.macOS("27.0")`, plus `.iOS("27.0")` so nothing Mac-only creeps into the core. There are no package resources and no `defaultLocalization`: the one String Catalog sits outside any target and the Makefile compiles it into the app bundle (see Localization).
 
-When phase 2 or 3 starts, an Xcode project joins the repo. It references the local package for `BuchhalterCore`, holds the macOS and iOS app targets with their entitlements, and the views both apps share move into a `BuchhalterUI` library in the package. Until then the SwiftPM executable is the app, built like swell and fluff.
+When phase 2 or 3 starts, an Xcode project joins the repo. It references the local package for `BuchhalterCore`, holds the macOS app target and the iOS app target (iPhone and iPad) with their entitlements, and the views they share move into a `BuchhalterUI` library in the package. Until then the SwiftPM executable is the app, built like swell and fluff.
 
 ## Layout
-
-**Direction.**
 
 ```
 Package.swift
 Makefile
-Resources/              Info.plist (CFBundleLocalizations en, de), app icon
+Resources/
+  Info.plist            CFBundleLocalizations en, de; exported type local.buchhalter.book
+  Localizable.xcstrings the one String Catalog, English and German
 Sources/
   BuchhalterCore/
-    Model/              @Model types, SchemaV1…, migration plan
-    Store/              container setup, store location, operations
-    Logic/              ISBN, statistics, search, import/export
-    Resources/          Localizable.xcstrings
+    Model/              @Model types in SchemaV1, migration plan, enums, derived helpers
+    Store/              container, location, Library, operations, undo snapshots
+    Logic/              ISBN, names, folding, sort, search, lists, draft, duplicates, covers, formatting
   Buchhalter/
-    App/                App, scenes, commands (menus)
-    Views/              shared-ready views (no AppKit)
-    Mac/                Mac-only code
-    Resources/          Localizable.xcstrings
+    App/                App, WindowModel
+    Views/              shared-ready views (no AppKit): Sidebar, Toolbar, Books, Detail, Sheets, Common
+    Mac/                Mac-only code: AppDelegate, menus, paste, navigation subtitle, store failure alert
 Tests/
   BuchhalterCoreTests/
 docs/dev/               this doc
@@ -59,18 +55,20 @@ specs/planned/, specs/done/
 
 ## Data model
 
-**Direction.** The starting shape. The first spec that stores books fixes it in `SchemaV1`.
+`SchemaV1` (Library feature). The shape below is what the code has; Conversation and ChatMessage are Roadmap.
 
 | Type | Holds | Relationships |
 |---|---|---|
-| `Book` | Title, subtitle, ISBN-13 (optional), publisher, year, page count, language, cover image (external storage), added date, origin (`manual`, `lookup`, `scan`, `assistant`), origin note (for example the assistant's reason for a recommendation), lookup ids (for example an Open Library work id) | authors (many-to-many), readings (one-to-many, cascade), collections (many-to-many) |
-| `Author` | Name, sort name ("Mann, Thomas") | books |
-| `Reading` | One read-through of a book: status (`wantToRead`, `reading`, `finished`, `abandoned`), started and finished dates, rating (1–5, optional), notes | book |
-| `Collection` | A user-made list of books ("Read in 2026", "Classics to Read", "Owned"), name, note, order | books |
+| `Book` | `id`, title, subtitle, `isbn13` (normalized digits, for matching and search), `isbnText` (the user's input, for display), publisher, year, page count, language and original language (ISO 639 codes; the original only for a translation, nil when the same), cover image (external storage, JPEG, longest side 1200 px), added date, origin (`manual`, `lookup`, `scan`, `assistant`), origin note. Lookup ids come with Book lookup, as an additive optional attribute | authorships (one-to-many, cascade), readings (one-to-many, cascade), collections (many-to-many, nullify) |
+| `Author` | `id`, name, sort name ("Mann, Thomas"). One per name, reused across books; kept when it has no books left | authorships (cascade) |
+| `Authorship` | `id`, position. The ordered join between a book and an author: SwiftData's to-many relationships are unordered, and the first author decides the sort order | book, author |
+| `Reading` | One read-through of a book: `id`, status (`wantToRead`, `reading`, `finished`, `abandoned`), started date, ended date (the finish or abandon date), rating (1–5, optional), notes, created date. The current reading of a book is the one created last | book |
+| `Collection` | A user-made list of books ("Read in 2026", "Classics to Read", "Owned"): `id`, name, note, sort index, created date | books (inverse of `Book.collections`), settings (cascade) |
+| `ListSettings` | The sort levels (as a string such as `author:asc,year:asc`; empty means the default) and the view mode (`list` or `grid`) of one list. `key` names a built-in list (`reading`, `wantToRead`, `read`, `all`); a collection's settings hang off the collection. No unique constraint, so readers take the newest `updatedAt` | collection |
 | `Conversation` | Roadmap: one assistant chat: title, created date, provider and model used | messages (one-to-many, cascade) |
 | `ChatMessage` | Roadmap: one turn: role, text, the books it added or proposed, date | conversation |
 
-A book read twice has two readings. The sidebar's Reading, Want to Read and Read are queries over readings, not stored lists. Collections are the user's own lists and hold any books in any status; a book can be in several. Later, a collection may also be a saved rule ("finished in 2026") instead of a hand-made list; the model leaves room for that with an optional rule field, added when that feature comes.
+A book read twice has two readings. The sidebar's Reading, Want to Read and Read are computed from each book's current reading, not stored lists. A book without any reading is valid: it shows in All Books and its collections, without a badge. Status is optional in Add and Edit Book. Clearing it in Edit Book deletes the current reading (Want to Read, Reading or Finished); earlier readings stay, and an abandoned current reading is left alone. A translation stores its original language; the detail line shows "German (original: Japanese)". Collections are the user's own lists and hold any books in any status; a book can be in several. Later, a collection may also be a saved rule ("finished in 2026") instead of a hand-made list; the model leaves room for that with an optional rule field, added when that feature comes.
 
 **CloudKit rules**, enforced from phase 1:
 
@@ -84,38 +82,47 @@ Enums are stored as their `String` raw value, so an unknown value from a newer a
 
 ## Persistence and sync
 
-- The store is `~/Library/Application Support/Buchhalter/library.store` (plus SQLite's `-wal` and `-shm`). `$BUCHHALTER_HOME` replaces the folder, for agents and manual tests.
+- The store is `~/Library/Application Support/Buchhalter/library.store` (plus SQLite's `-wal` and `-shm`). `$BUCHHALTER_HOME` replaces the folder, for a separate test store.
 - `BuchhalterCore` builds the `ModelContainer` from the current schema and the migration plan. Tests ask for an in-memory container.
 - Every schema is a `VersionedSchema`, starting with `SchemaV1`, listed in one `SchemaMigrationPlan`.
+- If the store cannot be opened, the app shows an alert with the path and the error, logs it to stderr and quits. It never deletes, moves or recreates `library.store`.
+- At launch the app logs `library: <path>` to stderr.
 - Phase 2 turns on `cloudKitDatabase: .private(<container id>)` in the `ModelConfiguration`. Before the first sync, the existing local store is backed up next to itself.
 - Export to a plain file (JSON or CSV) comes early, so the user's data never depends on the store alone.
 
 ## Data flow
 
-**Direction.**
-
-- **Reading:** views use `@Query` with the predicates and sort descriptors from `BuchhalterCore`, so every list updates by itself after a change, including changes that arrive through sync.
-- **Writing:** views call operations in `BuchhalterCore` (for example "finish reading on date with rating") on the main `ModelContext`. The operations hold the rules (a finished reading has a finished date, one open reading per book) and are what the tests cover. Views never set model properties that carry such rules directly.
-- **Background work:** imports, book lookups and the assistant's tool calls run in a `@ModelActor` with its own context and save in batches. Model objects never cross actors; `PersistentIdentifier`s do.
+- **Reading:** views use `@Query` for books, readings, collections and list settings. `BuchhalterCore` filters, searches and sorts the fetched arrays in memory (`LibraryLists`, `BookSearch`, `BookSorter`), because `#Predicate` and `SortDescriptor` cannot do German collation with diacritic folding, cannot sort through a to-many relationship (the first author), cannot skip leading articles and cannot express "the latest reading is finished". Hundreds to a few thousand books is fine for this. Lists update by themselves after a change, including changes that arrive through sync.
+- **Writing:** views call operations on `Library` (in `BuchhalterCore`) on the main `ModelContext`. The operations hold the rules (a finished reading has a finished date and rating 1–5 or none, collection names are unique, one reading is current) and are what the tests cover. Views never set model properties directly.
+- **Undo:** SwiftData's own undo is not used. On macOS 27.2 it reverts an attribute change in memory without marking the context dirty, so the undone value is never saved and the next fetch brings the old one back (inserts and deletes work, attribute changes do not). `Library.change` captures a value snapshot of the library before and after every operation, saves, and registers undo and redo closures with the window's `UndoManager`. A closure applies the difference (creates, changes and deletes objects, writing only the fields that differ), saves, and registers the inverse. One user action is one undo step with an action name. The context's own `undoManager` stays `nil`. Cover bytes are read only for books an operation names, so ordinary actions do not load every cover. Sort and view changes (`ListSettings`) are saved without an undo step. A new field on a model must be added to its record in `LibrarySnapshot.swift` and to `apply`; `UndoTests` and `UndoPersistenceTests` check the current fields, including a fresh fetch and a second `ModelContext`.
+- **Background work:** cover normalizing (`CoverImage.normalize`, `@concurrent`) runs off the main actor. Later, imports, book lookups and the assistant's tool calls run in a `@ModelActor` with its own context and save in batches. Model objects never cross actors; `PersistentIdentifier`s and UUIDs do.
 - **Threading:** the main context and everything that touches the UI are `@MainActor`.
 
 ## UI structure
 
-**Direction.** Each feature's design artifact decides the actual screens.
+Each feature's design artifact decides the actual screens. The Library feature's design set the visual language: a deep green accent (#1F6F5C), serif (New York) titles, a fixed palette of 11 generated cover colours.
 
-- **Mac:** one main window with a `NavigationSplitView`: a sidebar (Reading, Want to Read, Read, All Books, then the user's Collections; later the Assistant), a list or grid of books in the middle, and the book's detail with its readings on the right. Adding a book is a sheet. Menus and keyboard shortcuts for the common actions, a `Settings` scene.
-- **iOS:** the same `NavigationSplitView` collapses to a stack on iPhone. Views that need a different layout on a small screen get a size-class branch, not a separate copy.
+Two controls are the app's own, in shared views:
+
+- `StatusSegments` looks like a segmented control, but clicking the selected segment clears it. A system segmented `Picker` cannot deselect, and the status is optional.
+- Secondary buttons in the book detail use `SecondaryButtonStyle`: a primary-colour label on a neutral fill. On macOS 27 a system bordered button draws its label in the window's tint, which gave dark green text on a dark button in dark mode. Only the prominent action uses the accent.
+
+Sheet forms use a `Grid` whose label column grows to the widest label, because German labels ("Sammlungen", "Abgebrochen am") run longer than the design's 70 pt.
+
+- **Mac:** one main window (one `Window` scene, so one undo stack; closing it quits the app). In list mode a three-column `NavigationSplitView`: a sidebar (Reading, Want to Read, Read, All Books, then the user's Collections; later the Assistant), the books of the selected list, and the book's detail with its readings. In grid mode two columns: the sidebar and the grid, which spans the rest; opening a book pushes its detail onto a `NavigationStack` with a back button. Adding a book is a sheet. The Book menu and ⌘N, ⌘F and ⌘⌫ cover the common actions. A `Settings` scene comes later.
+- **iPad:** the same `NavigationSplitView` shows sidebar, list and detail side by side in landscape, as on the Mac. Right-click menus become long-press context menus (the same menus), delete also works by swipe, and the Mac's keyboard shortcuts work with a hardware keyboard. Sheets appear as form sheets. Covers can also come from the Photos picker and the camera.
+- **iPhone:** the `NavigationSplitView` collapses to a stack: sidebar, then list, then detail. Views that need a different layout on a small screen get a size-class branch, not a separate copy.
 
 ## Localization
 
-**Direction.**
-
 - **Languages:** English (development language) and German. The app follows the system language; the user can pick one per app in System Settings → General → Language & Region → Applications.
-- **String Catalogs:** one `Localizable.xcstrings` per target with texts. Every key has an English and a German value; a test fails when a German value is missing or marked as needing review.
-- **Bundle lookup:** a SwiftPM target's catalog compiles into its resource bundle, not the main bundle. Views and core code look up texts in their own target's bundle (`Bundle.module`), and `make app` copies the resource bundles into `Buchhalter.app/Contents/Resources/`. The first plan settles the exact mechanism and checks it in both languages.
-- **Formatting:** dates, page counts, ratings and durations use Foundation's locale-aware `FormatStyle`s; plurals ("1 book", "3 books" / "1 Buch", "3 Bücher") use the catalog's plural variants. No texts are built by concatenation.
-- **Enums** shown to the user (reading status) have a localized display name in `BuchhalterCore`; the stored raw value stays English and fixed.
-- **Book data** (titles, authors, notes) is the user's and never translated. Sorting and search use the current locale's collation and fold case and diacritics, so "Ä" sorts with "A" and "boll" finds "Böll".
+- **One String Catalog:** `Resources/Localizable.xcstrings`, for every text of the app and of `BuchhalterCore`. Every key has an English and a German value; `LocalizationCatalogTests` fails when a value is missing or not `translated`, when a plural lacks `one` or `other`, and when the spec's German terms differ. Keys are the English text. Where one English text needs two German texts, the key is semantic with a default value (`sortField.finished`: "Finished" / "Beendet", next to the status "Finished" / "Gelesen"). `abandonSheet.title` and `abandonSheet.confirm` are semantic keys too.
+- **Why the main bundle:** AppKit's menus and the app's language choice follow the main bundle's localizations (`.lproj` folders, `CFBundleLocalizations`). A package target's resources would sit in a separate `Bundle.module`, which SwiftPM's `swift build` handles unreliably for catalogs and which does not give the app its `de.lproj`. So no target has resources; `make app` runs `xcstringstool compile` into `Contents/Resources/{en,de}.lproj`, and `Text`, `String(localized:)` and `LocalizedStringResource` in both targets resolve against `Bundle.main` with no `bundle:` argument. In the test runner (no catalog) core texts fall back to the English key, which tests may rely on, except for plurals.
+- **`make strings`:** builds with `-emit-localized-strings` into `build/strings-build` and syncs the compiler's `.stringsdata` into the catalog, so new keys show up as `new`. (`xcstringstool extract` on the sources alone writes interpolations as `%arg` and was rejected.) The rule: every key is a literal at its call site.
+- **Formatting:** dates, page counts, ratings and counts use Foundation's locale-aware `FormatStyle`s through `BookFormatting`, which takes an explicit `Locale`; plurals ("1 book", "3 books" / "1 Buch", "3 Bücher") use the catalog's plural variants. Years print without grouping ("1901", never "1.901"). No texts are built by concatenation; only pieces (dates, numbers) are interpolated.
+- **Enums** shown to the user (reading status, sort fields and directions) have a localized display name in `BuchhalterCore`; the stored raw value stays English and fixed.
+- **Book data** (titles, authors, notes) is the user's and never translated. Sorting and search use German collation (`de_DE`), case- and diacritic-insensitive, whatever the UI language, so "Ä" sorts with "A" and "boll" finds "Böll".
+- **Region:** `-AppleLanguages '(de)'` changes the language, not the region. German date formats ("3. Okt. 2026") need `-AppleLocale de_DE` or a German region.
 - **Menus:** the system's standard menu items (Edit, Window, Help) come localized from macOS; the app's own commands come from the catalog.
 
 ## Roadmap
@@ -135,7 +142,7 @@ Pull a book's data from a service: title, authors, publisher, year, pages, langu
 
 Add a book by scanning the EAN-13 barcode on its back, which is its ISBN-13.
 
-- iOS: the camera with VisionKit's `DataScannerViewController` (barcodes, EAN-13). The scan feeds the ISBN into Book lookup, then into the same confirm-and-add flow.
+- iPhone and iPad: the camera with VisionKit's `DataScannerViewController` (barcodes, EAN-13). The scan feeds the ISBN into Book lookup, then into the same confirm-and-add flow.
 - Mac: no scanner of its own. Typing or pasting the ISBN goes through the same flow; Continuity Camera (an iPhone as the Mac's camera) is a possible later addition.
 - ISBN parsing and checksum validation (ISBN-10 and ISBN-13, conversion between them) live in `BuchhalterCore` from the first version, because manual entry needs them too.
 
@@ -155,36 +162,44 @@ A chat window, like Claude Desktop, for researching book recommendations. The us
 
 ## Build and test
 
-**Direction**, following swell and fluff:
+Following swell and fluff:
 
 | Command | Result |
 |---|---|
 | `make` / `make build` | `swift build -c release` → `.build/release/buchhalter`, rebuilt only when sources changed |
-| `make app` | `build/Buchhalter.app` (binary + `Resources/Info.plist` + icon), ad-hoc signed with `codesign --sign -`, registered with `lsregister -f` |
-| `make install` | Copies the bundle to `/Applications/Buchhalter.app`, unregisters the build copy |
-| `make test` / `swift test` | `BuchhalterCore` tests |
+| `make app` | `build/Buchhalter.app` (binary + `Resources/Info.plist` + compiled catalog), ad-hoc signed with `codesign --sign -`, registered with `lsregister -f` |
+| `make install` | Copies the bundle to `/Applications/Buchhalter.app`, unregisters the build copy. Only on the user's request |
+| `make test` / `swift test` | `BuchhalterCore` tests, including the catalog test |
+| `make strings` | Extracts the texts through the compiler and syncs them into `Resources/Localizable.xcstrings` |
 
-Open the app with `open build/Buchhalter.app`. A directly executed binary gets no proper app activation. From an agent, run it in the background with a scratch store:
+The user starts the app: `open build/Buchhalter.app` runs it on the real library, and manual checks happen there. Agents build and do not start it. For German: `open build/Buchhalter.app --args -AppleLanguages '(de)' -AppleLocale de_DE`.
+
+`open` does not pass shell environment variables. A separate store needs `open --env BUCHHALTER_HOME=<folder> build/Buchhalter.app`, or the binary run directly:
 
 ```sh
-BUCHHALTER_HOME=<scratchpad>/library build/Buchhalter.app/Contents/MacOS/Buchhalter 2> <scratchpad>/run.log
+BUCHHALTER_HOME=<folder> build/Buchhalter.app/Contents/MacOS/Buchhalter 2> <folder>/run.log
 ```
 
 ## Decisions
 
-1. **SwiftData, not SQLite or JSON files.** It gives `@Query`-driven UI, migrations and CloudKit mirroring, which the iOS phase needs. The alternative, an own SQLite layer as in fluff, would mean building sync by hand.
-2. **SwiftPM and `make` first, Xcode project later.** Agents and the user build and test from the command line, like swell and fluff. An Xcode project is needed only for entitlements, provisioning and the iOS target, so it arrives with phase 2.
+1. **SwiftData, not SQLite or JSON files.** It gives `@Query`-driven UI, migrations and CloudKit mirroring, which the iPhone and iPad phase needs. The alternative, an own SQLite layer as in fluff, would mean building sync by hand.
+2. **SwiftPM and `make` first, Xcode project later.** Agents and the user build and test from the command line, like swell and fluff. An Xcode project is needed only for entitlements, provisioning and the iOS target (iPhone and iPad), so it arrives with phase 2.
 3. **CloudKit rules from day one.** Optional attributes, no unique constraints, inverse relationships. Cheaper than migrating the model's shape when sync starts.
-4. **Rules live in core operations, views stay thin.** The logic is testable against an in-memory container without a display, and the iOS app gets it for free.
+4. **Rules live in core operations, views stay thin.** The logic is testable against an in-memory container without a display, and the iPhone and iPad app gets it for free.
 5. **English and German from the first feature, in String Catalogs.** Adding a second language later means hunting every hard-coded string; with catalogs from the start each feature carries both languages and the tests catch gaps.
 6. **Readings separate from books.** Rereads, abandoned books and "read in year X" fall out of the model instead of needing special fields.
 7. **Collections are the user's lists, statuses are queries.** "Read in 2026" and "Classics to Read" are collections the user makes; Reading, Want to Read and Read come from the readings and never need maintaining.
 8. **External services behind protocols, never required.** Book lookup and the assistant's providers each sit behind a protocol with a fake, so tests run offline and the app works without network or keys.
 9. **The assistant proposes, the user confirms.** The model changes the library only through app-defined tools that call the core operations, and each change needs the user's confirmation.
+10. **One String Catalog in the main bundle, compiled by the Makefile.** Per-target catalogs resolve through `Bundle.module`, which is unreliable under `swift build` and leaves AppKit's menus and the language choice without a `de.lproj` in the main bundle.
+11. **Built-in lists, filtering, sorting and search run in core over fetched arrays.** `#Predicate` and `SortDescriptor` cannot do German collation, the first author, leading articles or "latest reading is finished". One in-memory rule keeps lists and counts consistent.
+12. **Ordered authors through an `Authorship` join model, one `Author` per name.** The first author decides the sort order, and the join keeps real relationships and CloudKit compatibility. Corrected sort names apply to all of an author's books.
+13. **`Library` does the undo, from value snapshots.** SwiftData's undo does not persist attribute changes on macOS 27.2 (see Data flow). One mechanism for all operations, one undo step per user action, and the store always holds what the user sees.
+14. **Sort and view choices are data, not undo steps.** Each list and collection keeps its sort levels and view mode in `ListSettings`; changing them is never on the undo stack.
 
 ## Open points
 
 - The Apple Developer team, CloudKit container id and final bundle id for phase 2.
 - Book lookup: Open Library or Google Books, and whether to use both.
-- Assistant: whether conversations sync to iOS or stay on each device; spending limits per request.
+- Assistant: whether conversations sync to iPhone and iPad or stay on each device; spending limits per request.
 - Import from an existing list (Goodreads CSV, a spreadsheet), if the user has one.
