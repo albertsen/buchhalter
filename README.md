@@ -1,8 +1,10 @@
 # Buchhalter
 
-Keeps track of the books I read: the ones I want to read, the ones I'm reading, and the ones I finished, with dates, ratings and notes.
+Keeps track of the books I read: the ones I want to read, the ones I'm reading, and the ones I finished, with dates, ratings and notes, grouped into my own collections.
 
-Native SwiftUI app with SwiftData. macOS first; an iOS app follows and syncs through iCloud. No third-party dependencies.
+Later: book data and covers from an online service, barcode scanning, and an AI assistant that researches recommendations and adds them to my lists.
+
+Native SwiftUI app with SwiftData, in English and German. macOS first; an iOS app follows and syncs through iCloud. No third-party dependencies.
 
 ```
 make app      # build/Buchhalter.app
