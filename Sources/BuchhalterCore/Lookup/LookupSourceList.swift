@@ -1,9 +1,8 @@
 import Foundation
 
 /// The user's order of the book sources and which are switched on, stored as
-/// "dnb:on,openLibrary:on,googleBooks:off". It is a per-Mac preference like
-/// `LibraryListOrder`, so it lives in UserDefaults, not in the store, and does
-/// not sync.
+/// "dnb:on,openLibrary:on,googleBooks:off". It is a per-Mac preference, so it
+/// lives in UserDefaults, not in the store, and does not sync.
 public struct LookupSourceList: Equatable, Sendable {
     public struct Entry: Equatable, Identifiable, Sendable {
         public var source: LookupSource

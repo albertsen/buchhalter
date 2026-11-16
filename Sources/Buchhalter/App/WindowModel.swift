@@ -12,6 +12,8 @@ enum ActiveSheet: Identifiable, Hashable {
     case abandon(UUID)
     case editReading(book: UUID, reading: UUID)
     case newCollection(addingBook: UUID?)
+    /// The one-time sheet after the first launch of the synced version.
+    case syncNotice
 
     var id: String {
         switch self {
@@ -23,6 +25,7 @@ enum ActiveSheet: Identifiable, Hashable {
         case .abandon(let id): "abandon-\(id)"
         case .editReading(_, let reading): "editReading-\(reading)"
         case .newCollection(let id): "newCollection-\(id?.uuidString ?? "none")"
+        case .syncNotice: "syncNotice"
         }
     }
 }

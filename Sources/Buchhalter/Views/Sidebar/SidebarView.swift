@@ -7,21 +7,25 @@ struct SidebarView: View {
     var model: WindowModel
     var collections: [Collection]
     var counts: [LibraryListID: Int]
+    /// Where the order of the built-in lists lives (a `ListSettings` row that syncs).
+    var settings: [ListSettings]
     @Binding var selection: LibraryListID
+    @Environment(CloudSyncMonitor.self) private var syncMonitor
+
     /// The user's order of the four built-in lists (`LibraryListOrder`).
-    @AppStorage("libraryListOrder") private var libraryOrderRaw = LibraryListOrder().raw
+    private var libraryOrder: LibraryListOrder { ListSettings.libraryListOrder(among: settings) }
 
     var body: some View {
         // A click on empty space deselects; the list stays as it was.
         List(selection: Binding<LibraryListID?>(get: { selection }, set: { if let list = $0 { selection = list } })) {
             Section("Library") {
-                ForEach(LibraryListOrder(raw: libraryOrderRaw).lists, id: \.self) { list in
+                ForEach(libraryOrder.lists, id: \.self) { list in
                     builtInRow(list)
                 }
                 .onMove { offsets, destination in
-                    var order = LibraryListOrder(raw: libraryOrderRaw)
+                    var order = libraryOrder
                     order.move(fromOffsets: offsets, toOffset: destination)
-                    libraryOrderRaw = order.raw
+                    model.attempt { try library?.setLibraryListOrder(order) }
                 }
             }
             Section("Collections") {
@@ -44,19 +48,30 @@ struct SidebarView: View {
         }
         .listStyle(.sidebar)
         .safeAreaInset(edge: .bottom) {
-            HStack {
-                Button {
-                    model.isCreatingCollection = true
-                } label: {
-                    Label("New Collection", systemImage: "plus")
+            VStack(alignment: .leading, spacing: 8) {
+                if let line = syncMonitor.state.sidebarLine {
+                    SidebarSyncLine(line: line, isError: isFailure)
                 }
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
-                Spacer()
+                HStack {
+                    Button {
+                        model.isCreatingCollection = true
+                    } label: {
+                        Label("New Collection", systemImage: "plus")
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundStyle(.secondary)
+                    Spacer()
+                }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
         }
+    }
+
+    /// Sync stopped for a reason other than sign-in or storage: the line is red.
+    private var isFailure: Bool {
+        if case .failed = syncMonitor.state.problem { return true }
+        return false
     }
 
     @ViewBuilder

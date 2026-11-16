@@ -149,6 +149,27 @@ struct LocalizationCatalogTests {
             "No camera found": "Keine Kamera gefunden", "Open System Settings…": "Systemeinstellungen öffnen…",
             "This barcode isn't an ISBN (%@). Look for the one that starts with 978 or 979.":
                 "Dieser Barcode ist keine ISBN (%@). Such den, der mit 978 oder 979 beginnt.",
+            // iCloud sync
+            "iCloud": "iCloud", "iCloud Sync": "iCloud-Synchronisierung", "Up to date": "Aktuell",
+            "Syncing with iCloud…": "Wird mit iCloud synchronisiert…", "Last synced": "Zuletzt synchronisiert",
+            "Not yet": "Noch nicht", "In iCloud": "In iCloud",
+            "Copy before the first sync": "Kopie vor der ersten Synchronisierung",
+            "Show in Finder": "Im Finder zeigen", "Show Copy in Finder": "Kopie im Finder zeigen",
+            "Manage Storage…": "Speicher verwalten…",
+            "Your Library Now Syncs with iCloud": "Deine Bibliothek wird jetzt mit iCloud synchronisiert",
+            "iCloud sync isn't working": "iCloud-Synchronisierung funktioniert nicht",
+            "Uploading your library to iCloud…": "Deine Bibliothek wird in die iCloud geladen…",
+            "Getting your library from iCloud…": "Deine Bibliothek kommt aus der iCloud…",
+            "Sign in to iCloud to sync. Until then the library stays on this Mac only.":
+                "Melde dich bei iCloud an, um zu synchronisieren. Bis dahin bleibt die Bibliothek nur auf diesem Mac.",
+            "iCloud is turned off for Buchhalter. The library stays on this Mac only and is not protected if the Mac is lost.":
+                "iCloud ist für Buchhalter ausgeschaltet. Die Bibliothek bleibt nur auf diesem Mac und ist nicht geschützt, wenn der Mac verloren geht.",
+            "Your iCloud storage is full. New changes stay on this Mac and sync once there is space.":
+                "Dein iCloud-Speicher ist voll. Neue Änderungen bleiben auf diesem Mac und werden synchronisiert, sobald Platz ist.",
+            "iCloud sync stopped: %@. Your changes are kept on this Mac. Buchhalter tries again at the next launch.":
+                "Die iCloud-Synchronisierung wurde angehalten: %@. Deine Änderungen bleiben auf diesem Mac. Buchhalter versucht es beim nächsten Start erneut.",
+            "Before the library first went to iCloud, Buchhalter kept a copy of it on this Mac, from %@.":
+                "Bevor die Bibliothek zum ersten Mal in die iCloud ging, hat Buchhalter eine Kopie davon auf diesem Mac behalten, vom %@.",
         ]
         for (key, german) in expected {
             let entry = try #require(strings[key], "\(key) is missing")

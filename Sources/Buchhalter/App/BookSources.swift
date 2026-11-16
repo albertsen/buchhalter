@@ -37,7 +37,9 @@ final class BookSources {
     /// when it closes.
     var justSavedKey = false
 
-    @ObservationIgnored private let store = KeychainSecretStore()
+    /// The signed app keeps the key in the data protection keychain (no prompt
+    /// after a build) and carries the old file-based item over on the first read.
+    @ObservationIgnored private let store = KeychainSecretStore(mode: .dataProtection(migratingLegacy: true))
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let dnb = DNBService()
     @ObservationIgnored private let openLibrary = OpenLibraryService()

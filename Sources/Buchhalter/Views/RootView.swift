@@ -144,7 +144,10 @@ struct RootView: View {
             model.selectedBookID = nil
             model.gridPath = []
         }
-        .onAppear { restoreSelection() }
+        .onAppear {
+            restoreSelection()
+            showSyncNoticeIfNeeded()
+        }
         .onChange(of: model.selectedBookID) { _, id in selectedBookRaw = id?.uuidString ?? "" }
         .onChange(of: model.gridPath) { _, path in openBookRaw = path.last?.uuidString ?? "" }
         .onReceive(NotificationCenter.default.publisher(for: .selectCollection)) { note in
@@ -156,7 +159,7 @@ struct RootView: View {
 
     private func sidebar(_ counts: [LibraryListID: Int]) -> some View {
         SidebarView(
-            model: model, collections: collections, counts: counts,
+            model: model, collections: collections, counts: counts, settings: settings,
             selection: Binding(get: { listID }, set: { selectedListRaw = $0.rawValue })
         )
         .navigationSplitViewColumnWidth(min: 200, ideal: 232, max: 300)
@@ -239,7 +242,17 @@ struct RootView: View {
         case .newCollection(let bookID):
             NewCollectionSheet(model: model, book: bookID.flatMap(book))
                 .environment(\.library, library)
+        case .syncNotice:
+            SyncNoticeSheet(bookCount: books.count)
         }
+    }
+
+    /// After the first launch of the synced version: once, over the window.
+    private func showSyncNoticeIfNeeded() {
+        let defaults = UserDefaults.standard
+        guard defaults.double(forKey: SyncDefaults.legacyCopyDate) > 0, !defaults.bool(forKey: SyncDefaults.syncNoticeShown),
+              model.sheet == nil else { return }
+        model.sheet = .syncNotice
     }
 
     private func book(_ id: UUID) -> Book? { books.first { $0.id == id } }

@@ -25,8 +25,10 @@ let usage = """
     $BUCHHALTER_HOME names another folder. Quit Buchhalter first.
     """
 
-/// The app's bundle id and with it its UserDefaults domain. Changes with the
-/// final bundle id (architecture.md, Phases).
+/// The bundle id and UserDefaults domain of the app from before it was signed
+/// and synced (`local.buchhalter`). The tool still works on that app's library
+/// in ~/Library/Application Support/Buchhalter/, which is no longer the app's
+/// library; adapting it to the synced one is left for later.
 let appBundleID = "local.buchhalter"
 
 func fail(_ message: String) -> Never {

@@ -1,8 +1,11 @@
 import Foundation
 
 /// The user's order of the four built-in lists in the sidebar, stored as
-/// "reading,wantToRead,read,all". It is a per-Mac view preference like the
-/// selected list, so it lives in UserDefaults, not in the store.
+/// "reading,wantToRead,read,all". It lives in the library (a `ListSettings`
+/// row with the key `sidebarOrder`), so it syncs: dragging Read above Reading
+/// changes the order on every device. Before sync it was a UserDefaults
+/// preference (`libraryListOrder`); the first launch of the synced app carries
+/// it over.
 public struct LibraryListOrder: Equatable, Sendable {
     public static let builtIns: [LibraryListID] = [.reading, .wantToRead, .read, .all]
 

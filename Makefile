@@ -7,9 +7,20 @@ LSREGISTER := /System/Library/Frameworks/CoreServices.framework/Frameworks/Launc
 XCSTRINGSTOOL := xcrun xcstringstool
 SOURCES    := $(shell find Sources -name '*.swift') Package.swift
 
+# Signing. The app is sandboxed and signed with the Apple Development
+# certificate and a macOS App Development provisioning profile that allows the
+# iCloud container, saved outside the repo (it names this Mac).
+BUNDLE_ID    := de.juergenalbertsen.buchhalter
+CONTAINER_ID := iCloud.$(BUNDLE_ID)
+TEAM_ID      := 3PT9KVM9AJ
+SIGN_ID      := Apple Development
+PROFILE      ?= $(HOME)/Library/Developer/Buchhalter/Buchhalter_Development.provisionprofile
+ENTITLEMENTS := Resources/Buchhalter.entitlements
+SCHEMA_APP   := build/BuchhalterSchema.app
+
 .DEFAULT_GOAL := build
 
-.PHONY: build app install cli test strings icon isbn-ranges clean
+.PHONY: build app install cli test strings icon isbn-ranges cloudkit-schema clean
 
 # Rebuilt only when a source file is newer than the binary.
 $(BIN): $(SOURCES)
@@ -17,21 +28,41 @@ $(BIN): $(SOURCES)
 
 build: $(BIN)
 
-# The binary, Info.plist, the icon, Google's attribution graphic and the
-# compiled catalogs (en.lproj, de.lproj; InfoPlist.xcstrings gives the camera
-# access prompt its German text), ad-hoc signed. Texts live in the main
-# bundle, so SwiftUI and the core find them.
-app: $(BIN) $(CATALOG) $(INFO_CATALOG) Resources/Info.plist Resources/AppIcon.icns Resources/PoweredByGoogle.png
-	rm -rf $(APP)
-	mkdir -p $(APP)/Contents/MacOS $(APP)/Contents/Resources
-	cp $(BIN) $(APP)/Contents/MacOS/Buchhalter
-	cp Resources/Info.plist $(APP)/Contents/Info.plist
-	cp Resources/AppIcon.icns $(APP)/Contents/Resources/AppIcon.icns
-	cp Resources/PoweredByGoogle.png $(APP)/Contents/Resources/PoweredByGoogle.png
-	$(XCSTRINGSTOOL) compile $(CATALOG) --output-directory $(APP)/Contents/Resources
-	$(XCSTRINGSTOOL) compile $(INFO_CATALOG) --output-directory $(APP)/Contents/Resources
-	codesign --force --sign - $(APP)
+# Builds the signed, sandboxed bundle at $(1) with CloudKit environment $(2):
+# the binary, Info.plist, the icon, Google's attribution graphic, the compiled
+# catalogs (en.lproj, de.lproj; InfoPlist.xcstrings gives the camera access
+# prompt its German text) and the provisioning profile. Texts live in the main
+# bundle, so SwiftUI and the core find them. The entitlements come from the
+# template with the identifiers filled in.
+define bundle
+	@test -f "$(PROFILE)" || { echo "missing provisioning profile: $(PROFILE) (see docs/dev/architecture.md, Build and test)"; exit 1; }
+	rm -rf $(1)
+	mkdir -p $(1)/Contents/MacOS $(1)/Contents/Resources
+	cp $(BIN) $(1)/Contents/MacOS/Buchhalter
+	cp Resources/Info.plist $(1)/Contents/Info.plist
+	cp Resources/AppIcon.icns $(1)/Contents/Resources/AppIcon.icns
+	cp Resources/PoweredByGoogle.png $(1)/Contents/Resources/PoweredByGoogle.png
+	$(XCSTRINGSTOOL) compile $(CATALOG) --output-directory $(1)/Contents/Resources
+	$(XCSTRINGSTOOL) compile $(INFO_CATALOG) --output-directory $(1)/Contents/Resources
+	cp "$(PROFILE)" $(1)/Contents/embedded.provisionprofile
+	sed -e 's/@TEAM_ID@/$(TEAM_ID)/g' -e 's/@BUNDLE_ID@/$(BUNDLE_ID)/g' \
+		-e 's/@CONTAINER_ID@/$(CONTAINER_ID)/g' -e 's/@CLOUDKIT_ENVIRONMENT@/$(2)/g' \
+		$(ENTITLEMENTS) > $(1).entitlements
+	codesign --force --options runtime --entitlements $(1).entitlements --sign "$(SIGN_ID)" $(1)
+endef
+
+# build/Buchhalter.app: CloudKit's production environment, the one the later
+# TestFlight and App Store versions use.
+app: $(BIN) $(CATALOG) $(INFO_CATALOG) Resources/Info.plist Resources/AppIcon.icns Resources/PoweredByGoogle.png $(ENTITLEMENTS)
+	$(call bundle,$(APP),Production)
 	$(LSREGISTER) -f $(APP)
+
+# build/BuchhalterSchema.app: the same app in CloudKit's development
+# environment. Started once with `-initializeCloudKitSchema YES` it creates the
+# record types on a scratch store and quits; then "Deploy Schema Changes" in
+# the CloudKit Console makes them production's. Never used on the library.
+cloudkit-schema: $(BIN) $(CATALOG) $(INFO_CATALOG) Resources/Info.plist Resources/AppIcon.icns Resources/PoweredByGoogle.png $(ENTITLEMENTS)
+	$(call bundle,$(SCHEMA_APP),Development)
 
 # Replaces /Applications/Buchhalter.app. Only on the user's request.
 install: app

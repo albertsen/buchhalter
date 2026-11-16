@@ -14,6 +14,12 @@ extension ListSettings {
     /// The `key` of the one row whose sort levels apply to every list and
     /// collection. Never a list's own key.
     public static let sortKey = "sort"
+    /// The `key` of the row that holds the order of the built-in lists in the
+    /// sidebar, as `LibraryListOrder.raw` in `sortLevelsRaw`. It is a view
+    /// preference that syncs, so it lives in the store: a new schema version
+    /// for one string would migrate the real library and add a CloudKit field
+    /// for it. The attribute's name no longer fits; the key says what it holds.
+    public static let sidebarOrderKey = "sidebarOrder"
 
     /// Duplicates can exist (no unique constraint with CloudKit); the newest wins.
     @MainActor
@@ -43,8 +49,16 @@ extension ListSettings {
     public static func sortLevels(among settings: [ListSettings], collections: [Collection]) -> SortLevels {
         if let global = resolveSort(among: settings) { return SortLevels(raw: global.sortLevelsRaw) }
         let lists = settings + collections.compactMap(\.settings)
-        let latest = lists.filter { $0.key != sortKey && !$0.sortLevelsRaw.isEmpty }.max { $0.updatedAt < $1.updatedAt }
+        let latest = lists.filter { $0.key != sortKey && $0.key != sidebarOrderKey && !$0.sortLevelsRaw.isEmpty }.max { $0.updatedAt < $1.updatedAt }
         return latest.map { SortLevels(raw: $0.sortLevelsRaw) } ?? .default
+    }
+
+    /// The order of the built-in lists; the newest row wins. A missing or
+    /// damaged value gives the default order (`LibraryListOrder(raw:)`).
+    @MainActor
+    public static func libraryListOrder(among settings: [ListSettings]) -> LibraryListOrder {
+        let row = settings.filter { $0.collection == nil && $0.key == sidebarOrderKey }.max { $0.updatedAt < $1.updatedAt }
+        return row.map { LibraryListOrder(raw: $0.sortLevelsRaw) } ?? LibraryListOrder()
     }
 
     @MainActor
@@ -81,6 +95,37 @@ extension Library {
             settings.sortLevelsRaw = levels.isDefault ? "" : levels.raw
             settings.updatedAt = .now
         }
+    }
+
+    /// Sets the order of the built-in lists in the sidebar. Saved at once, never
+    /// on the undo stack, like the sort.
+    public func setLibraryListOrder(_ order: LibraryListOrder) throws {
+        try withoutUndo {
+            let all = (try? context.fetch(FetchDescriptor<ListSettings>())) ?? []
+            let row = all.filter { $0.collection == nil && $0.key == ListSettings.sidebarOrderKey }
+                .max { $0.updatedAt < $1.updatedAt }
+            let settings: ListSettings
+            if let row {
+                settings = row
+            } else {
+                settings = ListSettings()
+                settings.key = ListSettings.sidebarOrderKey
+                context.insert(settings)
+            }
+            settings.sortLevelsRaw = order.raw
+            settings.updatedAt = .now
+        }
+    }
+
+    public func libraryListOrder() -> LibraryListOrder {
+        ListSettings.libraryListOrder(among: (try? context.fetch(FetchDescriptor<ListSettings>())) ?? [])
+    }
+
+    /// Whether the store already holds a sidebar order, so the one written
+    /// from the old app's preferences is made only once.
+    public var hasLibraryListOrder: Bool {
+        let all = (try? context.fetch(FetchDescriptor<ListSettings>())) ?? []
+        return all.contains { $0.collection == nil && $0.key == ListSettings.sidebarOrderKey }
     }
 
     public func resetSort() throws {

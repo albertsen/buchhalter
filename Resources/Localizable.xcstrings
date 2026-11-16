@@ -33,6 +33,38 @@
         }
       }
     },
+    "%@ · %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ · %2$@"
+          }
+        }
+      }
+    },
+    "%@, %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@"
+          }
+        }
+      }
+    },
     "%lld books" : {
       "localizations" : {
         "de" : {
@@ -369,6 +401,22 @@
         }
       }
     },
+    "A copy of the library from before the first sync is kept on this Mac." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eine Kopie der Bibliothek von vor der ersten Synchronisierung bleibt auf diesem Mac."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A copy of the library from before the first sync is kept on this Mac."
+          }
+        }
+      }
+    },
     "A rating is half a star to 5 stars." : {
       "localizations" : {
         "de" : {
@@ -697,6 +745,46 @@
         }
       }
     },
+    "All %lld books are going to iCloud, with their readings, collections and covers. You can keep working meanwhile." : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Dein Buch geht mit seinen Lektüren, Sammlungen und seinem Cover in die iCloud. Du kannst währenddessen weiterarbeiten."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Alle %lld Bücher gehen mit ihren Lektüren, Sammlungen und Covern in die iCloud. Du kannst währenddessen weiterarbeiten."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Your book is going to iCloud, with its readings, collections and cover. You can keep working meanwhile."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "All %lld books are going to iCloud, with their readings, collections and covers. You can keep working meanwhile."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "All Books" : {
       "localizations" : {
         "de" : {
@@ -793,6 +881,22 @@
         }
       }
     },
+    "Before the library first went to iCloud, Buchhalter kept a copy of it on this Mac, from %@." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bevor die Bibliothek zum ersten Mal in die iCloud ging, hat Buchhalter eine Kopie davon auf diesem Mac behalten, vom %@."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Before the library first went to iCloud, Buchhalter kept a copy of it on this Mac, from %@."
+          }
+        }
+      }
+    },
     "Book" : {
       "localizations" : {
         "de" : {
@@ -857,6 +961,22 @@
         }
       }
     },
+    "Books, readings, collections and covers are kept in your private iCloud and show up on every Mac, iPhone and iPad signed in to the same Apple Account." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bücher, Lektüren, Sammlungen und Cover liegen in deiner privaten iCloud und erscheinen auf jedem Mac, iPhone und iPad, das mit demselben Apple Account angemeldet ist."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Books, readings, collections and covers are kept in your private iCloud and show up on every Mac, iPhone and iPad signed in to the same Apple Account."
+          }
+        }
+      }
+    },
     "Buchhalter" : {
       "localizations" : {
         "de" : {
@@ -889,6 +1009,22 @@
         }
       }
     },
+    "Buchhalter could not copy the library from %@. The old folder was not changed.\n\n%@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buchhalter konnte die Bibliothek aus %1$@ nicht kopieren. Der alte Ordner wurde nicht verändert.\n\n%2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buchhalter could not copy the library from %1$@. The old folder was not changed.\n\n%2$@"
+          }
+        }
+      }
+    },
     "Buchhalter could not open the library at %@. Nothing was changed.\n\n%@" : {
       "localizations" : {
         "de" : {
@@ -901,6 +1037,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Buchhalter could not open the library at %@. Nothing was changed.\n\n%@"
+          }
+        }
+      }
+    },
+    "Buchhalter keeps your library in your private iCloud. It is safe if this Mac is lost, and the iPhone and iPad app shows the same books." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buchhalter bewahrt deine Bibliothek in deiner privaten iCloud auf. Sie ist sicher, wenn dieser Mac verloren geht, und die App für iPhone und iPad zeigt dieselben Bücher."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buchhalter keeps your library in your private iCloud. It is safe if this Mac is lost, and the iPhone and iPad app shows the same books."
+          }
+        }
+      }
+    },
+    "Buchhalter needs your permission to copy the library from before the first sync. Choose the folder “Buchhalter” and click Open." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buchhalter braucht deine Erlaubnis, die Bibliothek von vor der ersten Synchronisierung zu kopieren. Wähle den Ordner „Buchhalter“ und klicke auf „Öffnen“."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buchhalter needs your permission to copy the library from before the first sync. Choose the folder “Buchhalter” and click Open."
           }
         }
       }
@@ -1145,6 +1313,22 @@
         }
       }
     },
+    "Choose the Old Library Folder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alten Bibliotheksordner wählen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the Old Library Folder"
+          }
+        }
+      }
+    },
     "Clear" : {
       "localizations" : {
         "de" : {
@@ -1253,6 +1437,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Connect a camera or put an iPhone near this Mac. You can also type the ISBN."
+          }
+        }
+      }
+    },
+    "Copy before the first sync" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopie vor der ersten Synchronisierung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy before the first sync"
           }
         }
       }
@@ -2317,6 +2517,22 @@
         }
       }
     },
+    "Getting your library from iCloud…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Bibliothek kommt aus der iCloud…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Getting your library from iCloud…"
+          }
+        }
+      }
+    },
     "Google Books" : {
       "localizations" : {
         "de" : {
@@ -2525,6 +2741,22 @@
         }
       }
     },
+    "In iCloud" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In iCloud"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In iCloud"
+          }
+        }
+      }
+    },
     "Invalid value" : {
       "localizations" : {
         "de" : {
@@ -2553,6 +2785,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Language"
+          }
+        }
+      }
+    },
+    "Last synced" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuletzt synchronisiert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last synced"
           }
         }
       }
@@ -2633,6 +2881,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Lowest first"
+          }
+        }
+      }
+    },
+    "Manage Storage…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speicher verwalten…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage Storage…"
           }
         }
       }
@@ -3093,6 +3357,22 @@
         }
       }
     },
+    "Not yet" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch nicht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not yet"
+          }
+        }
+      }
+    },
     "Note" : {
       "localizations" : {
         "de" : {
@@ -3297,6 +3577,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open System Settings…"
+          }
+        }
+      }
+    },
+    "Opens the iCloud settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet die iCloud-Einstellungen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the iCloud settings"
           }
         }
       }
@@ -4021,6 +4317,54 @@
         }
       }
     },
+    "Show Copy in Finder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopie im Finder zeigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Copy in Finder"
+          }
+        }
+      }
+    },
+    "Show in Finder" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Finder zeigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show in Finder"
+          }
+        }
+      }
+    },
+    "Sign in to iCloud to sync. Until then the library stays on this Mac only." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Melde dich bei iCloud an, um zu synchronisieren. Bis dahin bleibt die Bibliothek nur auf diesem Mac."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to iCloud to sync. Until then the library stays on this Mac only."
+          }
+        }
+      }
+    },
     "Sign in to the Google Cloud Console with your Google account." : {
       "localizations" : {
         "de" : {
@@ -4277,6 +4621,38 @@
         }
       }
     },
+    "Syncing with iCloud…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wird mit iCloud synchronisiert…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Syncing with iCloud…"
+          }
+        }
+      }
+    },
+    "The book sources, their order and the Google Books key stay on this Mac. They don’t sync." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Buchquellen, ihre Reihenfolge und der Google-Books-Schlüssel bleiben auf diesem Mac. Sie werden nicht synchronisiert."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The book sources, their order and the Google Books key stay on this Mac. They don’t sync."
+          }
+        }
+      }
+    },
     "The books in it stay in your library." : {
       "localizations" : {
         "de" : {
@@ -4305,6 +4681,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The finish date can't be before the start date."
+          }
+        }
+      }
+    },
+    "The first upload of a large library can take a while. You can keep working, and you can quit Buchhalter: it goes on at the next launch." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das erste Hochladen einer großen Bibliothek kann dauern. Du kannst weiterarbeiten und Buchhalter auch beenden: Es geht beim nächsten Start weiter."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The first upload of a large library can take a while. You can keep working, and you can quit Buchhalter: it goes on at the next launch."
           }
         }
       }
@@ -4453,6 +4845,22 @@
         }
       }
     },
+    "The library could not be copied" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Bibliothek konnte nicht kopiert werden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The library could not be copied"
+          }
+        }
+      }
+    },
     "The library could not be opened" : {
       "localizations" : {
         "de" : {
@@ -4497,6 +4905,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The page count is a number from 1 to 99999."
+          }
+        }
+      }
+    },
+    "The sync status is in Settings → iCloud." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Stand der Synchronisierung steht in Einstellungen → iCloud."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The sync status is in Settings → iCloud."
           }
         }
       }
@@ -4645,6 +5069,22 @@
         }
       }
     },
+    "Today, %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute, %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today, %@"
+          }
+        }
+      }
+    },
     "Try Again" : {
       "localizations" : {
         "de" : {
@@ -4737,6 +5177,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Undo"
+          }
+        }
+      }
+    },
+    "Up to date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuell"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Up to date"
+          }
+        }
+      }
+    },
+    "Uploading your library to iCloud…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Bibliothek wird in die iCloud geladen…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uploading your library to iCloud…"
           }
         }
       }
@@ -4901,6 +5373,54 @@
         }
       }
     },
+    "Yesterday, %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gestern, %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yesterday, %@"
+          }
+        }
+      }
+    },
+    "Your Library Now Syncs with iCloud" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Bibliothek wird jetzt mit iCloud synchronisiert"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Library Now Syncs with iCloud"
+          }
+        }
+      }
+    },
+    "Your iCloud storage is full. New changes stay on this Mac and sync once there is space." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein iCloud-Speicher ist voll. Neue Änderungen bleiben auf diesem Mac und werden synchronisiert, sobald Platz ist."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your iCloud storage is full. New changes stay on this Mac and sync once there is space."
+          }
+        }
+      }
+    },
     "Your library is empty" : {
       "localizations" : {
         "de" : {
@@ -4961,6 +5481,86 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abandon Reading"
+          }
+        }
+      }
+    },
+    "iCloud" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud"
+          }
+        }
+      }
+    },
+    "iCloud Sync" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-Synchronisierung"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud Sync"
+          }
+        }
+      }
+    },
+    "iCloud is turned off for Buchhalter. The library stays on this Mac only and is not protected if the Mac is lost." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud ist für Buchhalter ausgeschaltet. Die Bibliothek bleibt nur auf diesem Mac und ist nicht geschützt, wenn der Mac verloren geht."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud is turned off for Buchhalter. The library stays on this Mac only and is not protected if the Mac is lost."
+          }
+        }
+      }
+    },
+    "iCloud sync isn't working" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-Synchronisierung funktioniert nicht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud sync isn't working"
+          }
+        }
+      }
+    },
+    "iCloud sync stopped: %@. Your changes are kept on this Mac. Buchhalter tries again at the next launch." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die iCloud-Synchronisierung wurde angehalten: %@. Deine Änderungen bleiben auf diesem Mac. Buchhalter versucht es beim nächsten Start erneut."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud sync stopped: %@. Your changes are kept on this Mac. Buchhalter tries again at the next launch."
           }
         }
       }

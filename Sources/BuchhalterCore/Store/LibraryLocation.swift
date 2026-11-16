@@ -22,4 +22,44 @@ public enum LibraryLocation {
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         return folder.appending(path: storeFileName, directoryHint: .notDirectory)
     }
+
+    /// The real home directory. `NSHomeDirectory()` is the app's container in
+    /// a sandbox, so this asks the password database instead.
+    public static func realHome() -> URL {
+        if let entry = getpwuid(getuid()), let directory = entry.pointee.pw_dir {
+            return URL(fileURLWithPath: String(cString: directory), isDirectory: true)
+        }
+        return URL(fileURLWithPath: NSHomeDirectory(), isDirectory: true)
+    }
+
+    /// `<home>/Library/Application Support/Buchhalter`: where the library lived
+    /// before the app was sandboxed. Never created here. Pass `realHome()`;
+    /// tests pass a temporary folder.
+    public static func legacyFolder(home: URL) -> URL {
+        home.appending(path: "Library/Application Support/Buchhalter", directoryHint: .isDirectory)
+    }
+
+    /// The bytes the library takes in `folder`: the store, its log files and
+    /// the external storage folder with the covers. It is what iCloud mirrors,
+    /// so Settings shows it as the size "in iCloud" (CloudKit reports no usage
+    /// of its own).
+    public static func storeBytes(in folder: URL) -> Int64 {
+        let fileManager = FileManager.default
+        var total: Int64 = 0
+        for name in LegacyLibrary.itemNames {
+            let url = folder.appending(path: name)
+            var isDirectory: ObjCBool = false
+            guard fileManager.fileExists(atPath: url.path, isDirectory: &isDirectory) else { continue }
+            if isDirectory.boolValue {
+                let files = fileManager.enumerator(at: url, includingPropertiesForKeys: [.fileSizeKey, .isRegularFileKey])
+                while let file = files?.nextObject() as? URL {
+                    let values = try? file.resourceValues(forKeys: [.fileSizeKey, .isRegularFileKey])
+                    if values?.isRegularFile == true { total += Int64(values?.fileSize ?? 0) }
+                }
+            } else {
+                total += Int64((try? url.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0)
+            }
+        }
+        return total
+    }
 }

@@ -66,3 +66,46 @@ struct ListSettingsTests {
         #expect(ReadingStatus(raw: "future") == .wantToRead)
     }
 }
+
+@MainActor
+struct SidebarOrderTests {
+    @Test func theRowRoundTripsAndIsKeptOnce() throws {
+        let t = try TestLibrary()
+        #expect(t.library.libraryListOrder() == LibraryListOrder())
+        #expect(!t.library.hasLibraryListOrder)
+        let order = LibraryListOrder(raw: "read,reading,wantToRead,all")
+        try t.library.setLibraryListOrder(order)
+        try t.library.setLibraryListOrder(order)
+        #expect(t.library.libraryListOrder().raw == "read,reading,wantToRead,all")
+        #expect(t.library.hasLibraryListOrder)
+        let rows = try t.context.fetch(FetchDescriptor<ListSettings>())
+        #expect(rows.filter { $0.key == ListSettings.sidebarOrderKey }.count == 1)
+    }
+
+    @Test func theNewestRowWins() throws {
+        let t = try TestLibrary()
+        for (year, raw) in [(2026, "all,read,reading,wantToRead"), (2025, "read,all,reading,wantToRead")] {
+            let row = ListSettings()
+            row.key = ListSettings.sidebarOrderKey
+            row.sortLevelsRaw = raw
+            row.updatedAt = date(year, 1, 1)
+            t.context.insert(row)
+        }
+        #expect(t.library.libraryListOrder().raw == "all,read,reading,wantToRead")
+    }
+
+    @Test func aDamagedValueFallsBackLikeTheParserDoes() throws {
+        let t = try TestLibrary()
+        let row = ListSettings()
+        row.key = ListSettings.sidebarOrderKey
+        row.sortLevelsRaw = "bogus,read,read"
+        t.context.insert(row)
+        #expect(t.library.libraryListOrder().raw == "read,reading,wantToRead,all")
+    }
+
+    @Test func theRowIsNotMistakenForAnOldPerListSort() throws {
+        let t = try TestLibrary()
+        try t.library.setLibraryListOrder(LibraryListOrder(raw: "read,reading,wantToRead,all"))
+        #expect(t.library.preferences(for: .reading).sortLevels == .default)
+    }
+}

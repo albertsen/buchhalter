@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>local.buchhalter</string>
+	<string>de.juergenalbertsen.buchhalter</string>
 	<key>CFBundleExecutable</key>
 	<string>Buchhalter</string>
 	<key>CFBundleName</key>
