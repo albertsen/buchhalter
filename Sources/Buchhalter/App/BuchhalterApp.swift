@@ -31,6 +31,7 @@ struct BuchhalterApp: App {
                 .restoresWindowFrame(named: "main")
                 .environment(sources)
                 .environment(\.bookLookup, sources.lookup)
+                .environment(\.scanFeedback, .mac)
                 .task { await sources.refreshKey() }
         }
         .modelContainer(container)

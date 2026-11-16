@@ -561,6 +561,22 @@
         }
       }
     },
+    "Add and Scan Next" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hinzufügen und nächstes scannen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add and Scan Next"
+          }
+        }
+      }
+    },
     "Add author" : {
       "localizations" : {
         "de" : {
@@ -641,6 +657,46 @@
         }
       }
     },
+    "Added in this round: %lld" : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "In dieser Runde: %lld"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "In dieser Runde: %lld"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Added in this round: %lld"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Added in this round: %lld"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "All Books" : {
       "localizations" : {
         "de" : {
@@ -653,6 +709,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "All Books"
+          }
+        }
+      }
+    },
+    "Allow camera access for Buchhalter in System Settings → Privacy & Security → Camera." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaube Buchhalter den Kamerazugriff unter Systemeinstellungen → Datenschutz & Sicherheit → Kamera."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow camera access for Buchhalter in System Settings → Privacy & Security → Camera."
           }
         }
       }
@@ -801,6 +873,22 @@
         }
       }
     },
+    "Buchhalter can't use the camera" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buchhalter kann die Kamera nicht verwenden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Buchhalter can't use the camera"
+          }
+        }
+      }
+    },
     "Buchhalter could not open the library at %@. Nothing was changed.\n\n%@" : {
       "localizations" : {
         "de" : {
@@ -813,6 +901,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Buchhalter could not open the library at %@. Nothing was changed.\n\n%@"
+          }
+        }
+      }
+    },
+    "Camera" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kamera"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera"
           }
         }
       }
@@ -1133,6 +1237,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Complete and Find Cover ask the sources that are on, from top to bottom. Drag a source to change the order."
+          }
+        }
+      }
+    },
+    "Connect a camera or put an iPhone near this Mac. You can also type the ISBN." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schließ eine Kamera an oder leg ein iPhone in die Nähe dieses Macs. Du kannst die ISBN auch eingeben."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect a camera or put an iPhone near this Mac. You can also type the ISBN."
           }
         }
       }
@@ -2341,6 +2461,22 @@
         }
       }
     },
+    "Hold the barcode on the back of the book up to the camera. Buchhalter reads the ISBN and looks up the book." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Halte den Barcode auf der Rückseite des Buchs vor die Kamera. Buchhalter liest die ISBN und sucht das Buch."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold the barcode on the back of the book up to the camera. Buchhalter reads the ISBN and looks up the book."
+          }
+        }
+      }
+    },
     "How to get a key…" : {
       "localizations" : {
         "de" : {
@@ -2449,6 +2585,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "List"
+          }
+        }
+      }
+    },
+    "Looking for a barcode…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suche nach einem Barcode…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Looking for a barcode…"
           }
         }
       }
@@ -2721,6 +2873,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No books match “%@”"
+          }
+        }
+      }
+    },
+    "No camera found" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Kamera gefunden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No camera found"
           }
         }
       }
@@ -3113,6 +3281,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open Settings…"
+          }
+        }
+      }
+    },
+    "Open System Settings…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Systemeinstellungen öffnen…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open System Settings…"
           }
         }
       }
@@ -3597,6 +3781,70 @@
         }
       }
     },
+    "Scan Another" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nächstes scannen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan Another"
+          }
+        }
+      }
+    },
+    "Scan Barcode" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barcode scannen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan Barcode"
+          }
+        }
+      }
+    },
+    "Scan Barcode…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Barcode scannen…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan Barcode…"
+          }
+        }
+      }
+    },
+    "Scan several books in a row" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehrere Bücher nacheinander scannen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scan several books in a row"
+          }
+        }
+      }
+    },
     "Search" : {
       "localizations" : {
         "de" : {
@@ -3762,7 +4010,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Buch anzeigen"
+            "value" : "Buch zeigen"
           }
         },
         "en" : {
@@ -4285,6 +4533,22 @@
         }
       }
     },
+    "This barcode isn't an ISBN (%@). Look for the one that starts with 978 or 979." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieser Barcode ist keine ISBN (%@). Such den, der mit 978 oder 979 beginnt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This barcode isn't an ISBN (%@). Look for the one that starts with 978 or 979."
+          }
+        }
+      }
+    },
     "This book already has an open reading." : {
       "localizations" : {
         "de" : {
@@ -4349,6 +4613,22 @@
         }
       }
     },
+    "Tip: an iPhone near this Mac can be the camera (Continuity Camera). A USB barcode scanner works too: scan into the ISBN field of Add Book." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tipp: Ein iPhone in der Nähe dieses Macs kann die Kamera sein (Integration der Kamera). Ein USB-Barcodescanner geht auch: Scanne in das ISBN-Feld von „Buch hinzufügen“."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tip: an iPhone near this Mac can be the camera (Continuity Camera). A USB barcode scanner works too: scan into the ISBN field of Add Book."
+          }
+        }
+      }
+    },
     "Title" : {
       "localizations" : {
         "de" : {
@@ -4409,6 +4689,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Turn on the Books API for the project."
+          }
+        }
+      }
+    },
+    "Type ISBN Instead" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ISBN eingeben"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Type ISBN Instead"
           }
         }
       }

@@ -1,6 +1,18 @@
 import SwiftUI
 import BuchhalterCore
 
+/// What a barcode scan adds to Add Book: the ISBN that was read (Complete
+/// starts at once), the round's earlier books (their status and collections
+/// are preset, and their count shows in the footer) and whether the round
+/// goes on after this book.
+struct ScanEditorConfig {
+    var isbn: ISBN
+    var round: ScanRound
+    var inARow: Bool
+    /// Called with the saved draft and the new book's id.
+    var onSaved: (BookDraft, UUID) -> Void
+}
+
 /// Add Book and Edit Book: one sheet, one `BookDraft`, validated while the
 /// user types. The store applies the draft in one undo step.
 struct BookEditorSheet: View {
@@ -15,6 +27,10 @@ struct BookEditorSheet: View {
     var collections: [Collection]
     var onAdded: (UUID) -> Void
     var onShowBook: (UUID) -> Void
+    /// Set when the scan sheet opened this Add Book.
+    var scan: ScanEditorConfig?
+    /// Puts the cursor in the ISBN field ("Type ISBN Instead").
+    var focusISBN: Bool
 
     @State private var draft: BookDraft
     @State private var pendingAuthor = ""
@@ -23,21 +39,35 @@ struct BookEditorSheet: View {
     @State private var lookup = LookupModel()
     @FocusState private var isbnFocused: Bool
     @State private var isbnLeft = false
+    @State private var isScanning = false
+    @State private var didAutoComplete = false
+    /// The ISBN a scan put in the field: highlighted until the user changes it.
+    @State private var scannedISBN: String?
 
     init(
         model: WindowModel, editing: Book?, books: [Book], collections: [Collection],
-        onAdded: @escaping (UUID) -> Void, onShowBook: @escaping (UUID) -> Void
+        onAdded: @escaping (UUID) -> Void, onShowBook: @escaping (UUID) -> Void,
+        scan: ScanEditorConfig? = nil, focusISBN: Bool = false
     ) {
         self.model = model
         self.editing = editing
         self.collections = collections
         self.onAdded = onAdded
         self.onShowBook = onShowBook
+        self.scan = scan
+        self.focusISBN = focusISBN
         if let editing {
             _draft = State(initialValue: BookDraft(book: editing))
         } else {
             var fresh = BookDraft()
             fresh.language = LanguageOptions.defaultLanguage(books: books)
+            if let scan {
+                fresh.isbnText = scan.isbn.hyphenated
+                // The first book of a round has Add Book's defaults; later ones
+                // get the status and collections chosen for the one before.
+                if scan.inARow { scan.round.apply(to: &fresh) }
+                _scannedISBN = State(initialValue: fresh.isbnText)
+            }
             _draft = State(initialValue: fresh)
         }
         _duplicates = State(initialValue: DuplicateIndex(books: books, excluding: editing?.id))
@@ -80,6 +110,16 @@ struct BookEditorSheet: View {
         lookup.start(query, draft: $draft, using: bookLookup, library: library)
     }
 
+    /// The scan sheet over this editor read an ISBN: it replaces the field's
+    /// value, and Add Book starts Complete. Edit Book only fills the field.
+    private func fillISBN(_ isbn: ISBN) {
+        draft.isbnText = isbn.hyphenated
+        scannedISBN = draft.isbnText
+        if !isEditing, sources.hasActiveSource { complete() }
+    }
+
+    private var isScannedISBN: Bool { scannedISBN != nil && draft.isbnText == scannedISBN }
+
     // MARK: ISBN
 
     private var isbnCheck: ISBN.Check { ISBN.parse(draft.isbnText) }
@@ -114,13 +154,18 @@ struct BookEditorSheet: View {
             .padding(.bottom, 12)
             Divider()
             HStack {
+                if let scan, scan.inARow, scan.round.count > 0 {
+                    Text(verbatim: ScanMessages(locale: locale).addedInRound(scan.round.count))
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                }
                 Spacer()
                 Button("Cancel") {
                     lookup.stop()
                     dismiss()
                 }
                     .keyboardShortcut(.cancelAction)
-                Button(isEditing ? "Save" : "Add Book") { save() }
+                Button(primaryTitle) { save() }
                     .keyboardShortcut(.defaultAction)
                     .buttonStyle(.borderedProminent)
                     .disabled(!draft.canSave || duplicate != nil)
@@ -147,10 +192,24 @@ struct BookEditorSheet: View {
         .onChange(of: draft.authors) { lookup.clearHint() }
         .onChange(of: draft.isbnText) { lookup.clearHint() }
         .onDisappear { lookup.stop() }
+        .onAppear {
+            if focusISBN { isbnFocused = true }
+            // A scanned ISBN is looked up at once.
+            if scan != nil, !didAutoComplete {
+                didAutoComplete = true
+                if sources.hasActiveSource { complete() }
+            }
+        }
         .sheet(isPresented: Binding(
             get: { lookup.editions != nil },
             set: { if !$0 { lookup.cancelEditions() } }
         )) { editionPicker }
+    }
+
+    /// "Add and Scan Next" while a round goes on.
+    private var primaryTitle: LocalizedStringKey {
+        if isEditing { return "Save" }
+        return scan?.inARow == true ? "Add and Scan Next" : "Add Book"
     }
 
     @ViewBuilder
@@ -244,15 +303,19 @@ struct BookEditorSheet: View {
         }
         row("ISBN") {
             VStack(alignment: .leading, spacing: 3) {
-                TextField("ISBN", text: $draft.isbnText)
-                    .labelsHidden()
-                    .focused($isbnFocused)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 5)
-                            .strokeBorder(Theme.error, lineWidth: showISBNError ? 1.5 : 0)
-                    }
-                    .lookupFilled(isFilled(.isbn))
-                    .accessibilityLabel("ISBN")
+                HStack(spacing: 6) {
+                    TextField("ISBN", text: $draft.isbnText)
+                        .labelsHidden()
+                        .focused($isbnFocused)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 5)
+                                .strokeBorder(Theme.error, lineWidth: showISBNError ? 1.5 : 0)
+                        }
+                        .lookupFilled(isFilled(.isbn) || isScannedISBN)
+                        .accessibilityLabel("ISBN")
+                    // Not in the scan flow: the scan sheet under this one owns the camera.
+                    if scan == nil { scanButton }
+                }
                 if showISBNError {
                     Text("This ISBN is not valid. Check the last digit.")
                         .font(.system(size: 12))
@@ -267,6 +330,19 @@ struct BookEditorSheet: View {
                 author: draft.authors.map(\.name).joined(separator: ", "),
                 highlighted: isFilled(.cover), offer: coverOffer
             )
+        }
+    }
+
+    private var scanButton: some View {
+        Button {
+            isScanning = true
+        } label: {
+            Image(systemName: "barcode.viewfinder")
+        }
+        .help("Scan Barcode")
+        .accessibilityLabel("Scan Barcode")
+        .sheet(isPresented: $isScanning) {
+            ScanSheet(mode: .fillISBN { isbn in fillISBN(isbn) }, model: model, books: [], collections: [])
         }
     }
 
@@ -434,9 +510,11 @@ struct BookEditorSheet: View {
                 if let result = lookup.result, result.hasHighlight(in: draft) {
                     let book = try library.addBook(draft, origin: .lookup, originNote: result.recordID)
                     onAdded(book.id)
+                    scan?.onSaved(draft, book.id)
                 } else {
                     let book = try library.addBook(draft)
                     onAdded(book.id)
+                    scan?.onSaved(draft, book.id)
                 }
             }
             dismiss()

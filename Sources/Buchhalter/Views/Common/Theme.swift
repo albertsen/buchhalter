@@ -21,6 +21,13 @@ enum Theme {
     static let errorFill = Color(hex: 0xFBE4E2)
     static let errorText = Color(hex: 0x8C1D16)
 
+    // Barcode scanning: the frame and capsule colours over the camera picture
+    // (fixed, like the picture's dark background).
+    static let scanGreen = Color(hex: 0x3FBF8F)
+    static let scanAmber = Color(hex: 0xE0A33A)
+    static let scanAmberFill = Color(hex: 0xF6D58E)
+    static let scanAmberText = Color(hex: 0x3A2A00)
+
     static func coverColor(for id: UUID) -> Color {
         Color(hex: CoverPalette.color(for: id))
     }

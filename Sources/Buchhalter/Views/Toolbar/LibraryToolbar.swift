@@ -21,13 +21,14 @@ struct SortButton: View {
     }
 }
 
-/// Sort button, List/Grid switch and `+`. The title, count and search field
+/// Sort button, List/Grid switch, Scan Barcode and `+`. The title, count and search field
 /// come from the navigation title, subtitle and `.searchable`.
 struct LibraryToolbar: ToolbarContent {
     var preferences: ListPreferences
     var onSort: (SortLevels) -> Void
     var onViewMode: (ViewMode) -> Void
     var onAdd: () -> Void
+    var onScan: () -> Void
 
     var body: some ToolbarContent {
         ToolbarItem(placement: .automatic) {
@@ -41,6 +42,12 @@ struct LibraryToolbar: ToolbarContent {
             .pickerStyle(.segmented)
             .labelStyle(.iconOnly)
             .help("View")
+        }
+        ToolbarItem(placement: .primaryAction) {
+            Button(action: onScan) {
+                Label("Scan Barcode", systemImage: "barcode.viewfinder")
+            }
+            .help("Scan Barcode")
         }
         ToolbarItem(placement: .primaryAction) {
             Button(action: onAdd) {

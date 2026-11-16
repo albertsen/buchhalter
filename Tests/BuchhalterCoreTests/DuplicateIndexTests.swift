@@ -44,3 +44,18 @@ struct DuplicateIndexTests {
         #expect(DuplicateIndex.label(title: "Der Zauberberg", year: 1924) == "Der Zauberberg (1924)")
     }
 }
+
+@MainActor
+struct DuplicateIndexISBNTests {
+    @Test func matchesAnISBN13() throws {
+        let t = try TestLibrary()
+        let book = try t.add("Buddenbrooks", by: ["Thomas Mann"], year: 1901, isbn: "978-3-596-29431-2")
+        try t.add("Stoner", isbn: "")
+        let index = DuplicateIndex(books: t.library.fetchBooks())
+        let hit = index.match(isbn13: "9783596294312")
+        #expect(hit?.bookID == book.id)
+        #expect(hit?.label == "Buddenbrooks (1901)")
+        #expect(index.match(isbn13: "9780306406157") == nil)
+        #expect(index.match(isbn13: "") == nil)
+    }
+}

@@ -1,16 +1,16 @@
 import Foundation
 import Testing
 
-/// Reads `Resources/Localizable.xcstrings` (through `#filePath`, not a bundle)
-/// and fails when a text lacks English or German, a German value still needs
+/// Reads `Resources/Localizable.xcstrings` and `Resources/InfoPlist.xcstrings`
+/// (through `#filePath`, not a bundle) and fails when a text lacks English or German, a German value still needs
 /// review, or a plural lacks `one` or `other`.
 struct LocalizationCatalogTests {
     private typealias JSON = [String: Any]
 
-    private func loadStrings() throws -> [String: JSON] {
+    private func loadStrings(_ file: String = "Localizable") throws -> [String: JSON] {
         let url = URL(fileURLWithPath: #filePath)
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-            .appending(path: "Resources/Localizable.xcstrings")
+            .appending(path: "Resources/\(file).xcstrings")
         let object = try JSONSerialization.jsonObject(with: Data(contentsOf: url))
         let root = try #require(object as? JSON)
         return try #require(root["strings"] as? [String: JSON])
@@ -29,25 +29,42 @@ struct LocalizationCatalogTests {
         }
     }
 
-    @Test func everyKeyHasEnglishAndGerman() throws {
-        let strings = try loadStrings()
+    @Test(arguments: ["Localizable", "InfoPlist"])
+    func everyKeyHasEnglishAndGerman(file: String) throws {
+        let strings = try loadStrings(file)
         #expect(!strings.isEmpty)
         for (key, entry) in strings {
             for language in ["en", "de"] {
                 let found = localization(entry, language)
-                #expect(found != nil, "\(key) has no \(language) value")
+                #expect(found != nil, "\(file): \(key) has no \(language) value")
                 for (_, unit) in units(found ?? [:]) {
                     let value = unit["value"] as? String ?? ""
-                    #expect(!value.isEmpty, "\(key) has an empty \(language) value")
-                    #expect(unit["state"] as? String == "translated", "\(key) \(language) is \(unit["state"] ?? "?")")
+                    #expect(!value.isEmpty, "\(file): \(key) has an empty \(language) value")
+                    #expect(unit["state"] as? String == "translated", "\(file): \(key) \(language) is \(unit["state"] ?? "?")")
                 }
             }
         }
     }
 
+    /// The camera access prompt comes from `InfoPlist.strings`, which `make app`
+    /// compiles from this catalog, and Info.plist carries the English fallback.
+    @Test func theCameraPromptHasTheSpecsTexts() throws {
+        let entry = try #require(try loadStrings("InfoPlist")["NSCameraUsageDescription"])
+        let english = units(localization(entry, "en") ?? [:]).first?.unit["value"] as? String
+        let german = units(localization(entry, "de") ?? [:]).first?.unit["value"] as? String
+        #expect(english == "Buchhalter uses the camera to read the barcode on the back of a book.")
+        #expect(german == "Buchhalter verwendet die Kamera, um den Barcode auf der Rückseite eines Buchs zu lesen.")
+        let plist = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appending(path: "Resources/Info.plist")
+        let info = try #require(try PropertyListSerialization.propertyList(from: Data(contentsOf: plist), format: nil) as? JSON)
+        #expect(info["NSCameraUsageDescription"] as? String == english)
+        #expect(info["NSCameraUseContinuityCameraDeviceType"] as? Bool == true)
+    }
+
     @Test func pluralsHaveOneAndOtherInBothLanguages() throws {
         let strings = try loadStrings()
-        for key in ["%lld books", "%lld pages", "%lld stars"] {
+        for key in ["%lld books", "%lld pages", "%lld stars", "Added in this round: %lld"] {
             let entry = try #require(strings[key], "\(key) is missing")
             for language in ["en", "de"] {
                 let forms = Set(units(try #require(localization(entry, language))).compactMap(\.form))
@@ -121,6 +138,17 @@ struct LocalizationCatalogTests {
             "Can't reach any book source": "Keine Buchquelle erreichbar",
             "Google Books: %@": "Google Books: %@",
             "Searching Google Books for “%@” by %@…": "Suche in Google Books nach „%1$@“ von %2$@…",
+            // Barcode scanning
+            "Scan Barcode…": "Barcode scannen…", "Scan Barcode": "Barcode scannen", "Camera": "Kamera",
+            "Looking for a barcode…": "Suche nach einem Barcode…",
+            "Scan several books in a row": "Mehrere Bücher nacheinander scannen",
+            "Type ISBN Instead": "ISBN eingeben", "Add and Scan Next": "Hinzufügen und nächstes scannen",
+            "Already in your library: %@": "Schon in deiner Bibliothek: %@",
+            "Show Book": "Buch zeigen", "Add Anyway": "Trotzdem hinzufügen", "Scan Another": "Nächstes scannen",
+            "Buchhalter can't use the camera": "Buchhalter kann die Kamera nicht verwenden",
+            "No camera found": "Keine Kamera gefunden", "Open System Settings…": "Systemeinstellungen öffnen…",
+            "This barcode isn't an ISBN (%@). Look for the one that starts with 978 or 979.":
+                "Dieser Barcode ist keine ISBN (%@). Such den, der mit 978 oder 979 beginnt.",
         ]
         for (key, german) in expected {
             let entry = try #require(strings[key], "\(key) is missing")

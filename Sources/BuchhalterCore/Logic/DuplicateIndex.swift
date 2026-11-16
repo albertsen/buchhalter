@@ -27,10 +27,15 @@ public struct DuplicateIndex: Sendable {
         }
     }
 
+    /// The book with this ISBN-13, for the barcode scanner, which has no title yet.
+    public func match(isbn13: String) -> Entry? {
+        entries.first { $0.isbn13 == isbn13 }
+    }
+
     public func match(for draft: BookDraft) -> Entry? {
         let isbn: String?
         if case .valid(let value) = ISBN.parse(draft.isbnText) { isbn = value.isbn13 } else { isbn = nil }
-        if let isbn, let hit = entries.first(where: { $0.isbn13 == isbn }) { return hit }
+        if let isbn, let hit = match(isbn13: isbn) { return hit }
         let title = TextFolding.fold(AuthorName.normalize(draft.title))
         guard !title.isEmpty else { return nil }
         let authors = Set(draft.authors.map { AuthorName.matchKey($0.name) })

@@ -106,7 +106,8 @@ struct RootView: View {
                     model.attempt { try library.setViewMode(mode, for: listID) }
                     model.gridPath = []
                 },
-                onAdd: { model.sheet = .addBook }
+                onAdd: { model.sheet = .addBook },
+                onScan: { model.sheet = .scanBarcode }
             )
         }
         .environment(\.library, library)
@@ -202,6 +203,21 @@ struct RootView: View {
             BookEditorSheet(
                 model: model, editing: nil, books: books, collections: collections,
                 onAdded: { id in reveal(id) }, onShowBook: { id in reveal(id) }
+            )
+            .environment(\.library, library)
+        case .addBookTypingISBN:
+            BookEditorSheet(
+                model: model, editing: nil, books: books, collections: collections,
+                onAdded: { id in reveal(id) }, onShowBook: { id in reveal(id) },
+                focusISBN: true
+            )
+            .environment(\.library, library)
+        case .scanBarcode:
+            ScanSheet(
+                mode: .addBooks, model: model, books: books, collections: collections,
+                onFinished: { id in if let id { reveal(id) } },
+                onShowBook: { id in reveal(id) },
+                onTypeISBN: { model.sheet = .addBookTypingISBN }
             )
             .environment(\.library, library)
         case .editBook(let id):

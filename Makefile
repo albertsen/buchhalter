@@ -1,6 +1,7 @@
 APP        := build/Buchhalter.app
 BIN        := .build/release/buchhalter
 CATALOG    := Resources/Localizable.xcstrings
+INFO_CATALOG := Resources/InfoPlist.xcstrings
 INSTALLED  := /Applications/Buchhalter.app
 LSREGISTER := /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
 XCSTRINGSTOOL := xcrun xcstringstool
@@ -17,9 +18,10 @@ $(BIN): $(SOURCES)
 build: $(BIN)
 
 # The binary, Info.plist, the icon, Google's attribution graphic and the
-# compiled catalog (en.lproj, de.lproj), ad-hoc signed. Texts live in the
-# main bundle, so SwiftUI and the core find them.
-app: $(BIN) $(CATALOG) Resources/Info.plist Resources/AppIcon.icns Resources/PoweredByGoogle.png
+# compiled catalogs (en.lproj, de.lproj; InfoPlist.xcstrings gives the camera
+# access prompt its German text), ad-hoc signed. Texts live in the main
+# bundle, so SwiftUI and the core find them.
+app: $(BIN) $(CATALOG) $(INFO_CATALOG) Resources/Info.plist Resources/AppIcon.icns Resources/PoweredByGoogle.png
 	rm -rf $(APP)
 	mkdir -p $(APP)/Contents/MacOS $(APP)/Contents/Resources
 	cp $(BIN) $(APP)/Contents/MacOS/Buchhalter
@@ -27,6 +29,7 @@ app: $(BIN) $(CATALOG) Resources/Info.plist Resources/AppIcon.icns Resources/Pow
 	cp Resources/AppIcon.icns $(APP)/Contents/Resources/AppIcon.icns
 	cp Resources/PoweredByGoogle.png $(APP)/Contents/Resources/PoweredByGoogle.png
 	$(XCSTRINGSTOOL) compile $(CATALOG) --output-directory $(APP)/Contents/Resources
+	$(XCSTRINGSTOOL) compile $(INFO_CATALOG) --output-directory $(APP)/Contents/Resources
 	codesign --force --sign - $(APP)
 	$(LSREGISTER) -f $(APP)
 

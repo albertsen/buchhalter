@@ -4,6 +4,9 @@ import BuchhalterCore
 /// The sheets the main window can show. They carry ids, never model objects.
 enum ActiveSheet: Identifiable, Hashable {
     case addBook
+    /// Add Book with the cursor in the ISBN field ("Type ISBN Instead" in the scan sheet).
+    case addBookTypingISBN
+    case scanBarcode
     case editBook(UUID)
     case finish(UUID)
     case abandon(UUID)
@@ -13,6 +16,8 @@ enum ActiveSheet: Identifiable, Hashable {
     var id: String {
         switch self {
         case .addBook: "addBook"
+        case .addBookTypingISBN: "addBookTypingISBN"
+        case .scanBarcode: "scanBarcode"
         case .editBook(let id): "editBook-\(id)"
         case .finish(let id): "finish-\(id)"
         case .abandon(let id): "abandon-\(id)"
