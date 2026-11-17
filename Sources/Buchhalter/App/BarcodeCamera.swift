@@ -4,7 +4,7 @@ import BuchhalterCore
 
 /// The capture session, off the main actor. `AVCaptureSession.startRunning`
 /// blocks, so every call to the session happens on one serial queue. Shared
-/// by the Mac and the later iOS app (AVFoundation only).
+/// by the Mac and the iOS app (AVFoundation only).
 nonisolated final class CaptureController: @unchecked Sendable {
     let session = AVCaptureSession()
     let reader = FrameReader()
@@ -33,11 +33,64 @@ nonisolated final class CaptureController: @unchecked Sendable {
             session.commitConfiguration()
             if (try? device.lockForConfiguration()) != nil {
                 if device.isFocusModeSupported(.continuousAutoFocus) { device.focusMode = .continuousAutoFocus }
+                #if os(iOS)
+                // A barcode is close: focus near, and zoom so the closest sharp
+                // distance still fills the guide frame (AVCamBarcode's rule).
+                if device.isAutoFocusRangeRestrictionSupported { device.autoFocusRangeRestriction = .near }
+                device.videoZoomFactor = Self.zoomFactor(for: device)
+                #endif
                 device.unlockForConfiguration()
             }
+            #if os(iOS)
+            applyRotation()
+            #endif
             deviceID = id
         }
     }
+
+    #if os(iOS)
+    /// Only touched on `queue`.
+    private var rotationAngle: CGFloat = 90
+
+    /// The frames Vision reads turn with the screen, so the barcode's box is in
+    /// the picture's coordinates: 90° in portrait.
+    func setRotation(_ angle: CGFloat) {
+        queue.async { [self] in
+            rotationAngle = angle
+            applyRotation()
+        }
+    }
+
+    private func applyRotation() {
+        guard let connection = output.connection(with: .video),
+              connection.isVideoRotationAngleSupported(rotationAngle) else { return }
+        connection.videoRotationAngle = rotationAngle
+    }
+
+    /// The torch, for a dim shelf.
+    func setTorch(_ on: Bool) {
+        queue.async { [session] in
+            guard let input = session.inputs.first as? AVCaptureDeviceInput, input.device.hasTorch,
+                  (try? input.device.lockForConfiguration()) != nil else { return }
+            input.device.torchMode = on ? .on : .off
+            input.device.unlockForConfiguration()
+        }
+    }
+
+    /// An EAN-13 is about 37 mm wide. Without zoom it fills the guide frame
+    /// (half the picture's width) at a distance the lens may not focus at; then
+    /// the picture is zoomed until the closest sharp distance fills it.
+    private static func zoomFactor(for device: AVCaptureDevice) -> CGFloat {
+        let minimumFocus = CGFloat(device.minimumFocusDistance)
+        guard minimumFocus > 0 else { return 1 }
+        let halfAngle = CGFloat(device.activeFormat.videoFieldOfView) / 2 * .pi / 180
+        let codeWidth: CGFloat = 37
+        let filledWidth = codeWidth / 0.5
+        let distance = filledWidth / 2 / tan(halfAngle)
+        guard distance < minimumFocus else { return 1 }
+        return min(minimumFocus / distance, device.activeFormat.videoMaxZoomFactor)
+    }
+    #endif
 
     func start() {
         queue.async { [session] in
@@ -162,6 +215,29 @@ final class BarcodeCamera {
         }
     }
 
+    #if os(iOS)
+    /// iPhone and iPad: the back camera that focuses closest. No choice, no mirroring.
+    private func refreshDevices() {
+        let types: [AVCaptureDevice.DeviceType] = [.builtInTripleCamera, .builtInDualWideCamera, .builtInWideAngleCamera]
+        let found = AVCaptureDevice.DiscoverySession(deviceTypes: types, mediaType: .video, position: .back).devices
+        func kind(_ device: AVCaptureDevice) -> CameraChoice.BackCamera? {
+            switch device.deviceType {
+            case .builtInTripleCamera: .triple
+            case .builtInDualWideCamera: .dualWide
+            case .builtInWideAngleCamera: .wide
+            default: nil
+            }
+        }
+        let best = CameraChoice.backCamera(available: found.compactMap(kind))
+        selectedID = found.first { kind($0) == best }?.uniqueID
+        devices = []
+    }
+
+    /// Turns the frames with the screen (see `CaptureController.setRotation`).
+    func setRotation(_ angle: CGFloat) { controller.setRotation(angle) }
+
+    func setTorch(_ on: Bool) { controller.setTorch(on) }
+    #else
     private func refreshDevices() {
         var types: [AVCaptureDevice.DeviceType] = [.builtInWideAngleCamera, .continuityCamera, .external]
         types.removeAll { $0 == .continuityCamera && !Self.allowsContinuityCamera }
@@ -179,6 +255,8 @@ final class BarcodeCamera {
             systemPreferred: AVCaptureDevice.systemPreferredCamera?.uniqueID
         )
     }
+
+    #endif
 
     /// The user picked a camera: kept on this Mac, and the picture switches at once.
     func select(_ id: String) {

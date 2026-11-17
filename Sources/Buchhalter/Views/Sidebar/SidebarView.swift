@@ -9,7 +9,8 @@ struct SidebarView: View {
     var counts: [LibraryListID: Int]
     /// Where the order of the built-in lists lives (a `ListSettings` row that syncs).
     var settings: [ListSettings]
-    @Binding var selection: LibraryListID
+    /// Nil only on an iPhone, where it means the Library screen itself.
+    @Binding var selection: LibraryListID?
     @Environment(CloudSyncMonitor.self) private var syncMonitor
 
     /// The user's order of the four built-in lists (`LibraryListOrder`).
@@ -17,7 +18,7 @@ struct SidebarView: View {
 
     var body: some View {
         // A click on empty space deselects; the list stays as it was.
-        List(selection: Binding<LibraryListID?>(get: { selection }, set: { if let list = $0 { selection = list } })) {
+        List(selection: $selection) {
             Section("Library") {
                 ForEach(libraryOrder.lists, id: \.self) { list in
                     builtInRow(list)
@@ -52,6 +53,8 @@ struct SidebarView: View {
                 if let line = syncMonitor.state.sidebarLine {
                     SidebarSyncLine(line: line, isError: isFailure)
                 }
+                #if os(macOS)
+                // iOS has New Collection in the bottom bar (iPhone) or the toolbar (iPad).
                 HStack {
                     Button {
                         model.isCreatingCollection = true
@@ -62,6 +65,7 @@ struct SidebarView: View {
                     .foregroundStyle(.secondary)
                     Spacer()
                 }
+                #endif
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)

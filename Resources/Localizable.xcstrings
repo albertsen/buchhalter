@@ -225,6 +225,46 @@
         }
       }
     },
+    "%lld other editions" : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld weitere Ausgabe"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld weitere Ausgaben"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld other edition"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld other editions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld pages" : {
       "localizations" : {
         "de" : {
@@ -561,6 +601,22 @@
         }
       }
     },
+    "Add" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hinzufügen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add"
+          }
+        }
+      }
+    },
     "Add Anyway" : {
       "localizations" : {
         "de" : {
@@ -801,6 +857,22 @@
         }
       }
     },
+    "Allow camera access for Buchhalter in Settings." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erlaube Buchhalter den Kamerazugriff in den Einstellungen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow camera access for Buchhalter in Settings."
+          }
+        }
+      }
+    },
     "Allow camera access for Buchhalter in System Settings → Privacy & Security → Camera." : {
       "localizations" : {
         "de" : {
@@ -813,6 +885,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Allow camera access for Buchhalter in System Settings → Privacy & Security → Camera."
+          }
+        }
+      }
+    },
+    "Already in your library" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schon in deiner Bibliothek"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Already in your library"
           }
         }
       }
@@ -945,6 +1033,22 @@
         }
       }
     },
+    "Books appear as they arrive. Covers can take a few minutes." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bücher erscheinen, sobald sie ankommen. Coverbilder können ein paar Minuten dauern."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Books appear as they arrive. Covers can take a few minutes."
+          }
+        }
+      }
+    },
     "Books published in Germany" : {
       "localizations" : {
         "de" : {
@@ -957,6 +1061,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Books published in Germany"
+          }
+        }
+      }
+    },
+    "Books you add now stay on this iPad and go to iCloud once you sign in." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bücher, die du jetzt hinzufügst, bleiben auf diesem iPad und kommen nach iCloud, sobald du dich anmeldest."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Books you add now stay on this iPad and go to iCloud once you sign in."
+          }
+        }
+      }
+    },
+    "Books you add now stay on this iPhone and go to iCloud once you sign in." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bücher, die du jetzt hinzufügst, bleiben auf diesem iPhone und kommen nach iCloud, sobald du dich anmeldest."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Books you add now stay on this iPhone and go to iCloud once you sign in."
           }
         }
       }
@@ -1297,6 +1433,22 @@
         }
       }
     },
+    "Choose Photo…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Foto auswählen…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Photo…"
+          }
+        }
+      }
+    },
     "Choose an edition" : {
       "localizations" : {
         "de" : {
@@ -1617,6 +1769,22 @@
         }
       }
     },
+    "Delete" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Löschen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
     "Delete Book" : {
       "localizations" : {
         "de" : {
@@ -1809,6 +1977,22 @@
         }
       }
     },
+    "Downloading your library from iCloud…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Bibliothek wird aus iCloud geladen…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloading your library from iCloud…"
+          }
+        }
+      }
+    },
     "Drop an image here or paste it" : {
       "localizations" : {
         "de" : {
@@ -1885,6 +2069,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Edit Reading"
+          }
+        }
+      }
+    },
+    "Edit…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bearbeiten…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit…"
           }
         }
       }
@@ -3485,6 +3685,22 @@
         }
       }
     },
+    "Only a book you want to read can be started." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nur ein Buch, das du lesen willst, kann begonnen werden."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Only a book you want to read can be started."
+          }
+        }
+      }
+    },
     "Only the 100 newest records were searched. Enter the ISBN to find a specific edition." : {
       "localizations" : {
         "de" : {
@@ -3545,6 +3761,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open Library: %@"
+          }
+        }
+      }
+    },
+    "Open Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen öffnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
           }
         }
       }
@@ -3689,6 +3921,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Paste your key"
+          }
+        }
+      }
+    },
+    "Point the camera at the barcode on the back of the book." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Richte die Kamera auf den Barcode auf der Rückseite des Buchs."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Point the camera at the barcode on the back of the book."
           }
         }
       }
@@ -4157,6 +4405,22 @@
         }
       }
     },
+    "Search All Books" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle Bücher durchsuchen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search All Books"
+          }
+        }
+      }
+    },
     "Searching Google Books for ISBN %@…" : {
       "localizations" : {
         "de" : {
@@ -4301,6 +4565,22 @@
         }
       }
     },
+    "Settings" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einstellungen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
     "Show Book" : {
       "localizations" : {
         "de" : {
@@ -4349,6 +4629,38 @@
         }
       }
     },
+    "Sign in to iCloud on this iPad, or turn on iCloud for Buchhalter, to see the books from your Mac." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Melde dich auf diesem iPad bei iCloud an oder schalte iCloud für Buchhalter ein, um die Bücher von deinem Mac zu sehen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to iCloud on this iPad, or turn on iCloud for Buchhalter, to see the books from your Mac."
+          }
+        }
+      }
+    },
+    "Sign in to iCloud on this iPhone, or turn on iCloud for Buchhalter, to see the books from your Mac." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Melde dich auf diesem iPhone bei iCloud an oder schalte iCloud für Buchhalter ein, um die Bücher von deinem Mac zu sehen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to iCloud on this iPhone, or turn on iCloud for Buchhalter, to see the books from your Mac."
+          }
+        }
+      }
+    },
     "Sign in to iCloud to sync. Until then the library stays on this Mac only." : {
       "localizations" : {
         "de" : {
@@ -4377,6 +4689,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sign in to the Google Cloud Console with your Google account."
+          }
+        }
+      }
+    },
+    "Skip" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Überspringen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
           }
         }
       }
@@ -4425,6 +4753,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sort Books"
+          }
+        }
+      }
+    },
+    "Sort Books…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bücher sortieren…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort Books…"
+          }
+        }
+      }
+    },
+    "Sort and View" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sortieren und Ansicht"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort and View"
           }
         }
       }
@@ -4521,6 +4881,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Sources"
+          }
+        }
+      }
+    },
+    "Start Reading" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lesen beginnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Reading"
           }
         }
       }
@@ -4637,18 +5013,34 @@
         }
       }
     },
-    "The book sources, their order and the Google Books key stay on this Mac. They don’t sync." : {
+    "Take Photo…" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Die Buchquellen, ihre Reihenfolge und der Google-Books-Schlüssel bleiben auf diesem Mac. Sie werden nicht synchronisiert."
+            "value" : "Foto aufnehmen…"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The book sources, their order and the Google Books key stay on this Mac. They don’t sync."
+            "value" : "Take Photo…"
+          }
+        }
+      }
+    },
+    "The book sources and their order stay on this device. They don’t sync." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Buchquellen und ihre Reihenfolge bleiben auf diesem Gerät. Sie werden nicht synchronisiert."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The book sources and their order stay on this device. They don’t sync."
           }
         }
       }
@@ -4749,6 +5141,38 @@
         }
       }
     },
+    "The key is kept in iCloud Keychain, so you enter it once for all your devices that use it. Removing it removes it everywhere." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Schlüssel liegt im iCloud-Schlüsselbund. Du gibst ihn einmal für alle deine Geräte ein, die ihn nutzen. Wenn du ihn entfernst, ist er überall entfernt."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key is kept in iCloud Keychain, so you enter it once for all your devices that use it. Removing it removes it everywhere."
+          }
+        }
+      }
+    },
+    "The key is kept in iCloud Keychain, so you enter it once for all your devices that use it. Removing it removes it everywhere. Searches send the book's ISBN, or its title and author, to Google." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der Schlüssel liegt im iCloud-Schlüsselbund. Du gibst ihn einmal für alle deine Geräte ein, die ihn nutzen. Wenn du ihn entfernst, ist er überall entfernt. Suchen schicken die ISBN des Buchs oder Titel und Autor an Google."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The key is kept in iCloud Keychain, so you enter it once for all your devices that use it. Removing it removes it everywhere. Searches send the book's ISBN, or its title and author, to Google."
+          }
+        }
+      }
+    },
     "The key is saved but not checked yet." : {
       "localizations" : {
         "de" : {
@@ -4761,22 +5185,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The key is saved but not checked yet."
-          }
-        }
-      }
-    },
-    "The key is stored in your Keychain. Searches send the book's ISBN, or its title and author, to Google." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Der Schlüssel liegt in deinem Schlüsselbund. Suchen schicken die ISBN oder Titel und Autor des Buchs an Google."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The key is stored in your Keychain. Searches send the book's ISBN, or its title and author, to Google."
           }
         }
       }
@@ -5037,6 +5445,22 @@
         }
       }
     },
+    "This removes the book and all its readings. You can undo it." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das Buch und alle seine Lektüren werden entfernt. Du kannst es widerrufen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This removes the book and all its readings. You can undo it."
+          }
+        }
+      }
+    },
     "Tip: an iPhone near this Mac can be the camera (Continuity Camera). A USB barcode scanner works too: scan into the ISBN field of Add Book." : {
       "localizations" : {
         "de" : {
@@ -5081,6 +5505,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Today, %@"
+          }
+        }
+      }
+    },
+    "Torch" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Taschenlampe"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Torch"
           }
         }
       }
@@ -5437,6 +5877,22 @@
         }
       }
     },
+    "Your library is in iCloud" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Bibliothek ist in iCloud"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your library is in iCloud"
+          }
+        }
+      }
+    },
     "Z to A" : {
       "localizations" : {
         "de" : {
@@ -5481,6 +5937,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Abandon Reading"
+          }
+        }
+      }
+    },
+    "from %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "von %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "from %@"
           }
         }
       }

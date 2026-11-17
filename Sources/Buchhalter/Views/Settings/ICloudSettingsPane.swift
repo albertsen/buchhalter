@@ -22,16 +22,16 @@ struct ICloudSettingsPane: View {
         VStack(alignment: .leading, spacing: 22) {
             syncSection
             if showsCopy { copySection }
-            Text("The book sources, their order and the Google Books key stay on this Mac. They don’t sync.")
+            // The Google Books key syncs through iCloud Keychain, the sources do not.
+            Text("The book sources and their order stay on this device. They don’t sync.")
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
-        .padding(.horizontal, 32)
+        .padding(.horizontal, BookLookupSettingsPane.margin)
         .padding(.top, 24)
         .padding(.bottom, 28)
-        .frame(width: 620, alignment: .leading)
-        .fixedSize(horizontal: false, vertical: true)
+        .paneWidth(620)
         .task { refreshDisk() }
         .onChange(of: monitor.state.lastSynced) { refreshDisk() }
     }
@@ -142,7 +142,7 @@ struct ICloudSettingsPane: View {
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Spacer(minLength: 8)
-                Button("Show in Finder") { actions.showLegacyFolder() }
+                Button("Show in Finder") { actions.showLegacyFolder?() }
             }
         }
     }

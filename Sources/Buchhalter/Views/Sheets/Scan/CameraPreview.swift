@@ -13,8 +13,13 @@ struct CameraPreview: View {
     /// The camera image's size in pixels, for `ScanGeometry`.
     var imageSize: CGSize
 
-    /// The preview is mirrored for every camera, like FaceTime.
+    /// The Mac's preview is mirrored for every camera, like FaceTime; the rear
+    /// camera of an iPhone or iPad is not.
+    #if os(macOS)
     private let mirrored = true
+    #else
+    private let mirrored = false
+    #endif
 
     var body: some View {
         GeometryReader { geometry in

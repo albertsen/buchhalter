@@ -37,13 +37,17 @@ final class BookSources {
     /// when it closes.
     var justSavedKey = false
 
-    /// The signed app keeps the key in the data protection keychain (no prompt
-    /// after a build) and carries the old file-based item over on the first read.
-    @ObservationIgnored private let store = KeychainSecretStore(mode: .dataProtection(migratingLegacy: true))
+    /// The key is in iCloud Keychain, in the group the Mac and iOS apps share,
+    /// so it is entered once for every device. The first read carries over the
+    /// Mac's item from before (data protection, then file-based).
+    @ObservationIgnored private let store = KeychainSecretStore(mode: .synchronized(accessGroup: BookSources.keychainGroup))
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let dnb = DNBService()
     @ObservationIgnored private let openLibrary = OpenLibraryService()
     @ObservationIgnored private lazy var googleBooks = GoogleBooksService(keys: store)
+
+    /// The `keychain-access-groups` entry both apps' entitlements carry.
+    nonisolated static let keychainGroup = "3PT9KVM9AJ.de.juergenalbertsen.buchhalter"
 
     private static let listKey = "lookupSources"
     private static let stateKey = "googleBooksKeyState"
@@ -81,6 +85,7 @@ final class BookSources {
     /// permission prompt. A key without a recorded state (added with the
     /// `security` tool) counts as unchecked.
     func refreshKey() async {
+        await store.migrateIfNeeded()
         hasGoogleKey = await store.exists()
         if !hasGoogleKey {
             setKeyState(nil)

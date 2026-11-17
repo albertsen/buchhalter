@@ -33,7 +33,7 @@ struct SyncNoticeSheet: View {
                 .foregroundStyle(.secondary)
             HStack {
                 Spacer()
-                Button("Show Copy in Finder") { actions.showLegacyFolder() }
+                Button("Show Copy in Finder") { actions.showLegacyFolder?() }
                 Button("OK") { close() }
                     .keyboardShortcut(.defaultAction)
                     .buttonStyle(.borderedProminent)
@@ -43,7 +43,7 @@ struct SyncNoticeSheet: View {
         .padding(.horizontal, 28)
         .padding(.top, 24)
         .padding(.bottom, 20)
-        .frame(width: 520)
+        .sheetWidth(520)
         .onDisappear { shown = true }
         // Esc closes it too, like OK.
         .background {

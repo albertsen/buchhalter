@@ -1,4 +1,7 @@
 import SwiftUI
+#if os(iOS)
+import PhotosUI
+#endif
 import BuchhalterCore
 
 /// The selected book: large cover, title, status, buttons, collections,
@@ -15,24 +18,49 @@ struct BookDetailView: View {
     /// Language codes already in the library, offered first in the language menus.
     var usedLanguages: [String]
 
+    #if os(iOS)
+    /// Touch has no hover: empty fields always show their placeholders, and a
+    /// tap on a missing cover shows Find Cover.
+    @State private var headerHovered = true
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var photoItem: PhotosPickerItem?
+    @State private var isTakingPhoto = false
+    #else
     /// While the pointer is over the header, empty fields show their placeholders.
     @State private var headerHovered = false
+    #endif
     @State private var isFindingCover = false
     @State private var coverHovered = false
     @State private var coverTargeted = false
 
+    private var isCompact: Bool {
+        #if os(iOS)
+        horizontalSizeClass == .compact
+        #else
+        false
+        #endif
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                HStack(alignment: .top, spacing: 24) {
-                    cover
-                    header
+                // An iPhone stacks the cover over the header.
+                if isCompact {
+                    VStack(alignment: .leading, spacing: 18) {
+                        cover
+                        header
+                    }
+                } else {
+                    HStack(alignment: .top, spacing: 24) {
+                        cover
+                        header
+                    }
                 }
                 CollectionChips(model: model, book: book, collections: collections)
                 ReadingsSection(model: model, book: book)
             }
-            .padding(.horizontal, 32)
-            .padding(.vertical, 28)
+            .padding(.horizontal, isCompact ? 20 : 32)
+            .padding(.vertical, isCompact ? 16 : 28)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
@@ -72,22 +100,49 @@ struct BookDetailView: View {
                                     .disabled(!hasSources)
                                     .help(findHelp)
                             }
+                            #if os(macOS)
                             Text("or drop an image here")
                                 .font(.system(size: 11))
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(.white.opacity(0.85))
+                            #endif
                         }
                         .padding(8)
                     }
                 }
             }
             .onHover { coverHovered = $0 }
+            #if os(iOS)
+            .onTapGesture { coverHovered.toggle() }
+            .onChange(of: photoItem) { _, picked in
+                guard let picked else { return }
+                Task {
+                    if let data = try? await picked.loadTransferable(type: Data.self) { setCover(data) }
+                    photoItem = nil
+                }
+            }
+            .fullScreenCover(isPresented: $isTakingPhoto) {
+                CameraCapture { data in
+                    isTakingPhoto = false
+                    if let data { setCover(data) }
+                }
+                .ignoresSafeArea()
+            }
+            #endif
             .dropDestination(for: DroppedImage.self) { items, _ in
                 guard let data = items.first?.data else { return false }
                 setCover(data)
                 return true
             } isTargeted: { coverTargeted = $0 }
             .contextMenu {
+                #if os(iOS)
+                PhotosPicker(selection: $photoItem, matching: .images) {
+                    Label("Choose Photo…", systemImage: "photo")
+                }
+                if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                    Button("Take Photo…", systemImage: "camera") { isTakingPhoto = true }
+                }
+                #endif
                 if book.coverImage != nil {
                     Button("Remove Cover Image") {
                         model.attempt { try library?.setCover(nil, for: book) }
@@ -238,6 +293,38 @@ struct BookDetailView: View {
 
     @ViewBuilder
     private var buttons: some View {
+        #if os(iOS)
+        // German labels run longer: when the row does not fit, Finish Reading
+        // takes the full width and the other two share the row below.
+        ViewThatFits(in: .horizontal) {
+            buttonRow
+            VStack(alignment: .leading, spacing: 8) {
+                if book.status == .reading {
+                    Button { model.sheet = .finish(book.id) } label: {
+                        Text("Finish Reading…").frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    HStack(spacing: 8) {
+                        Button { model.sheet = .abandon(book.id) } label: {
+                            Text("Abandon").frame(maxWidth: .infinity)
+                        }
+                        .secondaryAction()
+                        Button { model.sheet = .editBook(book.id) } label: {
+                            Text("Edit").frame(maxWidth: .infinity)
+                        }
+                        .secondaryAction()
+                    }
+                } else {
+                    buttonRow
+                }
+            }
+        }
+        #else
+        buttonRow
+        #endif
+    }
+
+    private var buttonRow: some View {
         HStack(spacing: 8) {
             switch book.status {
             case .reading:
@@ -252,12 +339,19 @@ struct BookDetailView: View {
                     .secondaryAction()
                 Button("Edit") { model.sheet = .editBook(book.id) }
                     .secondaryAction()
-            case .wantToRead, nil:
+            case .wantToRead:
+                Button("Start Reading") { model.attempt { try library?.startReading(book) } }
+                    .buttonStyle(.borderedProminent)
+                Button("Edit") { model.sheet = .editBook(book.id) }
+                    .secondaryAction()
+            case nil:
                 Button("Edit") { model.sheet = .editBook(book.id) }
                     .secondaryAction()
             }
         }
         .controlSize(.regular)
+        .lineLimit(1)
+        .fixedSize(horizontal: true, vertical: false)
     }
 
     private func setCover(_ data: Data) {
@@ -286,13 +380,21 @@ private extension View {
 /// a hairline border that work in light and dark mode.
 private struct SecondaryButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
+    #if os(iOS)
+    /// A touch target, as tall as the prominent button next to it.
+    static let fontSize: CGFloat = 15
+    static let height: CGFloat = 36
+    #else
+    static let fontSize: CGFloat = 13
+    static let height: CGFloat = 24
+    #endif
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(.system(size: 13))
+            .font(.system(size: Self.fontSize))
             .foregroundStyle(.primary)
             .padding(.horizontal, 12)
-            .frame(height: 24)
+            .frame(height: Self.height)
             .background(
                 RoundedRectangle(cornerRadius: 6)
                     .fill(Color.primary.opacity(configuration.isPressed ? 0.16 : 0.07))

@@ -1,4 +1,7 @@
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 import BuchhalterCore
 
 /// What a barcode scan adds to Add Book: the ISBN that was read (Complete
@@ -11,6 +14,16 @@ struct ScanEditorConfig {
     var inARow: Bool
     /// Called with the saved draft and the new book's id.
     var onSaved: (BookDraft, UUID) -> Void
+    /// The iOS scan card's book, already looked up and merged: the editor
+    /// starts from it and runs no second lookup.
+    var prepared: PreparedDraft?
+}
+
+/// A draft the scan card filled in, with what the lookup did to it (the
+/// banner, highlights and notes).
+struct PreparedDraft {
+    var draft: BookDraft
+    var result: LookupResult?
 }
 
 /// Add Book and Edit Book: one sheet, one `BookDraft`, validated while the
@@ -61,7 +74,14 @@ struct BookEditorSheet: View {
         } else {
             var fresh = BookDraft()
             fresh.language = LanguageOptions.defaultLanguage(books: books)
-            if let scan {
+            if let scan, let prepared = scan.prepared {
+                fresh = prepared.draft
+                _scannedISBN = State(initialValue: fresh.isbnText)
+                _didAutoComplete = State(initialValue: true)
+                let model = LookupModel()
+                model.adopt(prepared.result)
+                _lookup = State(initialValue: model)
+            } else if let scan {
                 fresh.isbnText = scan.isbn.hyphenated
                 // The first book of a round has Add Book's defaults; later ones
                 // get the status and collections chosen for the one before.
@@ -137,6 +157,40 @@ struct BookEditorSheet: View {
     // MARK: Body
 
     var body: some View {
+        #if os(iOS)
+        NavigationStack {
+            ScrollView { content }
+                .scrollDismissesKeyboard(.interactively)
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button {
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                        } label: {
+                            Label("Hide Keyboard", systemImage: "keyboard.chevron.compact.down")
+                        }
+                    }
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") {
+                            lookup.stop()
+                            dismiss()
+                        }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(isEditing ? "Save" : "Add") { save() }
+                            .disabled(!draft.canSave || duplicate != nil)
+                    }
+                }
+                .navigationBarTitleDisplayMode(.inline)
+        }
+        #else
+        content
+            .frame(width: 650)
+            .fixedSize(horizontal: false, vertical: true)
+        #endif
+    }
+
+    private var content: some View {
         VStack(spacing: 0) {
             LookupHeader(
                 title: isEditing ? "Edit Book" : "Add Book", lookup: lookup, canComplete: lookupQuery != nil,
@@ -152,6 +206,7 @@ struct BookEditorSheet: View {
             .padding(.horizontal, 24)
             .padding(.top, 4)
             .padding(.bottom, 12)
+            #if os(macOS)
             Divider()
             HStack {
                 if let scan, scan.inARow, scan.round.count > 0 {
@@ -172,9 +227,8 @@ struct BookEditorSheet: View {
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 12)
+            #endif
         }
-        .frame(width: 650)
-        .fixedSize(horizontal: false, vertical: true)
         .onChange(of: draft.status) { _, status in
             if status == .reading, draft.startedAt == nil {
                 draft.startedAt = Calendar.current.startOfDay(for: .now)
@@ -283,6 +337,20 @@ struct BookEditorSheet: View {
                 Spacer(minLength: 0)
             }
         }
+        #if os(iOS)
+        // Two rows: the Mac's one row is wider than a phone.
+        row("Language") {
+            noted(.language) {
+                languagePicker("Language", selection: $draft.language).lookupFilled(isFilled(.language))
+            }
+        }
+        row("Original Language") {
+            noted(.originalLanguage) {
+                languagePicker("Original Language", selection: $draft.originalLanguage)
+                    .lookupFilled(isFilled(.originalLanguage))
+            }
+        }
+        #else
         row("Language") {
             HStack(alignment: .firstTextBaseline, spacing: 12) {
                 noted(.language) {
@@ -296,6 +364,7 @@ struct BookEditorSheet: View {
                 Spacer(minLength: 0)
             }
         }
+        #endif
         row("Publisher") {
             noted(.publisher) {
                 TextField("Optional", text: $draft.publisher).labelsHidden().lookupFilled(isFilled(.publisher))
@@ -341,9 +410,15 @@ struct BookEditorSheet: View {
         }
         .help("Scan Barcode")
         .accessibilityLabel("Scan Barcode")
+        #if os(iOS)
+        .fullScreenCover(isPresented: $isScanning) {
+            ScanScreen(mode: .fillISBN { isbn in fillISBN(isbn) }, model: model, books: [], collections: [])
+        }
+        #else
         .sheet(isPresented: $isScanning) {
             ScanSheet(mode: .fillISBN { isbn in fillISBN(isbn) }, model: model, books: [], collections: [])
         }
+        #endif
     }
 
     /// A field with the lookup's offer note under it.
@@ -391,7 +466,12 @@ struct BookEditorSheet: View {
             }
         }
         .labelsHidden()
+        #if os(iOS)
+        // Left-aligned like the text fields; an iOS menu centres its label in a fixed width.
+        .fixedSize()
+        #else
         .frame(width: 150)
+        #endif
     }
 
     // MARK: Status
@@ -542,7 +622,7 @@ struct OptionalDatePicker: View {
                 get: { date != nil },
                 set: { date = $0 ? Calendar.current.startOfDay(for: .now) : nil }
             ))
-            .toggleStyle(.checkbox)
+            .checkboxToggleStyle()
             .labelsHidden()
             if date != nil {
                 DateField(label: "Date", date: Binding(

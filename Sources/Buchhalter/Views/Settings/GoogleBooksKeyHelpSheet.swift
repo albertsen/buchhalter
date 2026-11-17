@@ -54,6 +54,6 @@ struct GoogleBooksKeyHelpSheet: View {
             .padding(.top, 4)
         }
         .padding(24)
-        .frame(width: 480)
+        .sheetWidth(480)
     }
 }

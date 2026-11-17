@@ -2,7 +2,7 @@ import Foundation
 import Security
 import BuchhalterCore
 
-/// The Google Books key in the user's login keychain, as a generic password.
+/// The Google Books key in the keychain, as a generic password.
 /// Its own target, shared by the app and `buchhalter-cli`, because
 /// `BuchhalterCore` stays Foundation and SwiftData only.
 /// The names carry no bundle id, so the item survives the change from
@@ -10,14 +10,20 @@ import BuchhalterCore
 /// key's last four characters, so the masked key shows without reading the
 /// secret and without a permission prompt.
 ///
-/// Two modes. `.fileBased` is the login keychain: no entitlement, and the
+/// Three modes. `.fileBased` is the login keychain: no entitlement, and the
 /// item trusts the code signature of the app that created it, so an ad-hoc
 /// app is asked once per build. `buchhalter-cli` uses it. `.dataProtection` is
 /// the keychain of a properly signed app (`kSecUseDataProtectionKeychain`,
 /// with the `keychain-access-groups` entitlement): no prompt after a build.
 /// With `migratingLegacy` the first read that finds nothing there reads the
 /// old file-based item once and saves it into the data protection keychain.
-/// The old item stays, because the command line tool still reads it.
+/// `.synchronized` is the same keychain with `kSecAttrSynchronizable`, so
+/// iCloud Keychain carries the key to every device of the Apple Account that
+/// uses it, in the access group the Mac and iOS apps share. Its first read
+/// that finds nothing carries over the data protection item of the app
+/// before (and deletes it), then the file-based one. The file-based item
+/// stays, because the command line tool still reads it. Removing the
+/// synchronized item removes it on every device.
 ///
 /// It never logs and never puts a secret in an error.
 public actor KeychainSecretStore: SecretStore {
@@ -29,6 +35,7 @@ public actor KeychainSecretStore: SecretStore {
     public enum Mode: Sendable, Equatable {
         case fileBased
         case dataProtection(migratingLegacy: Bool)
+        case synchronized(accessGroup: String)
     }
 
     public nonisolated static let service = "Buchhalter Google Books"
@@ -39,24 +46,45 @@ public actor KeychainSecretStore: SecretStore {
 
     private let mode: Mode
     /// Set once the key was removed, so a removed key is not migrated back from
-    /// the legacy item that could not be deleted.
+    /// an older item that could not be deleted.
     private var legacyIgnored = false
 
-    /// The item in this mode's keychain.
-    private var itemQuery: [CFString: Any] {
-        var query = legacyQuery
-        if case .dataProtection = mode { query[kSecUseDataProtectionKeychain] = true }
-        return query
-    }
-
-    /// The item in the file-based login keychain.
-    private var legacyQuery: [CFString: Any] {
+    /// The item in the file-based login keychain (on iOS: the one keychain,
+    /// without iCloud).
+    private var fileBasedQuery: [CFString: Any] {
         [kSecClass: kSecClassGenericPassword, kSecAttrService: Self.service, kSecAttrAccount: Self.account]
     }
 
-    private var migratesLegacy: Bool {
-        if case .dataProtection(let migrating) = mode { return migrating && !legacyIgnored }
-        return false
+    /// The item in the data protection keychain, not synchronized.
+    private var dataProtectionQuery: [CFString: Any] {
+        var query = fileBasedQuery
+        query[kSecUseDataProtectionKeychain] = true
+        return query
+    }
+
+    /// The item in this mode's keychain.
+    private var itemQuery: [CFString: Any] {
+        switch mode {
+        case .fileBased:
+            return fileBasedQuery
+        case .dataProtection:
+            return dataProtectionQuery
+        case .synchronized(let group):
+            var query = dataProtectionQuery
+            query[kSecAttrSynchronizable] = true
+            query[kSecAttrAccessGroup] = group
+            return query
+        }
+    }
+
+    /// Older items to carry over on the first read that finds nothing, in order.
+    private var legacyQueries: [[CFString: Any]] {
+        guard !legacyIgnored else { return [] }
+        switch mode {
+        case .fileBased: return []
+        case .dataProtection(let migrating): return migrating ? [fileBasedQuery] : []
+        case .synchronized: return [dataProtectionQuery, fileBasedQuery]
+        }
     }
 
     public init(mode: Mode = .fileBased) {
@@ -69,11 +97,19 @@ public actor KeychainSecretStore: SecretStore {
             cached = text
             return text
         }
-        // Nothing in the data protection keychain: carry the old item over once.
-        guard migratesLegacy, let text = try? readSecret(legacyQuery) else { return nil }
-        try? await save(text)
-        cached = text
-        return text
+        // Nothing in this mode's keychain: carry an older item over once.
+        for legacy in legacyQueries {
+            guard let text = try? readSecret(legacy) else { continue }
+            try? await save(text)
+            // The Mac's own item before iCloud Keychain goes; the file-based one
+            // stays for the command line tool.
+            if case .synchronized = mode, legacy[kSecUseDataProtectionKeychain] != nil {
+                _ = SecItemDelete(legacy as CFDictionary)
+            }
+            cached = text
+            return text
+        }
+        return nil
     }
 
     private func readSecret(_ base: [CFString: Any]) throws -> String? {
@@ -95,23 +131,33 @@ public actor KeychainSecretStore: SecretStore {
         ]
         var status = SecItemUpdate(itemQuery as CFDictionary, attributes as CFDictionary)
         if status == errSecItemNotFound {
-            status = SecItemAdd(itemQuery.merging(attributes) { _, new in new } as CFDictionary, nil)
+            var added = itemQuery.merging(attributes) { _, new in new }
+            // A synchronized item must not be bound to this device.
+            if case .synchronized = mode { added[kSecAttrAccessible] = kSecAttrAccessibleAfterFirstUnlock }
+            status = SecItemAdd(added as CFDictionary, nil)
         }
         guard status == errSecSuccess else { throw KeychainError(status: status) }
         cached = secret
     }
 
-    /// Removes the key. In the migrating mode the old file-based item goes too,
-    /// or the next read would carry it back; if that is refused, it is ignored
-    /// until the app quits.
+    /// Removes the key; a synchronized one on every device. The older items go
+    /// too, or the next read would carry them back; if that is refused, they
+    /// are ignored until the app quits.
     public func delete() async throws {
         cached = nil
         let status = SecItemDelete(itemQuery as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else { throw KeychainError(status: status) }
-        if migratesLegacy {
-            legacyIgnored = true
-            _ = SecItemDelete(legacyQuery as CFDictionary)
-        }
+        for legacy in legacyQueries { _ = SecItemDelete(legacy as CFDictionary) }
+        legacyIgnored = true
+    }
+
+    /// Carries an older item over now, at launch, instead of at the first
+    /// Google Books request, so a key saved on the Mac reaches iCloud Keychain
+    /// and the other devices right away. Does nothing when the item is already
+    /// in this mode's keychain.
+    public func migrateIfNeeded() async {
+        guard attributes(of: itemQuery) == nil, !legacyQueries.isEmpty else { return }
+        _ = try? await read()
     }
 
     /// Asks for attributes only, which does not touch the secret.
@@ -128,11 +174,15 @@ public actor KeychainSecretStore: SecretStore {
         return String(secret.suffix(4))
     }
 
-    /// The item's attributes, from this mode's keychain; in the migrating mode
-    /// from the old item when the new one is not there yet, so Settings knows
+    /// The item's attributes, from this mode's keychain; in a migrating mode
+    /// from an older item when the new one is not there yet, so Settings knows
     /// about a key before the first read has carried it over.
     private func attributes() -> [CFString: Any]? {
-        attributes(of: itemQuery) ?? (migratesLegacy ? attributes(of: legacyQuery) : nil)
+        if let found = attributes(of: itemQuery) { return found }
+        for legacy in legacyQueries {
+            if let found = attributes(of: legacy) { return found }
+        }
+        return nil
     }
 
     private func attributes(of base: [CFString: Any]) -> [CFString: Any]? {

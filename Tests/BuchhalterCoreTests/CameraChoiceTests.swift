@@ -31,4 +31,11 @@ struct CameraChoiceTests {
         #expect(CameraChoice.pick(from: [phone, usb], stored: "gone", systemPreferred: "usb") == "usb")
         #expect(CameraChoice.pick(from: [phone, usb], stored: "gone", systemPreferred: nil) == "phone")
     }
+
+    @Test func theBackCameraPrefersTheVirtualOnes() {
+        #expect(CameraChoice.backCamera(available: [.wide, .dualWide, .triple]) == .triple)
+        #expect(CameraChoice.backCamera(available: [.wide, .dualWide]) == .dualWide)
+        #expect(CameraChoice.backCamera(available: [.wide]) == .wide)
+        #expect(CameraChoice.backCamera(available: []) == nil)
+    }
 }

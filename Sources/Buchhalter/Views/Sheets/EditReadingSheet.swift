@@ -91,7 +91,7 @@ struct EditReadingSheet: View {
             }
         }
         .padding(24)
-        .frame(width: 460)
+        .sheetWidth(460, half: true)
     }
 
     private func label(_ key: LocalizedStringKey) -> some View {

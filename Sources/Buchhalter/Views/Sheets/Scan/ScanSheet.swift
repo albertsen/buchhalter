@@ -1,18 +1,6 @@
 import SwiftUI
 import BuchhalterCore
 
-/// What the platform adds to a read: a sound on the Mac, a haptic on iOS, and
-/// the way to the camera privacy page. The shared view stays free of AppKit;
-/// the Mac app sets it in `BuchhalterApp`.
-struct ScanFeedback {
-    var playRead: () -> Void = {}
-    var openCameraSettings: () -> Void = {}
-}
-
-extension EnvironmentValues {
-    @Entry var scanFeedback = ScanFeedback()
-}
-
 /// "Scan Barcode": the live camera picture, a frame on the barcode, and what
 /// follows a read. In `addBooks` mode a read opens Add Book over this sheet
 /// (nested, so the camera stays warm behind it) and a duplicate shows a banner;
@@ -238,7 +226,7 @@ struct ScanSheet: View {
             HStack(spacing: 8) {
                 if !isFilling {
                     Toggle("Scan several books in a row", isOn: $inARow)
-                        .toggleStyle(.checkbox)
+                        .checkboxToggleStyle()
                         .font(.system(size: 12))
                     Spacer()
                     Button("Type ISBN Instead") {

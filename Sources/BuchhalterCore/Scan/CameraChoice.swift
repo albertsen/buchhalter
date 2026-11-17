@@ -38,4 +38,19 @@ public enum CameraChoice {
         if stored != nil, let builtIn = candidates.first(where: { $0.kind == .builtIn }) { return builtIn.id }
         return preferred ?? candidates.first(where: { $0.kind == .builtIn })?.id ?? candidates[0].id
     }
+
+    // MARK: iPhone and iPad
+
+    /// The back cameras of an iPhone or iPad. The virtual ones switch to the
+    /// lens that focuses closest (the macro of the ultra wide), which a
+    /// barcode a hand's width away needs.
+    public enum BackCamera: Equatable, Sendable, CaseIterable {
+        case triple, dualWide, wide
+    }
+
+    /// The first of triple, dual wide and wide that the device has, as in
+    /// Apple's AVCamBarcode sample. The rear camera is never mirrored.
+    public static func backCamera(available: [BackCamera]) -> BackCamera? {
+        BackCamera.allCases.first { available.contains($0) }
+    }
 }

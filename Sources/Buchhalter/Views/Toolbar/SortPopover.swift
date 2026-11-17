@@ -19,7 +19,7 @@ struct SortPopover: View {
                 }
                 Spacer()
                 Button("Reset to Default") { onChange(.default) }
-                    .buttonStyle(.link)
+                    .linkButtonStyle()
                     .disabled(levels.isDefault)
             }
             Grid(alignment: .leading, horizontalSpacing: 8, verticalSpacing: 8) {
@@ -69,7 +69,9 @@ struct SortPopover: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding(16)
+        #if os(macOS)
         .frame(width: 420)
+        #endif
         // System colours for the menus and links, not the window's green tint.
         .tint(nil as Color?)
     }

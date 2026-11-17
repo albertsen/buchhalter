@@ -51,6 +51,28 @@ struct ReadingOperationsTests {
         #expect(throws: LibraryError.self) { try t.library.readAgain(book) }
     }
 
+    @Test func startReadingMovesWantToReadToReadingToday() throws {
+        let t = try TestLibrary()
+        let book = try t.add("A", status: .wantToRead)
+        try t.library.startReading(book, today: date(2026, 11, 17))
+        #expect(book.status == .reading)
+        #expect(book.currentReading?.startedAt == Calendar.current.startOfDay(for: date(2026, 11, 17)))
+        #expect(book.readings?.count == 1)
+    }
+
+    @Test func startReadingRefusesEveryOtherStatus() throws {
+        let t = try TestLibrary()
+        let reading = try t.add("A", status: .reading, started: date(2026, 10, 3))
+        let read = try t.add("B", status: .read, started: date(2019, 1, 12), finished: date(2019, 3, 2))
+        let none = try t.add("C", status: nil)
+        let abandoned = try t.add("D", status: .reading, started: date(2026, 10, 3))
+        try t.library.abandonReading(abandoned, on: nil, notes: nil)
+        for book in [reading, read, none, abandoned] {
+            #expect(throws: LibraryError.self) { try t.library.startReading(book) }
+        }
+        #expect(reading.currentReading?.startedAt == date(2026, 10, 3))
+    }
+
     @Test func applyStatusRules() throws {
         let t = try TestLibrary()
         let book = try t.add("A", status: .wantToRead)

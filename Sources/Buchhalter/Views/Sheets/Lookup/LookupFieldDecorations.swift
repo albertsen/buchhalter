@@ -11,7 +11,7 @@ struct LookupOfferNote: View {
             Text(verbatim: label)
             Text(verbatim: "·")
             Button("Use", action: action)
-                .buttonStyle(.link)
+                .linkButtonStyle()
                 .accessibilityLabel("Use Found Value")
         }
         .font(.system(size: 11))

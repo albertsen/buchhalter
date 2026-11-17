@@ -62,7 +62,7 @@ struct StarRatingControl: View {
                 return .handled
             }
             Button("Clear") { rating = nil }
-                .buttonStyle(.link)
+                .linkButtonStyle()
                 .disabled(rating == nil)
         }
     }

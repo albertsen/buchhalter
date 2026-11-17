@@ -6,6 +6,8 @@ let package = Package(
     platforms: [.macOS("27.0"), .iOS("27.0")],
     products: [
         .library(name: "BuchhalterCore", targets: ["BuchhalterCore"]),
+        // The iOS app in Buchhalter.xcodeproj links it too.
+        .library(name: "BuchhalterKeychain", targets: ["BuchhalterKeychain"]),
         .executable(name: "buchhalter", targets: ["Buchhalter"]),
         .executable(name: "buchhalter-cli", targets: ["BuchhalterCLI"]),
     ],

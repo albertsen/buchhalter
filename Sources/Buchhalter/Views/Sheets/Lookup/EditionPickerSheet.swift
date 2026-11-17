@@ -75,7 +75,7 @@ struct EditionPickerSheet: View {
             .padding(.horizontal, 24)
             .padding(.vertical, 14)
         }
-        .frame(width: 560)
+        .sheetWidth(560)
         .onAppear { selection = selection ?? list.records.first?.id }
     }
 

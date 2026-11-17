@@ -20,7 +20,7 @@ SCHEMA_APP   := build/BuchhalterSchema.app
 
 .DEFAULT_GOAL := build
 
-.PHONY: build app install cli test strings icon isbn-ranges cloudkit-schema clean
+.PHONY: build app install cli test strings icon isbn-ranges cloudkit-schema ios ios-sim ios-install clean
 
 # Rebuilt only when a source file is newer than the binary.
 $(BIN): $(SOURCES)
@@ -82,18 +82,53 @@ cli:
 test:
 	swift test
 
-# Finds the texts and syncs them into the catalog. The compiler emits the
-# .stringsdata files, so keys with interpolations carry the right
-# placeholders (%@, %lld); `xcstringstool extract` on the sources alone
-# writes "%arg". New keys arrive as "new" without a German value; the
+# The iOS app (iPhone and iPad), from iOS/Buchhalter.xcodeproj, which
+# compiles the shared App and Views folders and links the package. Automatic
+# signing with the team: building for DEVICE (its name in `xcrun devicectl
+# list devices`; Developer Mode on) registers it in the development profile
+# the first time. build/ios/Buchhalter.app talks to CloudKit Production, like
+# the Mac app.
+IOS_PROJECT := iOS/Buchhalter.xcodeproj
+IOS_DERIVED := build/ios-derived
+IOS_APP     := build/ios/Buchhalter.app
+XCODEBUILD  := xcodebuild -project $(IOS_PROJECT) -scheme Buchhalter -derivedDataPath $(IOS_DERIVED)
+DEVICE      ?= jaPhone
+
+ios:
+	$(XCODEBUILD) -configuration Release -destination 'platform=iOS,name=$(DEVICE)' \
+		-allowProvisioningUpdates -allowProvisioningDeviceRegistration build
+	rm -rf $(IOS_APP)
+	mkdir -p build/ios
+	cp -R $(IOS_DERIVED)/Build/Products/Release-iphoneos/Buchhalter.app $(IOS_APP)
+
+# A simulator build without signing, for agents: it compiles everything the
+# device build does.
+ios-sim:
+	$(XCODEBUILD) -configuration Debug -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+
+# Installs build/ios/Buchhalter.app on DEVICE. The user runs it:
+# `make ios-install`, or `make ios-install DEVICE=<iPad name>`.
+ios-install: ios
+	xcrun devicectl device install app --device "$(DEVICE)" $(IOS_APP)
+
+
+# Finds the texts of the Mac and iOS apps and syncs them into the catalog.
+# The compiler emits the .stringsdata files, so keys with interpolations
+# carry the right placeholders (%@, %lld); `xcstringstool extract` on the
+# sources alone writes "%arg". The iOS build passes the same flags instead of
+# SWIFT_EMIT_LOC_STRINGS, which would let Xcode rewrite the catalog with the
+# iOS texts alone. New keys arrive as "new" without a German value; the
 # catalog test fails until they are translated.
 STRINGS_DIR := $(CURDIR)/build/strings
 strings:
-	rm -rf $(STRINGS_DIR) build/strings-build
-	mkdir -p $(STRINGS_DIR)
+	rm -rf $(STRINGS_DIR) build/strings-build build/strings-ios
+	mkdir -p $(STRINGS_DIR)/ios
 	swift build --scratch-path build/strings-build \
 		-Xswiftc -emit-localized-strings -Xswiftc -emit-localized-strings-path -Xswiftc $(STRINGS_DIR)
-	$(XCSTRINGSTOOL) sync $(CATALOG) --stringsdata $(STRINGS_DIR)/*.stringsdata
+	xcodebuild -project $(IOS_PROJECT) -scheme Buchhalter -derivedDataPath build/strings-ios \
+		-configuration Debug -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO \
+		OTHER_SWIFT_FLAGS='$$(inherited) -emit-localized-strings -emit-localized-strings-path $(STRINGS_DIR)/ios' build
+	$(XCSTRINGSTOOL) sync $(CATALOG) --stringsdata $(STRINGS_DIR)/*.stringsdata $(STRINGS_DIR)/ios/*.stringsdata
 
 # Downloads the International ISBN Agency's current range message and
 # regenerates Sources/BuchhalterCore/Logic/ISBNRanges.swift, which is

@@ -3,7 +3,7 @@ import SwiftData
 
 @MainActor
 extension Library {
-    // MARK: Finish, abandon, read again
+    // MARK: Start, finish, abandon, read again
 
     /// Only a book that is being read can be finished. The finish date is the
     /// only required field; it cannot be before the start.
@@ -44,6 +44,19 @@ extension Library {
         }
         return try change("Read Again") {
             newReading(for: book, status: .reading, startedAt: Calendar.current.startOfDay(for: today))
+        }
+    }
+
+    /// Moves a book from Want to Read to Reading: the current reading keeps
+    /// its record and gets today as its start date. The swipe on a row, the
+    /// context menu and the Mac's Book menu use it.
+    public func startReading(_ book: Book, today: Date = .now) throws {
+        guard let reading = book.currentReading, reading.status == .wantToRead else {
+            throw LibraryError.notWantToRead
+        }
+        try change("Start Reading") {
+            reading.statusRaw = ReadingStatus.reading.rawValue
+            reading.startedAt = Calendar.current.startOfDay(for: today)
         }
     }
 

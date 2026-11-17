@@ -118,6 +118,13 @@ final class LookupModel {
 
     // MARK: After filling
 
+    /// Takes over a lookup that ran elsewhere (the iOS scan card), so the
+    /// banner, highlights and notes show as if Complete had filled the sheet.
+    func adopt(_ result: LookupResult?) {
+        self.result = result
+        phase = .idle
+    }
+
     /// The hints go away when the user changes the title, the authors or the
     /// ISBN. The banner and the notes stay.
     func clearHint() {

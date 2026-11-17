@@ -13,6 +13,9 @@ struct BookContextMenu: View {
 
     var body: some View {
         Button("Open") { open() }
+        statusActions
+        Button("Edit") { model.sheet = .editBook(book.id) }
+        Divider()
         Menu("Add to Collection") {
             ForEach(collections) { collection in
                 let isMember = (book.collections ?? []).contains { $0 === collection }
@@ -31,5 +34,21 @@ struct BookContextMenu: View {
         }
         Divider()
         Button("Delete Book…", role: .destructive) { model.pendingDeleteBookID = book.id }
+    }
+
+    /// The next steps for the book's status, as in the detail and the Book menu.
+    @ViewBuilder
+    private var statusActions: some View {
+        switch book.status {
+        case .wantToRead:
+            Button("Start Reading") { model.attempt { try library?.startReading(book) } }
+        case .reading:
+            Button("Finish Reading…") { model.sheet = .finish(book.id) }
+            Button("Abandon…") { model.sheet = .abandon(book.id) }
+        case .finished, .abandoned:
+            Button("Read Again") { model.attempt { try library?.readAgain(book) } }
+        case nil:
+            EmptyView()
+        }
     }
 }

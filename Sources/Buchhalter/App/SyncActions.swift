@@ -4,8 +4,8 @@ import SwiftUI
 /// closures and know nothing of `NSWorkspace` or `openSettings`; the Mac's
 /// `SyncActionsModifier` fills them in. The defaults do nothing, for previews.
 struct SyncActions {
-    /// Opens the old library folder in the Finder.
-    var showLegacyFolder: () -> Void = {}
+    /// Opens the old library folder in the Finder. Nil where there is none (iOS).
+    var showLegacyFolder: (() -> Void)? = {}
     /// Opens the Apple Account settings (not signed in, iCloud off for Buchhalter).
     var openAccountSettings: () -> Void = {}
     /// Opens the iCloud storage settings (storage full).

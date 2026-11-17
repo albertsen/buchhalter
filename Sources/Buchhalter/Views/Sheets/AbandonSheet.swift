@@ -47,6 +47,6 @@ struct AbandonSheet: View {
             }
         }
         .padding(24)
-        .frame(width: 420)
+        .sheetWidth(420, half: true)
     }
 }

@@ -17,6 +17,7 @@ struct NewCollectionSheet: View {
             Text("New Collection").font(.system(size: 17, weight: .semibold))
             VStack(alignment: .leading, spacing: 4) {
                 TextField("Name", text: $name)
+                    .textFieldStyle(.roundedBorder)
                     .focused($focused)
                     .onSubmit(create)
                     .accessibilityLabel("Collection name")
@@ -33,7 +34,7 @@ struct NewCollectionSheet: View {
             }
         }
         .padding(24)
-        .frame(width: 340)
+        .sheetWidth(340, half: true)
         .onAppear { focused = true }
     }
 

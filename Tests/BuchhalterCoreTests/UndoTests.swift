@@ -74,6 +74,8 @@ struct UndoTests {
         try checkUndoRedo(t, snapshot: { snapshot(t) }) {
             try t.library.abandonReading(b, on: date(2026, 2, 1), notes: nil)
         }
+        let w = try t.add("W", status: .wantToRead)
+        try checkUndoRedo(t, snapshot: { snapshot(t) }) { try t.library.startReading(w) }
         let c = try t.add("C", status: .read, started: date(2026, 1, 1), finished: date(2026, 2, 1))
         try checkUndoRedo(t, snapshot: { snapshot(t) }) { try t.library.readAgain(c) }
         let reading = try #require(a.currentReading)

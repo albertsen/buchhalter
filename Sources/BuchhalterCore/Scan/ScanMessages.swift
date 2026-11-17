@@ -52,6 +52,31 @@ public struct ScanMessages: Sendable {
         String(localized: "Connect a camera or put an iPhone near this Mac. You can also type the ISBN.", locale: locale)
     }
 
+    // MARK: iPhone and iPad
+
+    public func pointAtBarcode() -> String {
+        String(localized: "Point the camera at the barcode on the back of the book.", locale: locale)
+    }
+
+    public func noAccessMessagePhone() -> String {
+        String(localized: "Allow camera access for Buchhalter in Settings.", locale: locale)
+    }
+
+    /// "3 other editions", with the catalog's plural rules.
+    public func otherEditions(_ count: Int) -> String {
+        String(localized: "\(count) other editions", locale: locale)
+    }
+
+    /// "from Deutsche Nationalbibliothek": where the card's book came from.
+    public func fromSource(_ source: LookupSource) -> String {
+        String(localized: "from \(source.displayName)", locale: locale)
+    }
+
+    /// "Already in your library", over the duplicate's title on the card.
+    public func alreadyInLibraryHeading() -> String {
+        String(localized: "Already in your library", locale: locale)
+    }
+
     // MARK: Add Book's footer
 
     /// "Added in this round: 2", with the catalog's plural rules.

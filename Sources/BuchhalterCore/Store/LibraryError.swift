@@ -11,6 +11,7 @@ public enum LibraryError: LocalizedError {
     case finishBeforeStart
     case noOpenReading
     case readingAlreadyOpen
+    case notWantToRead
     case saveFailed(any Error)
 
     public var errorDescription: String? {
@@ -25,6 +26,7 @@ public enum LibraryError: LocalizedError {
         case .finishBeforeStart: String(localized: "The finish date can't be before the start date.")
         case .noOpenReading: String(localized: "This book is not being read.")
         case .readingAlreadyOpen: String(localized: "This book already has an open reading.")
+        case .notWantToRead: String(localized: "Only a book you want to read can be started.")
         case .saveFailed(let error):
             String(localized: "The library could not be saved: \(error.localizedDescription)")
         }

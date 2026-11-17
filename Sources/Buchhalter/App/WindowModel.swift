@@ -77,6 +77,7 @@ struct BookMenuState {
     var edit: () -> Void
     var finish: () -> Void
     var abandon: () -> Void
+    var startReading: () -> Void
     var readAgain: () -> Void
     var toggleCollection: (UUID) -> Void
     var newCollection: () -> Void

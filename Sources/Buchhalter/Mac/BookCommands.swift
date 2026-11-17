@@ -10,6 +10,8 @@ struct BookCommands: Commands {
         CommandMenu("Book") {
             Button("Edit Book…") { menu?.edit() }
                 .disabled(menu == nil)
+            Button("Start Reading") { menu?.startReading() }
+                .disabled(menu?.status != .wantToRead)
             Button("Finish Reading…") { menu?.finish() }
                 .disabled(menu?.status != .reading)
             Button("Abandon…") { menu?.abandon() }

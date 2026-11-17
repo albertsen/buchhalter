@@ -2,6 +2,9 @@ import SwiftUI
 import SwiftData
 import BuchhalterCore
 
+// Mac-only: the app, its one window, Settings and menus. The iOS app is
+// iOS/BuchhalterPhoneApp.swift.
+
 @main
 struct BuchhalterApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate

@@ -73,7 +73,9 @@ struct CollectionNameField: View {
                 .textFieldStyle(.roundedBorder)
                 .focused($focused)
                 .onSubmit(onSubmit)
+                #if os(macOS)
                 .onExitCommand(perform: onCancel)
+                #endif
                 .accessibilityLabel("Collection name")
             if let error {
                 Text(error)

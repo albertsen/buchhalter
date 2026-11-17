@@ -51,7 +51,7 @@ struct AuthorField: View {
                             .font(.system(size: 12))
                             .foregroundStyle(.secondary)
                         Button("Edit") { editingSortNameID = author.id }
-                            .buttonStyle(.link)
+                            .linkButtonStyle()
                             .font(.system(size: 12))
                     }
                 }

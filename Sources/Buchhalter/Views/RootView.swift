@@ -1,5 +1,8 @@
 import SwiftUI
 import SwiftData
+#if os(iOS)
+import UIKit
+#endif
 import BuchhalterCore
 
 /// The main window: sidebar, the books of the selected list, and the detail.
@@ -22,7 +25,32 @@ struct RootView: View {
     @AppStorage("selectedBook") private var selectedBookRaw = ""
     @AppStorage("openBook") private var openBookRaw = ""
     @State private var model = WindowModel()
+    /// The split view's columns. The Mac leaves them to the user; the iPad
+    /// hides the sidebar after a list is picked.
+    @State private var columnVisibility = NavigationSplitViewVisibility.automatic
     @FocusState private var searchFocused: Bool
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    /// iPhone: whether a list is pushed over the Library screen. Starts on the
+    /// Library screen.
+    /// iPad: whether the window is wider than tall; the columns follow it.
+    @State private var isLandscape = false
+    private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
+
+    /// Changes the iPad's columns without the slide, so a picked list or book
+    /// shows at once.
+    private func setColumns(_ visibility: NavigationSplitViewVisibility) {
+        var transaction = Transaction()
+        transaction.disablesAnimations = true
+        withTransaction(transaction) { columnVisibility = visibility }
+    }
+    #if DEBUG
+    @State private var sidebarListShown = DebugLaunch.showsList
+    #else
+    @State private var sidebarListShown = false
+    #endif
+    @Environment(PhoneUI.self) private var phone
+    #endif
 
     private var library: Library { Library(context: modelContext, undoManager: undoManager) }
 
@@ -71,24 +99,30 @@ struct RootView: View {
         Group {
             switch preferences.viewMode {
             case .list:
-                NavigationSplitView {
+                NavigationSplitView(columnVisibility: $columnVisibility) {
                     sidebar(counts)
                 } content: {
                     content(visible, total: counts[listID] ?? 0)
                         .navigationSplitViewColumnWidth(min: 280, ideal: 360, max: 520)
                         .navigationTitle(listName)
                         .librarySubtitle(BookFormatting(locale: locale).bookCount(visible.count))
+                        #if os(iOS)
+                        .phoneListChrome(preferences: preferences, library: library, model: model, listID: listID)
+                        #endif
                 } detail: {
                     detail(for: selectedBook)
                 }
             case .grid:
-                NavigationSplitView {
+                NavigationSplitView(columnVisibility: $columnVisibility) {
                     sidebar(counts)
                 } detail: {
                     NavigationStack(path: $model.gridPath) {
                         content(visible, total: counts[listID] ?? 0)
                             .navigationTitle(listName)
                             .librarySubtitle(BookFormatting(locale: locale).bookCount(visible.count))
+                            #if os(iOS)
+                            .phoneListChrome(preferences: preferences, library: library, model: model, listID: listID)
+                            #endif
                             .navigationDestination(for: UUID.self) { id in
                                 detail(for: books.first { $0.id == id })
                             }
@@ -96,6 +130,7 @@ struct RootView: View {
                 }
             }
         }
+        #if os(macOS)
         .searchable(text: $model.searchText, placement: .toolbar, prompt: Text("Search"))
         .searchFocused($searchFocused)
         .toolbar {
@@ -110,15 +145,32 @@ struct RootView: View {
                 onScan: { model.sheet = .scanBarcode }
             )
         }
+        #else
+        .phoneWindowChrome(model: model, books: books, collections: collections, library: library, reveal: reveal)
+        #endif
         .environment(\.library, library)
         .tint(Theme.accent)
+        #if os(macOS)
         .frame(minWidth: 900, minHeight: 560)
+        #else
+        .modifier(PadSplitStyle(isLandscape: isLandscape))
+        .onGeometryChange(for: Bool.self) { $0.size.width > $0.size.height } action: { landscape in
+            guard isPad, landscape != isLandscape else { return }
+            isLandscape = landscape
+            // Landscape: every column open. Portrait: the detail, the rest a tap away.
+            setColumns(landscape ? .all : .detailOnly)
+        }
+        #endif
         .sheet(item: $model.sheet) { sheet in sheetContent(sheet) }
         .confirmationDialog(deleteBookTitle, isPresented: deleteBookBinding, titleVisibility: .visible) {
             Button("Delete Book", role: .destructive) { deletePendingBook() }
             Button("Cancel", role: .cancel) {}
         } message: {
+            #if os(macOS)
             Text("This removes the book and all its readings. You can undo it with ⌘Z.")
+            #else
+            Text("This removes the book and all its readings. You can undo it.")
+            #endif
         }
         .confirmationDialog(deleteCollectionTitle, isPresented: deleteCollectionBinding, titleVisibility: .visible) {
             Button("Delete Collection", role: .destructive) { deletePendingCollection() }
@@ -147,8 +199,27 @@ struct RootView: View {
         .onAppear {
             restoreSelection()
             showSyncNoticeIfNeeded()
+            #if os(iOS)
+            // iPad: start with the sidebar out, so the lists are the first thing
+            // in view, also in portrait; picking a list puts it away.
+            if isPad {
+                // The geometry callback may not report the first size, so ask the scene.
+                let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
+                isLandscape = scene?.effectiveGeometry.interfaceOrientation.isLandscape ?? false
+                setColumns(.all)
+            }
+            #endif
+            #if os(iOS) && DEBUG
+            DebugLaunch.openScreen(model: model, phone: phone)
+            #endif
         }
-        .onChange(of: model.selectedBookID) { _, id in selectedBookRaw = id?.uuidString ?? "" }
+        .onChange(of: model.selectedBookID) { _, id in
+            selectedBookRaw = id?.uuidString ?? ""
+            #if os(iOS)
+            // iPad in portrait: a tapped book gets the whole screen.
+            if isPad, !isLandscape, id != nil { setColumns(.detailOnly) }
+            #endif
+        }
         .onChange(of: model.gridPath) { _, path in openBookRaw = path.last?.uuidString ?? "" }
         .onReceive(NotificationCenter.default.publisher(for: .selectCollection)) { note in
             if let id = note.object as? UUID { selectedListRaw = LibraryListID.collection(id).rawValue }
@@ -160,9 +231,44 @@ struct RootView: View {
     private func sidebar(_ counts: [LibraryListID: Int]) -> some View {
         SidebarView(
             model: model, collections: collections, counts: counts, settings: settings,
-            selection: Binding(get: { listID }, set: { selectedListRaw = $0.rawValue })
+            selection: sidebarSelection
         )
         .navigationSplitViewColumnWidth(min: 200, ideal: 232, max: 300)
+        #if os(iOS)
+        .phoneSidebarChrome(model: model, showAllBooks: { sidebarListShown = true; selectedListRaw = LibraryListID.all.rawValue })
+        #endif
+    }
+
+    /// The sidebar's selection. On the Mac a list is always selected. On an
+    /// iPhone the split view is a stack, and no selection is the Library
+    /// screen itself, so Back has to be able to clear it.
+    private var sidebarSelection: Binding<LibraryListID?> {
+        #if os(iOS)
+        if horizontalSizeClass == .compact {
+            return Binding(
+                get: { sidebarListShown ? listID : nil },
+                set: { list in
+                    if let list { selectedListRaw = list.rawValue }
+                    sidebarListShown = list != nil
+                }
+            )
+        }
+        return Binding(
+            get: { listID },
+            set: { list in
+                guard let list else { return }
+                selectedListRaw = list.rawValue
+                // iPad in portrait: the sidebar steps aside once a list is chosen,
+                // at once, so the list does not slide in after the books. Grid mode
+                // has two columns, so there only the grid stays. Landscape keeps all.
+                guard !isLandscape else { return }
+                let mode = ListSettings.preferences(for: list, among: settings, collections: collections).viewMode
+                setColumns(mode == .grid ? .detailOnly : .doubleColumn)
+            }
+        )
+        #else
+        return Binding(get: { listID }, set: { if let list = $0 { selectedListRaw = list.rawValue } })
+        #endif
     }
 
     @ViewBuilder
@@ -344,6 +450,7 @@ struct RootView: View {
             edit: { model.sheet = .editBook(id) },
             finish: { model.sheet = .finish(id) },
             abandon: { model.sheet = .abandon(id) },
+            startReading: { model.attempt { try library.startReading(book) } },
             readAgain: { model.attempt { try library.readAgain(book) } },
             toggleCollection: { collectionID in
                 if let collection = collections.first(where: { $0.id == collectionID }) {
@@ -355,3 +462,19 @@ struct RootView: View {
         )
     }
 }
+
+#if os(iOS)
+/// The iPad's split view style: side by side in landscape, the sidebar and
+/// the list over the detail in portrait.
+private struct PadSplitStyle: ViewModifier {
+    var isLandscape: Bool
+
+    func body(content: Content) -> some View {
+        if isLandscape {
+            content.navigationSplitViewStyle(.balanced)
+        } else {
+            content.navigationSplitViewStyle(.prominentDetail)
+        }
+    }
+}
+#endif

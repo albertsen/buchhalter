@@ -7,7 +7,15 @@ import BuchhalterCore
 struct BookLookupSettingsPane: View {
     @Environment(BookSources.self) private var sources
 
+    #if os(iOS)
+    /// Two lines per row: the name and its description. iOS adds about 34 pt
+    /// of row padding to the content's 54 pt.
+    private static let rowHeight: CGFloat = 88
+    private static let rowContentHeight: CGFloat = 54
+    #else
     private static let rowHeight: CGFloat = 40
+    private static let rowContentHeight: CGFloat = 30
+    #endif
 
     var body: some View {
         VStack(alignment: .leading, spacing: 22) {
@@ -21,11 +29,10 @@ struct BookLookupSettingsPane: View {
                 GoogleBooksKeySection()
             }
         }
-        .padding(.horizontal, 32)
+        .padding(.horizontal, Self.margin)
         .padding(.top, 24)
         .padding(.bottom, 28)
-        .frame(width: 620, alignment: .leading)
-        .fixedSize(horizontal: false, vertical: true)
+        .paneWidth(620)
     }
 
     // MARK: Sources
@@ -41,11 +48,15 @@ struct BookLookupSettingsPane: View {
             List {
                 ForEach(sources.list.entries) { entry in
                     row(entry)
-                        .frame(height: Self.rowHeight - 10)
+                        .frame(height: Self.rowContentHeight)
                 }
                 .onMove { source, destination in sources.move(fromOffsets: source, toOffset: destination) }
             }
             .listStyle(.plain)
+            #if os(iOS)
+            // Reorder handles on every row: iOS drags rows only in edit mode.
+            .environment(\.editMode, .constant(.active))
+            #endif
             .scrollDisabled(true)
             .frame(height: Self.rowHeight * CGFloat(sources.list.entries.count))
             .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -58,6 +69,27 @@ struct BookLookupSettingsPane: View {
         }
     }
 
+    #if os(iOS)
+    static let margin: CGFloat = 20
+
+    /// The name over its description, the switch at the end; the handle is the list's.
+    private func row(_ entry: LookupSourceList.Entry) -> some View {
+        let needsKey = entry.source == .googleBooks && !sources.hasGoogleKey
+        let isOn = entry.isOn && !needsKey
+        return Toggle(isOn: Binding(get: { isOn }, set: { sources.setOn(entry.source, $0) })) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: entry.source.displayName)
+                detail(for: entry.source, needsKey: needsKey)
+            }
+        }
+        .disabled(needsKey)
+        .foregroundStyle(needsKey ? AnyShapeStyle(.secondary) : AnyShapeStyle(.primary))
+        .accessibilityAction(named: "Move Up") { move(entry.source, by: -1) }
+        .accessibilityAction(named: "Move Down") { move(entry.source, by: 1) }
+    }
+    #else
+    static let margin: CGFloat = 32
+
     private func row(_ entry: LookupSourceList.Entry) -> some View {
         let needsKey = entry.source == .googleBooks && !sources.hasGoogleKey
         let isOn = entry.isOn && !needsKey
@@ -65,7 +97,7 @@ struct BookLookupSettingsPane: View {
             Toggle(isOn: Binding(get: { isOn }, set: { sources.setOn(entry.source, $0) })) {
                 Text(verbatim: entry.source.displayName)
             }
-            .toggleStyle(.checkbox)
+            .checkboxToggleStyle()
             .disabled(needsKey)
             // The name is the toggle's label, so a click on it switches the source.
             Spacer(minLength: 8)
@@ -82,6 +114,7 @@ struct BookLookupSettingsPane: View {
         .accessibilityAction(named: "Move Up") { move(entry.source, by: -1) }
         .accessibilityAction(named: "Move Down") { move(entry.source, by: 1) }
     }
+    #endif
 
     @ViewBuilder
     private func detail(for source: LookupSource, needsKey: Bool) -> some View {

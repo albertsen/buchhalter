@@ -3,7 +3,8 @@ import UniformTypeIdentifiers
 import BuchhalterCore
 
 /// The cover row of the editor: preview, a drop area (drop, paste or
-/// Choose File…) and Remove Image.
+/// Choose File…) and Remove Image on the Mac; Choose Photo…, Take Photo… and
+/// Remove Image on iOS.
 struct CoverPicker: View {
     @Binding var coverData: Data?
     var title: String
@@ -31,6 +32,9 @@ struct CoverPicker: View {
                 }
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 8) {
+                #if os(iOS)
+                PhoneCoverButtons(hasCover: coverData != nil, onImage: { handle($0) }, onRemove: { coverData = nil })
+                #else
                 VStack(spacing: 6) {
                     Text("Drop an image here or paste it")
                         .font(.system(size: 12))
@@ -59,9 +63,10 @@ struct CoverPicker: View {
                     handle(data)
                     return true
                 } isTargeted: { isTargeted = $0 }
+                #endif
                 if let offer {
                     Button(action: offer.action) { Text(verbatim: offer.label) }
-                        .buttonStyle(.link)
+                        .linkButtonStyle()
                         .font(.system(size: 11))
                 }
                 if failed {
