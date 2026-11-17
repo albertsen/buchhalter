@@ -1,12 +1,14 @@
 # Buchhalter
 
-A personal app for keeping track of the books the user reads: what they own or want to read, what they are reading now, and what they finished, when, and what they thought of it. The user groups books into their own collections ("Read in 2026", "Classics to Read"). SwiftUI and SwiftData, Swift 6 toolchain, Swift Package Manager. A macOS 27 app and one iOS 27 app for iPhone and iPad, which share the data through iCloud (CloudKit). The UI is in English and German. Book lookup (Complete in Add and Edit Book and Find Cover, from the Deutsche Nationalbibliothek, Open Library and Google Books with the user's own key; sources and their order are chosen in Settings) is built. Barcode scanning (the Mac's camera, a USB scanner into the ISBN field, the iPhone's and iPad's back camera) is built. Planned for later: an AI assistant (a chat like Claude Desktop, using the Anthropic or OpenAI API) that researches recommendations and adds them to Want to Read or a collection. See the Roadmap in architecture.md and keep the code ready for them. Built for one user first. The app is planned for the Mac App Store, so what other users need to set up (their own Google Books key) is entered in Settings, and no key ships with the app. The Mac app is sandboxed, signed with the team's development certificate and syncs through iCloud; the iOS app is a development build with automatic signing. The Mac App Store and TestFlight builds come later.
+A personal app for keeping track of the books the user reads: what they own or want to read, what they are reading now, and what they finished, when, and what they thought of it. The user groups books into their own collections ("Read in 2026", "Classics to Read"). SwiftUI and SwiftData, Swift 6 toolchain, Swift Package Manager. A macOS 27 app and one iOS 27 app for iPhone and iPad, which share the data through iCloud (CloudKit). The UI is in English and German. Book lookup (Complete in Add and Edit Book and Find Cover, from the Deutsche Nationalbibliothek, Open Library and Google Books with the user's own key; sources and their order are chosen in Settings) is built. Barcode scanning (the Mac's camera, a USB scanner into the ISBN field, the iPhone's and iPad's back camera) is built. Built for one user. No key ships with the app: the Google Books key is entered in Settings. The Mac app is sandboxed, signed with the team's development certificate and syncs through iCloud; the iOS app is a development build with automatic signing.
 
 Read this before changing anything:
 
-- [docs/dev/architecture.md](docs/dev/architecture.md): targets, layout, data model, persistence and sync, data flow, UI structure, localization, the phases from the Mac to iPhone and iPad, the roadmap (book lookup, barcode scanning, assistant), and the reasons behind the decisions.
+- [docs/dev/architecture.md](docs/dev/architecture.md): apps and signing, targets, layout, data model, data flow, localization, build and test, decisions.
 
-The architecture doc describes the current code and the intended direction. Specs under `specs/done/` are history: they describe each feature as planned and may be partly outdated. When you change behavior, update the doc in the same change.
+Then read the area doc for what you change: [ui.md](docs/dev/ui.md), [sync.md](docs/dev/sync.md), [lookup.md](docs/dev/lookup.md), [scanning.md](docs/dev/scanning.md).
+
+The docs describe the current code only, never planned work. Specs under `specs/done/` are history: they describe each feature as planned and may be partly outdated. When you change behavior, update the doc in the same change.
 
 ## Quick facts
 
@@ -30,8 +32,7 @@ The architecture doc describes the current code and the intended direction. Spec
 - Shared views (`Sources/Buchhalter/App`, `Sources/Buchhalter/Views`) compile for both apps: AppKit or UIKit only inside `#if os`. Mac-only code (menus, `Settings`, AppKit bridges) sits in `Sources/Buchhalter/Mac/`, iOS-only code in `iOS/Buchhalter/`; a shared file uses `#if os(macOS)` / `#if os(iOS)` only for a line or two. Build both after a shared change: `make app` and `make ios-sim`.
 - Never delete, move or modify the user's real library (the container folder above, and the old one in `~/Library/Application Support/Buchhalter/`), and never its iCloud data. Tests use in-memory containers. When you run the app from an agent, set `BUCHHALTER_HOME` to a scratch folder.
 - No third-party dependencies without asking.
-- Network services (book lookup, AI providers) sit behind protocols in `BuchhalterCore` with fakes; tests never hit the network. API keys live in the Keychain only, never in the store, files, logs or the repo.
-- The assistant never changes the library on its own: it proposes through app-defined tools, and the user confirms each change.
+- Network services (book lookup) sit behind protocols in `BuchhalterCore` with fakes; tests never hit the network. API keys live in the Keychain only, never in the store, files, logs or the repo.
 - Match the surrounding code: `///` doc comments that explain why, short `// MARK:` sections, no force unwraps, `@MainActor` for everything that touches the UI or the main `ModelContext`.
 
 ## How the user works
