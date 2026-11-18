@@ -4389,6 +4389,22 @@
         }
       }
     },
+    "Remove Date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum entfernen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove Date"
+          }
+        }
+      }
+    },
     "Remove Image" : {
       "localizations" : {
         "de" : {
@@ -5797,6 +5813,22 @@
         }
       }
     },
+    "Today" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heute"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Today"
+          }
+        }
+      }
+    },
     "Today, %@" : {
       "localizations" : {
         "de" : {
@@ -6433,22 +6465,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "then by"
-          }
-        }
-      }
-    },
-    "Set date" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datum festlegen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Set date"
           }
         }
       }

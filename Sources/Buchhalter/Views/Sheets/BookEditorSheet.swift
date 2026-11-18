@@ -555,8 +555,8 @@ struct BookEditorSheet: View {
                 DateField(label: "Started", date: startedBinding)
             }
         case .read:
-            row("Started") { OptionalDatePicker(date: $draft.startedAt) }
-            row("Finished on") { OptionalDatePicker(date: $draft.finishedAt) }
+            row("Started") { OptionalDatePicker(date: $draft.startedAt, label: "Started") }
+            row("Finished on") { OptionalDatePicker(date: $draft.finishedAt, label: "Finished on") }
             if draft.issues.contains(.finishBeforeStart) {
                 GridRow {
                     Color.clear.gridCellUnsizedAxes([.horizontal, .vertical])
@@ -680,25 +680,61 @@ struct BookEditorSheet: View {
     }
 }
 
-/// A toggle and a date, for a date that may be missing.
+/// A date that may be missing: the day as a button that opens a calendar,
+/// or "Optional" in grey when there is none. The calendar has Today (when no
+/// day is set, since picking the already selected day changes nothing) and
+/// Remove Date (when one is).
 struct OptionalDatePicker: View {
+    @Environment(\.locale) private var locale
+    @Environment(\.isEnabled) private var isEnabled
     @Binding var date: Date?
+    /// Used as the accessibility label.
+    var label: LocalizedStringKey = "Date"
+
+    @State private var isOpen = false
 
     var body: some View {
-        HStack {
-            Toggle("Set date", isOn: Binding(
-                get: { date != nil },
-                set: { date = $0 ? Calendar.current.startOfDay(for: .now) : nil }
-            ))
-            .checkboxToggleStyle()
-            .labelsHidden()
-            if date != nil {
-                DateField(label: "Date", date: Binding(
-                    get: { date ?? .now }, set: { date = $0 }
-                ))
-            } else {
-                Text("Optional").foregroundStyle(.secondary)
+        Button {
+            isOpen = true
+        } label: {
+            HStack(spacing: 6) {
+                if let date {
+                    Text(BookFormatting(locale: locale).day(date)).monospacedDigit()
+                } else {
+                    Text("Optional").foregroundStyle(.secondary)
+                }
+                Image(systemName: "calendar").foregroundStyle(.secondary)
             }
         }
+        .accessibilityLabel(Text(label))
+        .accessibilityValue(date.map { BookFormatting(locale: locale).day($0) } ?? String(localized: "Optional"))
+        .popover(isPresented: $isOpen, arrowEdge: .bottom) {
+            VStack(spacing: 8) {
+                DatePicker(label, selection: Binding(
+                    get: { date ?? Calendar.current.startOfDay(for: .now) },
+                    set: { picked in
+                        date = Calendar.current.startOfDay(for: picked)
+                        isOpen = false
+                    }
+                ), displayedComponents: .date)
+                .datePickerStyle(.graphical)
+                .labelsHidden()
+                HStack {
+                    if date == nil {
+                        Button("Today") {
+                            date = Calendar.current.startOfDay(for: .now)
+                            isOpen = false
+                        }
+                    } else {
+                        Button("Remove Date", role: .destructive) {
+                            date = nil
+                            isOpen = false
+                        }
+                    }
+                }
+            }
+            .padding(12)
+        }
+        .onChange(of: isEnabled) { _, enabled in if !enabled { isOpen = false } }
     }
 }

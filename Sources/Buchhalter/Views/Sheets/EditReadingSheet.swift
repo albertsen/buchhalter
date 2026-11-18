@@ -36,12 +36,12 @@ struct EditReadingSheet: View {
             Grid(alignment: .topLeading, horizontalSpacing: 12, verticalSpacing: 12) {
                 GridRow(alignment: .firstTextBaseline) {
                     label("Started")
-                    OptionalDatePicker(date: $startedAt)
+                    OptionalDatePicker(date: $startedAt, label: "Started")
                 }
                 if status == .finished || status == .abandoned {
                     GridRow(alignment: .firstTextBaseline) {
                         label(status == .finished ? "Finished on" : "Abandoned on")
-                        OptionalDatePicker(date: $endedAt)
+                        OptionalDatePicker(date: $endedAt, label: status == .finished ? "Finished on" : "Abandoned on")
                     }
                     if dateOrderIsWrong {
                         GridRow {
