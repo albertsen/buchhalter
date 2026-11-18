@@ -42,7 +42,7 @@ The visual language: a deep green accent (#1F6F5C), serif (New York) titles, a f
 - Settings is a sheet (`PhoneSettingsView`) with the shared panes stacked: the sources as rows with a switch and drag handles, the key section, iCloud.
 - Inside the split view's columns iOS reports a compact width even on an iPad, so iPad checks use `UIDevice.current.userInterfaceIdiom`.
 - **iPhone:** portrait only. The split view collapses to Library → list → detail. Small-screen layouts are size-class branches, not copies: the detail stacks the cover over the header, the grid uses columns from 90 pt.
-- **iPad:** landscape keeps sidebar, list and detail open (`.balanced`). Portrait uses `.prominentDetail`: it starts with the list over the detail, picking a list closes the sidebar without animation, and tapping a book shows the detail alone. `RootView` sets the column visibility from `onGeometryChange`, so rotating to landscape opens all columns again.
+- **iPad:** landscape keeps sidebar, list and detail open (`.balanced`). Portrait uses `.prominentDetail`: it starts with the list over the detail. Picking a list keeps the sidebar and the book list open in list mode (hiding only the sidebar makes the split view jump the book list to the left edge while the sidebar slides) and slides the sidebar away in grid mode; tapping a book slides the overlays away and shows the detail alone. `RootView` sets the column visibility from `onGeometryChange`, so rotating to landscape opens all columns again.
 
 ## Decisions
 

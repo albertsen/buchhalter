@@ -37,11 +37,13 @@ struct RootView: View {
     @State private var isLandscape = false
     private var isPad: Bool { UIDevice.current.userInterfaceIdiom == .pad }
 
-    /// Changes the iPad's columns without the slide, so a picked list or book
-    /// shows at once.
-    private func setColumns(_ visibility: NavigationSplitViewVisibility) {
-        var transaction = Transaction()
-        transaction.disablesAnimations = true
+    /// Changes the iPad's columns. A picked list or book slides the columns
+    /// in the same transaction as the selection, so the sidebar leaving and
+    /// the list arriving move together. Rotation and launch change them
+    /// without the slide.
+    private func setColumns(_ visibility: NavigationSplitViewVisibility, animated: Bool = false) {
+        var transaction = Transaction(animation: animated ? .snappy : nil)
+        transaction.disablesAnimations = !animated
         withTransaction(transaction) { columnVisibility = visibility }
     }
     #if DEBUG
@@ -217,7 +219,7 @@ struct RootView: View {
             selectedBookRaw = id?.uuidString ?? ""
             #if os(iOS)
             // iPad in portrait: a tapped book gets the whole screen.
-            if isPad, !isLandscape, id != nil { setColumns(.detailOnly) }
+            if isPad, !isLandscape, id != nil { setColumns(.detailOnly, animated: true) }
             #endif
         }
         .onChange(of: model.gridPath) { _, path in openBookRaw = path.last?.uuidString ?? "" }
@@ -258,12 +260,14 @@ struct RootView: View {
             set: { list in
                 guard let list else { return }
                 selectedListRaw = list.rawValue
-                // iPad in portrait: the sidebar steps aside once a list is chosen,
-                // at once, so the list does not slide in after the books. Grid mode
-                // has two columns, so there only the grid stays. Landscape keeps all.
+                // iPad in portrait, grid mode: the sidebar slides away over the
+                // grid. List mode keeps the sidebar and the book list open: hiding
+                // only the sidebar makes the split view jump the book list to the
+                // left edge while the sidebar slides. A tapped book folds both
+                // away together. Landscape keeps all.
                 guard !isLandscape else { return }
                 let mode = ListSettings.preferences(for: list, among: settings, collections: collections).viewMode
-                setColumns(mode == .grid ? .detailOnly : .doubleColumn)
+                if mode == .grid { setColumns(.detailOnly, animated: true) }
             }
         )
         #else
