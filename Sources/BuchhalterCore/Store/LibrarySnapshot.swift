@@ -34,6 +34,8 @@ struct BookRecord: LibraryRecord {
     var addedAt: Date
     var originRaw: String
     var originNote: String?
+    var synopsis: String?
+    var synopsisSourceRaw: String?
     var collectionIDs: Set<UUID>
     var cover: CoverState
 }
@@ -104,6 +106,7 @@ struct LibrarySnapshot: Equatable, Sendable {
                 pageCount: book.pageCount, language: book.language,
                 originalLanguage: book.originalLanguage, addedAt: book.addedAt,
                 originRaw: book.originRaw, originNote: book.originNote,
+                synopsis: book.synopsis, synopsisSourceRaw: book.synopsisSourceRaw,
                 collectionIDs: Set((book.collections ?? []).map(\.id)),
                 cover: tracked ? .tracked(book.coverImage) : .untracked
             )
@@ -233,6 +236,8 @@ extension Library {
             book.addedAt = record.addedAt
             book.originRaw = record.originRaw
             book.originNote = record.originNote
+            book.synopsis = record.synopsis
+            book.synopsisSourceRaw = record.synopsisSourceRaw
             if case .tracked(let data) = record.cover { book.coverImage = data }
             context.insert(book)
             book.collections = record.collectionIDs.compactMap { collections[$0] }
@@ -292,6 +297,8 @@ extension Library {
             if old.addedAt != new.addedAt { book.addedAt = new.addedAt }
             if old.originRaw != new.originRaw { book.originRaw = new.originRaw }
             if old.originNote != new.originNote { book.originNote = new.originNote }
+            if old.synopsis != new.synopsis { book.synopsis = new.synopsis }
+            if old.synopsisSourceRaw != new.synopsisSourceRaw { book.synopsisSourceRaw = new.synopsisSourceRaw }
             if old.cover != new.cover, case .tracked(let data) = new.cover { book.coverImage = data }
             for id in new.collectionIDs.subtracting(old.collectionIDs) {
                 if let collection = collections[id], !(book.collections ?? []).contains(where: { $0 === collection }) {

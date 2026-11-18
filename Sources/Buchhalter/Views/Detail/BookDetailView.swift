@@ -29,6 +29,11 @@ struct BookDetailView: View {
     /// While the pointer is over the header, empty fields show their placeholders.
     @State private var headerHovered = false
     #endif
+    #if os(macOS)
+    @FocusState private var focusSink: Bool
+    /// The detail's visible height, so a click below short content still ends inline editing.
+    @State private var viewportHeight: CGFloat = 0
+    #endif
     @State private var isFindingCover = false
     @State private var coverHovered = false
     @State private var coverTargeted = false
@@ -56,13 +61,35 @@ struct BookDetailView: View {
                         header
                     }
                 }
+                SynopsisSection(model: model, book: book)
                 CollectionChips(model: model, book: book, collections: collections)
                 ReadingsSection(model: model, book: book)
             }
             .padding(.horizontal, isCompact ? 20 : 32)
             .padding(.vertical, isCompact ? 16 : 28)
             .frame(maxWidth: .infinity, alignment: .leading)
+            #if os(macOS)
+            .frame(minHeight: viewportHeight, alignment: .top)
+            // A click on an empty part of the detail ends inline editing: macOS
+            // keeps a text view focused when the click lands on nothing that can
+            // take focus, so this invisible view takes it.
+            .background {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture { focusSink = true }
+                    .overlay(alignment: .topLeading) {
+                        Color.clear.frame(width: 1, height: 1)
+                            .focusable()
+                            .focused($focusSink)
+                            .focusEffectDisabled()
+                            .accessibilityHidden(true)
+                    }
+            }
+            #endif
         }
+        #if os(macOS)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { viewportHeight = $0 }
+        #endif
     }
 
     // MARK: Cover
@@ -152,6 +179,13 @@ struct BookDetailView: View {
                         .disabled(isFindingCover || !canFind)
                         .help(findHelp)
                 }
+                if book.synopsis == nil {
+                    Button("Find Synopsis") {
+                        BookFinder.findSynopsis(for: book, lookup: bookLookup, sources: sources, library: library, model: model)
+                    }
+                    .disabled(model.findingSynopsis.contains(book.id) || !BookFinder.canFindSynopsis(for: book, sources: sources))
+                    .help(findHelp)
+                }
             }
     }
 
@@ -169,13 +203,13 @@ struct BookDetailView: View {
             defer { isFindingCover = false }
             do {
                 guard let data = try await lookup.findCover(queries, preferredLanguage: language) else {
-                    model.coverAlert = .noCover(suggestsGoogleBooks: sources.suggestsGoogleBooks)
+                    model.findAlert = .noCover(suggestsGoogleBooks: sources.suggestsGoogleBooks)
                     return
                 }
                 guard book.coverImage == nil else { return }
                 model.attempt { try library?.setCover(data, for: book) }
             } catch is LookupError {
-                model.coverAlert = .noSourceReached
+                model.findAlert = .noSourceReached
             } catch {
                 // Cancelled: nothing changes.
             }

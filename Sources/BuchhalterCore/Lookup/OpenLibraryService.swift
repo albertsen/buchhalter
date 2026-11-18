@@ -130,7 +130,9 @@ public struct OpenLibraryService: BookLookupService {
             isbn13s: unique, isbnDisplay: unique.first,
             // The edition's own cover. The work's cover belongs to another edition.
             cover: edition?.cover_i.map { .openLibrary(coverID: $0) },
-            workCover: work.cover_i.map { .openLibrary(coverID: $0) }
+            workCover: work.cover_i.map { .openLibrary(coverID: $0) },
+            // Whether the work has a description shows only when it is fetched.
+            synopsis: work.key.flatMap { $0.hasPrefix("/works/") ? .openLibraryWork(key: $0) : nil }
         )
     }
 
@@ -160,5 +162,44 @@ public struct OpenLibraryService: BookLookupService {
         let letter = size == .small ? "S" : "L"
         guard let url = URL(string: "https://covers.openlibrary.org/b/id/\(id)-\(letter).jpg?default=false") else { return nil }
         return await CoverDownload.fetch(url, with: client)
+    }
+
+    /// The work's description, which Open Library gives either as a string
+    /// or as `{"type": "/type/text", "value": …}`. Nil on any failure.
+    @concurrent
+    public func synopsis(for reference: SynopsisReference) async -> String? {
+        switch reference {
+        case .text(let text): return text
+        case .dnbBlurb: return nil
+        case .openLibraryWork(let key):
+            guard let url = Self.workURL(for: key),
+                  let (data, status) = try? await client.get(url, timeout: CoverDownload.timeout), status == 200,
+                  let work = try? JSONDecoder().decode(WorkDetails.self, from: data),
+                  let text = work.description else { return nil }
+            return SynopsisText.normalized(text)
+        }
+    }
+
+    /// `/works/OL3511459W` → `https://openlibrary.org/works/OL3511459W.json`.
+    static func workURL(for key: String) -> URL? {
+        let id = key.dropFirst("/works/".count)
+        guard key.hasPrefix("/works/"), !id.isEmpty, id.allSatisfy({ $0.isLetter || $0.isNumber }) else { return nil }
+        return URL(string: "https://openlibrary.org/works/\(id).json")
+    }
+
+    private struct WorkDetails: Decodable {
+        var description: String?
+
+        private struct Text: Decodable { var value: String? }
+        enum CodingKeys: String, CodingKey { case description }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            if let text = try? c.decodeIfPresent(String.self, forKey: .description) {
+                description = text
+            } else {
+                description = (try? c.decodeIfPresent(Text.self, forKey: .description))?.value
+            }
+        }
     }
 }

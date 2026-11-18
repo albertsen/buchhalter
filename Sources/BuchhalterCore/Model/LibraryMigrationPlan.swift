@@ -3,8 +3,8 @@ import SwiftData
 
 /// Every schema in order. Add a stage here with each new `VersionedSchema`.
 public enum LibraryMigrationPlan: SchemaMigrationPlan {
-    public static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
-    public static var stages: [MigrationStage] { [v1ToV2] }
+    public static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self, SchemaV3.self] }
+    public static var stages: [MigrationStage] { [v1ToV2, v2ToV3] }
 
     /// Adds `Reading.stars` and copies each whole-star rating into it, so
     /// a 4 becomes 4.0. The old `rating` keeps its value.
@@ -19,4 +19,7 @@ public enum LibraryMigrationPlan: SchemaMigrationPlan {
             try context.save()
         }
     )
+
+    /// Adds `Book.synopsis` and `Book.synopsisSourceRaw`, both optional.
+    static let v2ToV3 = MigrationStage.lightweight(fromVersion: SchemaV2.self, toVersion: SchemaV3.self)
 }

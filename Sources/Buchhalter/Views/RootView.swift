@@ -329,11 +329,12 @@ struct RootView: View {
                 onTypeISBN: { model.sheet = .addBookTypingISBN }
             )
             .environment(\.library, library)
-        case .editBook(let id):
+        case .editBook(let id), .editSynopsis(let id):
             if let book = book(id) {
                 BookEditorSheet(
                     model: model, editing: book, books: books, collections: collections,
-                    onAdded: { _ in }, onShowBook: { id in reveal(id) }
+                    onAdded: { _ in }, onShowBook: { id in reveal(id) },
+                    initialTab: sheet == .editSynopsis(id) ? .synopsis : .details
                 )
                 .environment(\.library, library)
             }

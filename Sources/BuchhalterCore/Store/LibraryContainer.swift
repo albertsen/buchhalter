@@ -5,7 +5,7 @@ import SwiftData
 /// It never deletes, moves or overwrites an existing store: when the store
 /// cannot be opened, the error goes to the caller.
 public enum LibraryContainer {
-    public static var schema: Schema { Schema(versionedSchema: SchemaV2.self) }
+    public static var schema: Schema { Schema(versionedSchema: SchemaV3.self) }
 
     /// - Parameter cloudKitContainer: the iCloud container id that mirrors the
     ///   store into the user's private database, or nil for a store that stays

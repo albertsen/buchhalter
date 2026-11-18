@@ -70,6 +70,35 @@ public struct LookupMessages: Sendable {
         }
     }
 
+    /// The message of Find Synopsis's "No synopsis found" alert.
+    public func noSynopsisMessage(suggestingGoogleBooks: Bool) -> String {
+        if suggestingGoogleBooks {
+            String(localized: "None of your book sources has a synopsis for this book. Google Books often has one: add a key and turn it on in Settings.", locale: locale)
+        } else {
+            String(localized: "None of your book sources has a synopsis for this book.", locale: locale)
+        }
+    }
+
+    // MARK: Synopsis
+
+    /// The grey line under a synopsis: "From the Deutsche Nationalbibliothek".
+    public func synopsisFrom(_ source: LookupSource) -> String {
+        switch source {
+        case .dnb: String(localized: "From the Deutsche Nationalbibliothek", locale: locale)
+        case .openLibrary: String(localized: "From Open Library", locale: locale)
+        case .googleBooks: String(localized: "From Google Books", locale: locale)
+        }
+    }
+
+    /// The offer in the Synopsis tab when the source's text differs from the book's.
+    public func differentSynopsis(_ source: LookupSource) -> String {
+        switch source {
+        case .dnb: String(localized: "The Deutsche Nationalbibliothek has a different synopsis", locale: locale)
+        case .openLibrary: String(localized: "Open Library has a different synopsis", locale: locale)
+        case .googleBooks: String(localized: "Google Books has a different synopsis", locale: locale)
+        }
+    }
+
     // MARK: Banner
 
     /// The green banner after filling. The counts use the catalog's plural rules.

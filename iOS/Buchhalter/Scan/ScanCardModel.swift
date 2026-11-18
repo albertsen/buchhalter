@@ -76,7 +76,12 @@ final class ScanCardModel {
 
     private func fill(_ record: LookupRecord, using lookup: BookLookup, library: Library, generation: UUID) async {
         isFilling = true
-        let cover = await lookup.cover(for: record)
+        // The synopsis is fetched with the cover, as Complete does; the card
+        // does not show it, but Add and Scan Next saves it.
+        let query = LookupQuery.isbn(card.isbn, display: card.isbn.hyphenated)
+        async let coverData = lookup.cover(for: record)
+        async let found = try? lookup.findSynopsis([query], first: record, bookLanguage: record.language ?? base.language)
+        let (cover, synopsis) = await (coverData, found)
         guard self.generation == generation, !Task.isCancelled else { return }
         let authors = library.lookupAuthors(record.authors)
         // Always from the round's draft, so a second edition does not mix with the first.
@@ -84,7 +89,7 @@ final class ScanCardModel {
         start.status = draft.status
         start.startedAt = draft.startedAt
         start.collectionIDs = draft.collectionIDs
-        let merged = LookupResult.merge(record, authors: authors, cover: cover, into: start)
+        let merged = LookupResult.merge(record, authors: authors, cover: cover, synopsis: synopsis ?? nil, into: start)
         draft = merged.draft
         result = merged.result
         isFilling = false

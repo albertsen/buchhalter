@@ -61,6 +61,16 @@ extension Library {
         }
     }
 
+    /// Find Synopsis and Remove Synopsis: sets or clears the synopsis alone,
+    /// in one undo step. A source is kept only with a text.
+    public func setSynopsis(_ text: String?, source: LookupSource?, for book: Book) throws {
+        let trimmed = trimmedOrNil(text ?? "")
+        try change(trimmed == nil ? "Remove Synopsis" : "Find Synopsis") {
+            book.synopsis = trimmed
+            book.synopsisSourceRaw = trimmed == nil ? nil : source?.rawValue
+        }
+    }
+
     public func setCover(_ data: Data?, for book: Book) throws {
         try change("Change Cover", covers: [book]) {
             book.coverImage = data
@@ -142,6 +152,8 @@ extension Library {
         book.language = draft.language
         book.originalLanguage = draft.originalLanguage == draft.language ? nil : draft.originalLanguage
         if includingCover { book.coverImage = draft.coverData }
+        book.synopsis = trimmedOrNil(draft.synopsis)
+        book.synopsisSourceRaw = book.synopsis == nil ? nil : draft.synopsisSource?.rawValue
         book.addedAt = draft.addedAt
         let isbn = trimmedOrNil(draft.isbnText)
         // A valid ISBN is always stored in its one hyphenated form.

@@ -8,6 +8,8 @@ enum ActiveSheet: Identifiable, Hashable {
     case addBookTypingISBN
     case scanBarcode
     case editBook(UUID)
+    /// Edit Book opened on the synopsis (Mac: the Synopsis tab; iOS: its page).
+    case editSynopsis(UUID)
     case finish(UUID)
     case abandon(UUID)
     case editReading(book: UUID, reading: UUID)
@@ -21,6 +23,7 @@ enum ActiveSheet: Identifiable, Hashable {
         case .addBookTypingISBN: "addBookTypingISBN"
         case .scanBarcode: "scanBarcode"
         case .editBook(let id): "editBook-\(id)"
+        case .editSynopsis(let id): "editSynopsis-\(id)"
         case .finish(let id): "finish-\(id)"
         case .abandon(let id): "abandon-\(id)"
         case .editReading(_, let reading): "editReading-\(reading)"
@@ -30,14 +33,23 @@ enum ActiveSheet: Identifiable, Hashable {
     }
 }
 
-/// The alerts Find Cover can end in. They have their own state, not
-/// `errorMessage`, because "Open Settings…" needs a button of its own and
-/// the generic alert has the wrong title.
-enum CoverAlert: Equatable {
+/// The alerts Find Cover and Find Synopsis can end in. They have their own
+/// state, not `errorMessage`, because "Open Settings…" needs a button of its
+/// own and the generic alert has the wrong title.
+enum FindAlert: Equatable {
     /// Every source that is on was asked and none has a cover. Carries
     /// whether to point at Google Books (no key, or switched off).
     case noCover(suggestsGoogleBooks: Bool)
+    /// The same for a synopsis.
+    case noSynopsis(suggestsGoogleBooks: Bool)
     case noSourceReached
+
+    var suggestsGoogleBooks: Bool {
+        switch self {
+        case .noCover(let suggests), .noSynopsis(let suggests): suggests
+        case .noSourceReached: false
+        }
+    }
 }
 
 /// UI state of the one main window. It holds ids and flags only, so nothing
@@ -56,8 +68,10 @@ final class WindowModel {
     var gridPath: [UUID] = []
     /// Shown in an alert when an operation fails.
     var errorMessage: String?
-    /// Shown by `FindCoverAlertModifier` (Mac-only).
-    var coverAlert: CoverAlert?
+    /// Shown by `FindCoverAlertModifier` (a Mac and an iOS version).
+    var findAlert: FindAlert?
+    /// Books Find Synopsis is running for, so their menu item is disabled.
+    var findingSynopsis: Set<UUID> = []
 
     /// Runs a library operation and shows its error, if any, in the window.
     func attempt(_ body: () throws -> Void) {

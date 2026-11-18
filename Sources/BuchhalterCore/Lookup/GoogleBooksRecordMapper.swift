@@ -36,6 +36,8 @@ enum GoogleBooksRecordMapper {
         var printType: String?
         var infoLink: String?
         var canonicalVolumeLink: String?
+        /// HTML with `b`, `i`, `br` and `p`.
+        var description: String?
     }
 
     struct Identifier: Decodable {
@@ -91,7 +93,8 @@ enum GoogleBooksRecordMapper {
             publisher: trimmedOrNil(info.publisher),
             isbn13s: isbn13s, isbnDisplay: isbn13s.first,
             cover: info.imageLinks?.thumbnail == nil ? nil : .googleBooks(volumeID: id),
-            webPage: webPage(info)
+            webPage: webPage(info),
+            synopsis: info.description.flatMap(SynopsisText.plain(fromHTML:)).map { .text($0) }
         )
     }
 

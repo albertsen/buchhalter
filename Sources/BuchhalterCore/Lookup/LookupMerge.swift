@@ -2,8 +2,9 @@ import Foundation
 
 /// The fields Complete can fill or offer. Status, dates, rating, notes and
 /// collections are not in this list on purpose: a lookup never touches them.
+/// The synopsis carries its source along: filling or using it copies both.
 public enum LookupField: CaseIterable, Hashable, Sendable {
-    case title, subtitle, authors, year, pages, language, originalLanguage, publisher, isbn, cover
+    case title, subtitle, authors, year, pages, language, originalLanguage, publisher, isbn, cover, synopsis
 }
 
 /// What a lookup did to a draft, kept so the sheet can show it and undo it.
@@ -39,8 +40,8 @@ public struct LookupResult: Equatable, Sendable {
     /// title that is not empty is only ever offered. Values typed while the
     /// lookup ran are in `draft` and win.
     public static func merge(
-        _ record: LookupRecord, authors: [AuthorDraft], cover: Data?, into draft: BookDraft,
-        locale: Locale = .current
+        _ record: LookupRecord, authors: [AuthorDraft], cover: Data?, synopsis: Synopsis? = nil,
+        into draft: BookDraft, locale: Locale = .current
     ) -> (draft: BookDraft, result: LookupResult) {
         var proposed = draft
         proposed.title = record.title
@@ -55,6 +56,10 @@ public struct LookupResult: Equatable, Sendable {
         if let publisher = record.publisher { proposed.publisher = publisher }
         if let isbn = record.isbnDisplay ?? record.isbn13s.first { proposed.isbnText = ISBN.formatted(isbn) }
         if let cover { proposed.coverData = cover }
+        if let synopsis {
+            proposed.synopsis = synopsis.text
+            proposed.synopsisSource = synopsis.source
+        }
 
         var merged = draft
         var filled = Set<LookupField>()
@@ -120,8 +125,12 @@ public struct LookupResult: Equatable, Sendable {
         case .publisher: proposed.publisher
         case .isbn: proposed.isbnText
         case .cover: ""
+        case .synopsis: proposed.synopsis
         }
     }
+
+    /// The source of the offered synopsis, for "Google Books has a different synopsis".
+    public var offeredSynopsisSource: LookupSource? { proposed.synopsisSource }
 
     // MARK: Field access
 
@@ -138,6 +147,7 @@ public struct LookupResult: Equatable, Sendable {
         case .publisher: return blank(draft.publisher)
         case .isbn: return blank(draft.isbnText)
         case .cover: return draft.coverData == nil
+        case .synopsis: return blank(draft.synopsis)
         }
     }
 
@@ -161,7 +171,14 @@ public struct LookupResult: Equatable, Sendable {
             if case .valid(let x) = ISBN.parse(a.isbnText), case .valid(let y) = ISBN.parse(b.isbnText) { return x == y }
             return text(a.isbnText, b.isbnText)
         case .cover: return a.coverData == b.coverData
+        case .synopsis: return synopsisKey(a.synopsis) == synopsisKey(b.synopsis)
         }
+    }
+
+    /// Folded, with every run of whitespace as one space: a text that differs
+    /// only in line breaks or case is the same text.
+    private static func synopsisKey(_ text: String) -> String {
+        TextFolding.fold(text.split(whereSeparator: \.isWhitespace).joined(separator: " "))
     }
 
     /// Exact equality, for the highlight: the user changing a letter ends it.
@@ -180,6 +197,7 @@ public struct LookupResult: Equatable, Sendable {
         case .publisher: return text(a.publisher, b.publisher)
         case .isbn: return text(a.isbnText, b.isbnText)
         case .cover: return a.coverData == b.coverData
+        case .synopsis: return text(a.synopsis, b.synopsis)
         }
     }
 
@@ -195,6 +213,9 @@ public struct LookupResult: Equatable, Sendable {
         case .publisher: target.publisher = source.publisher
         case .isbn: target.isbnText = source.isbnText
         case .cover: target.coverData = source.coverData
+        case .synopsis:
+            target.synopsis = source.synopsis
+            target.synopsisSource = source.synopsisSource
         }
     }
 }

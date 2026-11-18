@@ -102,4 +102,21 @@ public struct DNBService: BookLookupService {
         guard let url = URL(string: "https://portal.dnb.de/opac/mvb/cover?isbn=\(isbn13)\(suffix)") else { return nil }
         return await CoverDownload.fetch(url, with: client)
     }
+
+    /// Downloads the publisher's blurb page; a summary from the record is
+    /// already text. Any failure means "no synopsis".
+    @concurrent
+    public func synopsis(for reference: SynopsisReference) async -> String? {
+        switch reference {
+        case .text(let text): return text
+        case .dnbBlurb(let url):
+            // A PDF (a table of contents linked by mistake) is no blurb.
+            guard let (data, status) = try? await client.get(url, timeout: CoverDownload.timeout), status == 200,
+                  !data.starts(with: Data("%PDF".utf8)),
+                  let html = String(data: data, encoding: .utf8) ?? String(data: data, encoding: .isoLatin1)
+            else { return nil }
+            return SynopsisText.plain(fromHTML: html)
+        case .openLibraryWork: return nil
+        }
+    }
 }

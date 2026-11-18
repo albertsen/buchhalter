@@ -34,7 +34,7 @@ public struct GoogleBooksService: BookLookupService {
 
     private static let fields =
         "totalItems,items(id,volumeInfo(title,subtitle,authors,publisher,publishedDate,pageCount,language,"
-        + "industryIdentifiers,imageLinks,printType,infoLink,canonicalVolumeLink),saleInfo/isEbook)"
+        + "industryIdentifiers,imageLinks,printType,infoLink,canonicalVolumeLink,description),saleInfo/isEbook)"
 
     /// ISBN: `q=isbn:<isbn13>`. Title and author: `intitle:<word>` for each
     /// word of the title and `inauthor:<word>` for each word of the first

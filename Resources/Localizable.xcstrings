@@ -1593,6 +1593,22 @@
         }
       }
     },
+    "Copy" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kopieren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy"
+          }
+        }
+      }
+    },
     "Copy before the first sync" : {
       "localizations" : {
         "de" : {
@@ -1929,6 +1945,22 @@
         }
       }
     },
+    "Details" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
+          }
+        }
+      }
+    },
     "Done" : {
       "localizations" : {
         "de" : {
@@ -2133,6 +2165,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fields: Author, Title, Year Published, Date Added, Date Started, Date Finished, Rating, Pages. Books that match on every level are sorted by title."
+          }
+        }
+      }
+    },
+    "Filled by Complete" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Von Vervollständigen ausgefüllt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Filled by Complete"
           }
         }
       }
@@ -2589,6 +2637,22 @@
         }
       }
     },
+    "Find Synopsis" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inhalt suchen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find Synopsis"
+          }
+        }
+      }
+    },
     "Finding Cover…" : {
       "localizations" : {
         "de" : {
@@ -2701,6 +2765,54 @@
         }
       }
     },
+    "From Google Books" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus Google Books"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From Google Books"
+          }
+        }
+      }
+    },
+    "From Open Library" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus Open Library"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From Open Library"
+          }
+        }
+      }
+    },
+    "From the Deutsche Nationalbibliothek" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aus der Deutschen Nationalbibliothek"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "From the Deutsche Nationalbibliothek"
+          }
+        }
+      }
+    },
     "Get a Google Books Key" : {
       "localizations" : {
         "de" : {
@@ -2761,6 +2873,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Google Books can be turned on once a key is saved below. With every source off, Complete and Find Cover are unavailable."
+          }
+        }
+      }
+    },
+    "Google Books has a different synopsis" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Books hat einen anderen Inhalt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Google Books has a different synopsis"
           }
         }
       }
@@ -2857,6 +2985,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Group books your way, like “Read in 2026”."
+          }
+        }
+      }
+    },
+    "Hide" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausblenden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide"
+          }
+        }
+      }
+    },
+    "Hide Keyboard" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tastatur ausblenden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide Keyboard"
           }
         }
       }
@@ -3005,6 +3165,22 @@
         }
       }
     },
+    "Less" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weniger"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Less"
+          }
+        }
+      }
+    },
     "Library" : {
       "localizations" : {
         "de" : {
@@ -3113,6 +3289,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Matches"
+          }
+        }
+      }
+    },
+    "More" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More"
           }
         }
       }
@@ -3509,6 +3701,22 @@
         }
       }
     },
+    "No synopsis found" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Inhalt gefunden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No synopsis found"
+          }
+        }
+      }
+    },
     "None" : {
       "localizations" : {
         "de" : {
@@ -3553,6 +3761,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "None of the sources that are on has a cover for this book. Google Books often has one: add a key and turn it on in Settings."
+          }
+        }
+      }
+    },
+    "None of your book sources has a synopsis for this book." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine deiner Buchquellen hat einen Inhalt für dieses Buch."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None of your book sources has a synopsis for this book."
+          }
+        }
+      }
+    },
+    "None of your book sources has a synopsis for this book. Google Books often has one: add a key and turn it on in Settings." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine deiner Buchquellen hat einen Inhalt für dieses Buch. Google Books hat oft einen: Füge in den Einstellungen einen Schlüssel hinzu und schalte die Quelle ein."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None of your book sources has a synopsis for this book. Google Books often has one: add a key and turn it on in Settings."
           }
         }
       }
@@ -3745,6 +3985,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open Google Cloud Console"
+          }
+        }
+      }
+    },
+    "Open Library has a different synopsis" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Library hat einen anderen Inhalt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Library has a different synopsis"
           }
         }
       }
@@ -4149,6 +4405,22 @@
         }
       }
     },
+    "Remove Synopsis" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inhalt entfernen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove Synopsis"
+          }
+        }
+      }
+    },
     "Remove from Collection" : {
       "localizations" : {
         "de" : {
@@ -4533,22 +4805,6 @@
         }
       }
     },
-    "Set date" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Datum festlegen"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Set date"
-          }
-        }
-      }
-    },
     "Set up" : {
       "localizations" : {
         "de" : {
@@ -4577,6 +4833,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Settings"
+          }
+        }
+      }
+    },
+    "Show" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zeigen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show"
           }
         }
       }
@@ -5013,6 +5285,22 @@
         }
       }
     },
+    "Synopsis" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inhalt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synopsis"
+          }
+        }
+      }
+    },
     "Take Photo…" : {
       "localizations" : {
         "de" : {
@@ -5025,6 +5313,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Take Photo…"
+          }
+        }
+      }
+    },
+    "The Deutsche Nationalbibliothek has a different synopsis" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Deutsche Nationalbibliothek hat einen anderen Inhalt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The Deutsche Nationalbibliothek has a different synopsis"
           }
         }
       }
@@ -5685,6 +5989,22 @@
         }
       }
     },
+    "Use Found Synopsis" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gefundenen Inhalt übernehmen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Found Synopsis"
+          }
+        }
+      }
+    },
     "Use Found Value" : {
       "localizations" : {
         "de" : {
@@ -6085,6 +6405,22 @@
         }
       }
     },
+    "synopsis.none" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keiner"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None"
+          }
+        }
+      }
+    },
     "then by" : {
       "localizations" : {
         "de" : {
@@ -6097,6 +6433,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "then by"
+          }
+        }
+      }
+    },
+    "Set date" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Datum festlegen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Set date"
           }
         }
       }

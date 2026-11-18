@@ -21,6 +21,12 @@ extension Book {
 
     public var currentReading: Reading? { readingsByCreation.first }
 
+    /// Where the synopsis came from; nil when it was typed or edited by hand,
+    /// or when the book has none.
+    public var synopsisSource: LookupSource? {
+        synopsis == nil ? nil : synopsisSourceRaw.flatMap(LookupSource.init(rawValue:))
+    }
+
     public var status: ReadingStatus? {
         currentReading.map { ReadingStatus(raw: $0.statusRaw) }
     }

@@ -56,12 +56,17 @@ struct BookEditorSheet: View {
     @State private var didAutoComplete = false
     /// The ISBN a scan put in the field: highlighted until the user changes it.
     @State private var scannedISBN: String?
+    /// Mac: the selected tab. iOS: whether the synopsis page is pushed.
+    @State private var tab: EditorTab
+    /// The Details tab's height, which the Synopsis tab takes so the sheet keeps its size.
+    @State private var detailsHeight: CGFloat = 0
 
     init(
         model: WindowModel, editing: Book?, books: [Book], collections: [Collection],
         onAdded: @escaping (UUID) -> Void, onShowBook: @escaping (UUID) -> Void,
-        scan: ScanEditorConfig? = nil, focusISBN: Bool = false
+        scan: ScanEditorConfig? = nil, focusISBN: Bool = false, initialTab: EditorTab = .details
     ) {
+        _tab = State(initialValue: initialTab)
         self.model = model
         self.editing = editing
         self.collections = collections
@@ -123,6 +128,12 @@ struct BookEditorSheet: View {
         return (LookupMessages(locale: locale).coverOffer(source: result.source), { lookup.use(.cover, draft: &draft) })
     }
 
+    /// The dot on the Synopsis tab or row: Complete filled the synopsis, or offers another.
+    private var marksSynopsis: Bool {
+        guard let result = lookup.result else { return false }
+        return result.isHighlighted(.synopsis, in: draft) || result.showsOffer(.synopsis, in: draft)
+    }
+
     private func complete() {
         guard let library else { return }
         commitPendingAuthor(library)
@@ -182,6 +193,11 @@ struct BookEditorSheet: View {
                     }
                 }
                 .navigationBarTitleDisplayMode(.inline)
+                .navigationDestination(isPresented: Binding(
+                    get: { tab == .synopsis }, set: { tab = $0 ? .synopsis : .details }
+                )) {
+                    SynopsisEditor(draft: $draft, lookup: lookup)
+                }
         }
         #else
         content
@@ -197,15 +213,22 @@ struct BookEditorSheet: View {
                 hasSources: sources.hasActiveSource,
                 complete: complete, stop: { lookup.stop() }, undo: { lookup.undo(draft: &draft) }
             )
-            // No ScrollView: the sheet grows with the banner, hints and notes,
-            // so every field stays in view.
-            VStack(alignment: .leading, spacing: 14) {
-                form
-                if let duplicate { duplicateBanner(duplicate) }
+            #if os(macOS)
+            EditorTabs(tab: $tab, marksSynopsis: marksSynopsis)
+                .padding(.bottom, 12)
+            if tab == .synopsis {
+                SynopsisEditor(draft: $draft, lookup: lookup)
+                    .frame(height: max(detailsHeight, 360))
+                    .padding(.horizontal, 24)
+                    .padding(.top, 4)
+                    .padding(.bottom, 12)
+            } else {
+                details
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { detailsHeight = $0 }
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 4)
-            .padding(.bottom, 12)
+            #else
+            details
+            #endif
             #if os(macOS)
             Divider()
             HStack {
@@ -258,6 +281,18 @@ struct BookEditorSheet: View {
             get: { lookup.editions != nil },
             set: { if !$0 { lookup.cancelEditions() } }
         )) { editionPicker }
+    }
+
+    /// No ScrollView on the Mac: the sheet grows with the banner, hints and
+    /// notes, so every field stays in view.
+    private var details: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            form
+            if let duplicate { duplicateBanner(duplicate) }
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 4)
+        .padding(.bottom, 12)
     }
 
     /// "Add and Scan Next" while a round goes on.
@@ -393,6 +428,9 @@ struct BookEditorSheet: View {
                 offerNote(.isbn)
             }
         }
+        #if os(iOS)
+        row("Synopsis") { synopsisRow }
+        #endif
         row("Cover") {
             CoverPicker(
                 coverData: $draft.coverData, title: draft.title,
@@ -401,6 +439,36 @@ struct BookEditorSheet: View {
             )
         }
     }
+
+    #if os(iOS)
+    /// The first two lines of the synopsis, or "None"; opens the synopsis page.
+    private var synopsisRow: some View {
+        Button {
+            tab = .synopsis
+        } label: {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                if draft.synopsis.isEmpty {
+                    // "Keiner" in German: the synopsis is masculine, the languages' "None" is not.
+                    Text("synopsis.none").foregroundStyle(.secondary)
+                } else {
+                    Text(verbatim: draft.synopsis)
+                        .lineLimit(2)
+                        .foregroundStyle(.primary)
+                        .multilineTextAlignment(.leading)
+                }
+                Spacer(minLength: 0)
+                if marksSynopsis {
+                    Circle().fill(Theme.accent).frame(width: 7, height: 7)
+                        .accessibilityLabel("Filled by Complete")
+                }
+                Image(systemName: "chevron.right").foregroundStyle(.tertiary)
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Synopsis")
+    }
+    #endif
 
     private var scanButton: some View {
         Button {

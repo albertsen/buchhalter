@@ -27,7 +27,7 @@ extension View {
 
 // MARK: Find Cover alerts
 
-/// Find Cover's two alerts; "Open Settings…" opens the Settings sheet.
+/// Find Cover's and Find Synopsis's alerts; "Open Settings…" opens the Settings sheet.
 struct FindCoverAlertModifier: ViewModifier {
     @Environment(PhoneUI.self) private var phone
     @Environment(\.locale) private var locale
@@ -35,10 +35,10 @@ struct FindCoverAlertModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content.alert(
-            title, isPresented: Binding(get: { model.coverAlert != nil }, set: { if !$0 { model.coverAlert = nil } }),
-            presenting: model.coverAlert
+            title, isPresented: Binding(get: { model.findAlert != nil }, set: { if !$0 { model.findAlert = nil } }),
+            presenting: model.findAlert
         ) { alert in
-            if case .noCover(suggestsGoogleBooks: true) = alert {
+            if alert.suggestsGoogleBooks {
                 Button("Open Settings…") { phone.settings = .bookLookup }
             }
             Button("OK", role: .cancel) {}
@@ -46,6 +46,8 @@ struct FindCoverAlertModifier: ViewModifier {
             switch alert {
             case .noCover(let suggestsGoogleBooks):
                 Text(verbatim: LookupMessages(locale: locale).noCoverMessage(suggestingGoogleBooks: suggestsGoogleBooks))
+            case .noSynopsis(let suggestsGoogleBooks):
+                Text(verbatim: LookupMessages(locale: locale).noSynopsisMessage(suggestingGoogleBooks: suggestsGoogleBooks))
             case .noSourceReached:
                 Text("Check the internet connection.")
             }
@@ -53,8 +55,9 @@ struct FindCoverAlertModifier: ViewModifier {
     }
 
     private var title: LocalizedStringKey {
-        switch model.coverAlert {
+        switch model.findAlert {
         case .noSourceReached: "Can't reach any book source"
+        case .noSynopsis: "No synopsis found"
         case .noCover, nil: "No cover found"
         }
     }

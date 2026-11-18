@@ -165,6 +165,68 @@ public struct BookLookup: Sendable {
     /// Editions tried per source by `findCover`.
     public static let maximumCandidates = 5
 
+    /// Complete and Find Synopsis: a synopsis in the book's language if any
+    /// source has one. `first` (the record Complete used) is tried before
+    /// anything else; then the queries run in order, each against every
+    /// source in the user's order, with at most `maximumSynopsisCandidates`
+    /// matching editions per source. The first text in the book's language
+    /// returns at once; the first in another or an unknown language is kept
+    /// and returned only when nothing better turns up (`SynopsisChoice`).
+    ///
+    /// - Throws: `LookupError.noSourceReached` when queries were asked, no
+    ///   source answered and `first` gave nothing; `CancellationError`.
+    @concurrent
+    public func findSynopsis(
+        _ queries: [LookupQuery], first: LookupRecord? = nil, bookLanguage: String?
+    ) async throws -> Synopsis? {
+        var choice = SynopsisChoice(bookLanguage: bookLanguage)
+        var tried = Set<String>()
+        if let first, let service = services.first(where: { $0.source == first.source }) {
+            tried.insert(first.id)
+            if let synopsis = await synopsis(of: first, from: service),
+               choice.offer(synopsis, language: first.synopsisLanguage) {
+                return choice.best
+            }
+            try Task.checkCancellation()
+        }
+        var asked = false
+        var reached = false
+        for query in queries {
+            for service in services {
+                asked = true
+                let response: LookupResponse
+                do {
+                    response = try await service.search(query)
+                    reached = true
+                } catch is LookupError {
+                    continue
+                }
+                try Task.checkCancellation()
+                let candidates = LookupMatching.ordered(
+                    LookupMatching.matches(response.records, for: query), preferredLanguage: bookLanguage
+                ).prefix(Self.maximumSynopsisCandidates)
+                for record in candidates where record.synopsis != nil && tried.insert(record.id).inserted {
+                    if let synopsis = await synopsis(of: record, from: service),
+                       choice.offer(synopsis, language: record.synopsisLanguage) {
+                        return choice.best
+                    }
+                    try Task.checkCancellation()
+                }
+            }
+        }
+        if asked, !reached, choice.best == nil, first == nil { throw LookupError.noSourceReached(sources) }
+        return choice.best
+    }
+
+    /// Editions tried per source and query by `findSynopsis`.
+    public static let maximumSynopsisCandidates = 3
+
+    private func synopsis(of record: LookupRecord, from service: any BookLookupService) async -> Synopsis? {
+        guard let reference = record.synopsis, let text = await service.synopsis(for: reference),
+              !text.isEmpty else { return nil }
+        return Synopsis(text: text, source: record.source)
+    }
+
     /// A small cover for a row of the edition list.
     @concurrent
     public func thumbnail(for record: LookupRecord) async -> Data? {
@@ -175,5 +237,27 @@ public struct BookLookup: Sendable {
     private func coverData(for record: LookupRecord, _ reference: CoverReference, _ size: CoverSize) async -> Data? {
         guard let service = services.first(where: { $0.source == record.source }) else { return nil }
         return await service.coverData(for: reference, size: size)
+    }
+}
+
+/// The language rule of `findSynopsis`: a text in the book's language wins at
+/// once; otherwise the first text found is kept. A book without a language
+/// takes the first text.
+public struct SynopsisChoice: Sendable {
+    public let bookLanguage: String?
+    public private(set) var best: Synopsis?
+
+    public init(bookLanguage: String?) {
+        self.bookLanguage = bookLanguage
+    }
+
+    /// Returns true when the search can stop.
+    public mutating func offer(_ synopsis: Synopsis, language: String?) -> Bool {
+        if bookLanguage == nil || language == bookLanguage {
+            best = synopsis
+            return true
+        }
+        if best == nil { best = synopsis }
+        return false
     }
 }

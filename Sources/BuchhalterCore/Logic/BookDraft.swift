@@ -52,6 +52,11 @@ public struct BookDraft: Equatable, Sendable {
     public var rating: Double?
     public var notes = ""
     public var collectionIDs: [UUID] = []
+    /// Plain text; empty for none.
+    public var synopsis = ""
+    /// The source the synopsis came from. Nil when it was typed or edited:
+    /// the editor clears it on every change to the text.
+    public var synopsisSource: LookupSource?
 
     public init() {}
 
@@ -108,6 +113,8 @@ extension BookDraft {
         coverData = book.coverImage
         addedAt = book.addedAt
         collectionIDs = (book.collections ?? []).map(\.id)
+        synopsis = book.synopsis ?? ""
+        synopsisSource = book.synopsisSource
         if let reading = book.currentReading {
             switch reading.status {
             case .wantToRead: status = .wantToRead

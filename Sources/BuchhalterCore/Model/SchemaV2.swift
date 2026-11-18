@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-/// The current schema. It differs from `SchemaV1` in one attribute:
+/// The schema before `SchemaV3`. It differs from `SchemaV1` in one attribute:
 /// `Reading.stars` holds ratings in half stars (0.5 to 5.0). The migration
 /// copies the whole-star `rating` of SchemaV1 into it. A change to these
 /// types needs a `SchemaV3` and a migration stage, never an edit here.

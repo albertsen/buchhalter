@@ -10,6 +10,16 @@ public protocol BookLookupService: Sendable {
     /// The cover's bytes, or nil on any failure: no cover, a timeout, an HTML
     /// error page. A missing cover is normal and shows no message.
     func coverData(for reference: CoverReference, size: CoverSize) async -> Data?
+    /// The synopsis as plain text, or nil on any failure or when the source
+    /// has none. A missing synopsis is normal and shows no message.
+    func synopsis(for reference: SynopsisReference) async -> String?
+}
+
+extension BookLookupService {
+    /// Services whose synopses are all in the search answer.
+    public func synopsis(for reference: SynopsisReference) async -> String? {
+        if case .text(let text) = reference { text } else { nil }
+    }
 }
 
 /// The checks every cover download shares.

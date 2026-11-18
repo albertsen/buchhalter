@@ -3,7 +3,7 @@ import BuchhalterCore
 
 // Mac-only: "Open Settings…" needs the macOS `openSettings` action.
 
-/// Presents Find Cover's two alerts: "No cover found", which offers Open
+/// Presents Find Cover's and Find Synopsis's alerts: "No cover found", which offers Open
 /// Settings… when Google Books has no key or is off, and "Can't reach any
 /// book source".
 struct FindCoverAlertModifier: ViewModifier {
@@ -13,10 +13,10 @@ struct FindCoverAlertModifier: ViewModifier {
 
     func body(content: Content) -> some View {
         content.alert(
-            title, isPresented: Binding(get: { model.coverAlert != nil }, set: { if !$0 { model.coverAlert = nil } }),
-            presenting: model.coverAlert
+            title, isPresented: Binding(get: { model.findAlert != nil }, set: { if !$0 { model.findAlert = nil } }),
+            presenting: model.findAlert
         ) { alert in
-            if case .noCover(suggestsGoogleBooks: true) = alert {
+            if alert.suggestsGoogleBooks {
                 Button("Open Settings…") { openSettings() }
                     .keyboardShortcut(.defaultAction)
             }
@@ -25,6 +25,8 @@ struct FindCoverAlertModifier: ViewModifier {
             switch alert {
             case .noCover(let suggestsGoogleBooks):
                 Text(verbatim: LookupMessages(locale: locale).noCoverMessage(suggestingGoogleBooks: suggestsGoogleBooks))
+            case .noSynopsis(let suggestsGoogleBooks):
+                Text(verbatim: LookupMessages(locale: locale).noSynopsisMessage(suggestingGoogleBooks: suggestsGoogleBooks))
             case .noSourceReached:
                 Text("Check the internet connection.")
             }
@@ -32,8 +34,9 @@ struct FindCoverAlertModifier: ViewModifier {
     }
 
     private var title: LocalizedStringKey {
-        switch model.coverAlert {
+        switch model.findAlert {
         case .noSourceReached: "Can't reach any book source"
+        case .noSynopsis: "No synopsis found"
         case .noCover, nil: "No cover found"
         }
     }

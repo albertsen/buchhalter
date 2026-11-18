@@ -95,6 +95,28 @@ public enum CoverReference: Equatable, Sendable {
     case googleBooks(volumeID: String)
 }
 
+/// Where a record's synopsis comes from. Only `.text` is in the search
+/// answer; the others are downloaded through the service when used.
+public enum SynopsisReference: Equatable, Sendable {
+    /// Already plain text: Google Books' description, a DNB summary (520).
+    case text(String)
+    /// The publisher's blurb the DNB links for the record (856, "Inhaltstext").
+    case dnbBlurb(URL)
+    /// The Open Library work, whose description may be missing.
+    case openLibraryWork(key: String)
+}
+
+/// A synopsis found for a book, with the source that had it.
+public struct Synopsis: Equatable, Sendable {
+    public var text: String
+    public var source: LookupSource
+
+    public init(text: String, source: LookupSource) {
+        self.text = text
+        self.source = source
+    }
+}
+
 public enum CoverSize: Sendable {
     case small, large
 }
@@ -125,13 +147,19 @@ public struct LookupRecord: Identifiable, Equatable, Sendable {
     public var workCover: CoverReference?
     /// Google Books: the book's page there, which the edition list must link to.
     public var webPage: URL?
+    public var synopsis: SynopsisReference?
+    /// The synopsis's language, taken from the edition's (the sources tag the
+    /// edition, not the text). Open Library's work text is untagged: nil.
+    public var synopsisLanguage: String? {
+        if case .openLibraryWork = synopsis { nil } else { language }
+    }
 
     public init(
         id: String, source: LookupSource, title: String, titleMatchKeys: [String]? = nil,
         subtitle: String? = nil, authors: [LookupAuthor] = [], year: Int? = nil, pages: Int? = nil,
         language: String? = nil, originalLanguage: String? = nil, publisher: String? = nil,
         isbn13s: [String] = [], isbnDisplay: String? = nil, cover: CoverReference? = nil,
-        workCover: CoverReference? = nil, webPage: URL? = nil
+        workCover: CoverReference? = nil, webPage: URL? = nil, synopsis: SynopsisReference? = nil
     ) {
         self.id = id
         self.source = source
@@ -149,6 +177,7 @@ public struct LookupRecord: Identifiable, Equatable, Sendable {
         self.cover = cover
         self.workCover = workCover
         self.webPage = webPage
+        self.synopsis = synopsis
     }
 }
 

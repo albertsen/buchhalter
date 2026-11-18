@@ -101,16 +101,25 @@ final class LookupModel {
         generation = UUID()
     }
 
-    /// Downloads the cover, then merges against the draft as it is now, so
-    /// values typed during the lookup count as the user's and win.
+    /// Downloads the cover and finds the synopsis at the same time, then
+    /// merges against the draft as it is now, so values typed during the
+    /// lookup count as the user's and win. The synopsis search starts with the
+    /// record's own text and asks the other sources only when that is missing
+    /// or in another language than the book's; it never fails the lookup.
     private func fill(
         from record: LookupRecord, draft: Binding<BookDraft>, using lookup: BookLookup, library: Library,
         generation: UUID
     ) async {
-        let cover = await lookup.cover(for: record)
+        let queries = query.map { [$0] } ?? []
+        let language = record.language ?? draft.wrappedValue.language
+        async let coverData = lookup.cover(for: record)
+        async let found = try? lookup.findSynopsis(queries, first: record, bookLanguage: language)
+        let (cover, synopsis) = await (coverData, found)
         guard self.generation == generation, !Task.isCancelled else { return }
         let authors = library.lookupAuthors(record.authors)
-        let merged = LookupResult.merge(record, authors: authors, cover: cover, into: draft.wrappedValue)
+        let merged = LookupResult.merge(
+            record, authors: authors, cover: cover, synopsis: synopsis ?? nil, into: draft.wrappedValue
+        )
         draft.wrappedValue = merged.draft
         result = merged.result
         phase = .idle

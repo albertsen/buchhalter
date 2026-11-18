@@ -28,8 +28,32 @@ enum DNBRecordMapper {
             subtitle: subtitle, authors: authors(in: marc), year: year(in: marc), pages: pages(in: marc),
             language: language, originalLanguage: original == language ? nil : original,
             publisher: publisher(in: marc), isbn13s: isbn13s, isbnDisplay: display,
-            cover: isbn13s.first.map { .dnb(isbn13: $0) }
+            cover: isbn13s.first.map { .dnb(isbn13: $0) },
+            synopsis: synopsis(in: marc)
         )
+    }
+
+    // MARK: Synopsis
+
+    private static let dnbHosts = ["dnb.de", "d-nb.de", "d-nb.info"]
+
+    /// The publisher's blurb the record links (856 with `$3` "Inhaltstext"),
+    /// else the first summary (520). The blurb wins: a 520 can belong to
+    /// another edition's language. Newer records link the blurb on
+    /// services.dnb.de, older ones on deposit.dnb.de or d-nb.info; any DNB
+    /// host counts, always over https (the sandbox allows no plain http).
+    static func synopsis(in marc: MARCRecord) -> SynopsisReference? {
+        for field in marc.fields("856") where field.first("3")?.trimmingCharacters(in: .whitespaces) == "Inhaltstext" {
+            guard let raw = field.first("u"), var components = URLComponents(string: raw.trimmingCharacters(in: .whitespaces)),
+                  let host = components.host?.lowercased(), dnbHosts.contains(where: { host == $0 || host.hasSuffix(".\($0)") })
+            else { continue }
+            components.scheme = "https"
+            if let url = components.url { return .dnbBlurb(url) }
+        }
+        for field in marc.fields("520") {
+            if let summary = field.first("a").flatMap(SynopsisText.cleanedSummary) { return .text(summary) }
+        }
+        return nil
     }
 
     // MARK: Carrier

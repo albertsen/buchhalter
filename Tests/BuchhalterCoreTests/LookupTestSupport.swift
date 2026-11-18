@@ -69,13 +69,18 @@ final class FakeLookupService: BookLookupService, @unchecked Sendable {
     private let outcome: Result<LookupResponse, Error>
     private let covers: [CoverSize: Data]
     private let delay: Duration?
+    /// Texts for `.openLibraryWork` and `.dnbBlurb` references, by work key or URL.
+    private let synopses: [String: String]
+    private var synopsisCalls = 0
 
     init(
         _ source: LookupSource, records: [LookupRecord] = [], total: Int? = nil,
-        failing error: Error? = nil, covers: [CoverSize: Data] = [:], delay: Duration? = nil
+        failing error: Error? = nil, covers: [CoverSize: Data] = [:], delay: Duration? = nil,
+        synopses: [String: String] = [:]
     ) {
         self.source = source
         self.covers = covers
+        self.synopses = synopses
         self.delay = delay
         if let error {
             outcome = .failure(error)
@@ -96,6 +101,19 @@ final class FakeLookupService: BookLookupService, @unchecked Sendable {
 
     func coverData(for reference: CoverReference, size: CoverSize) async -> Data? {
         covers[size]
+    }
+
+    var synopsisCount: Int {
+        lock.withLock { synopsisCalls }
+    }
+
+    func synopsis(for reference: SynopsisReference) async -> String? {
+        lock.withLock { synopsisCalls += 1 }
+        switch reference {
+        case .text(let text): return text
+        case .dnbBlurb(let url): return synopses[url.absoluteString]
+        case .openLibraryWork(let key): return synopses[key]
+        }
     }
 }
 
