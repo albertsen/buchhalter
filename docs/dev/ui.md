@@ -10,12 +10,14 @@ The visual language: a deep green accent (#1F6F5C), serif (New York) titles, a f
 - `SecondaryButtonStyle` for the detail's secondary buttons: a primary-colour label on a neutral fill. On macOS 27 a bordered button draws its label in the tint, dark green on dark grey in dark mode. Only the prominent action uses the accent.
 - Pop-up and link buttons draw in the tint too, so the sort popover uses the system colours (`.tint(nil)`).
 - `DateField`: a button with the day that opens a graphical calendar in a popover, which closes on a pick. The system date field's calendar stays open.
+- `OptionalDatePicker` for dates that may be missing (Started and Finished on in the editor, the dates in Edit Reading): the same button, or "Optional" in grey without a date. The calendar offers Today when no day is set (picking the already selected day changes nothing) and Remove Date when one is. No checkbox.
 - `StarRatingControl` sets half stars: a first click on a star gives it whole, a second makes it half (`StarClick`). Arrow keys and VoiceOver step in halves.
 
 ## Sheets
 
 - Sheet forms use a `Grid` whose label column grows to the widest label; German labels run longer than the design's 70 pt.
 - The editor (650 pt on the Mac) sizes to its content instead of scrolling, so hints and notes make it taller. On iOS it is a `NavigationStack` with a scroll view, Cancel and Add or Save in the toolbar, and a keyboard that can be dismissed.
+- Add and Edit Book have two parts. On the Mac, `EditorTabs` under the hint line switch between Details (every field) and Synopsis (`SynopsisEditor`: a text area, the source line, Remove Synopsis, the offer); the Synopsis pane takes the Details pane's measured height. On iOS a Synopsis row after ISBN (two lines or "None") pushes the same `SynopsisEditor` as a page with a ⋯ menu. A green dot on the tab or row shows a synopsis Complete filled or offers. `ActiveSheet.editSynopsis` opens the editor on it.
 - The editor's header holds Complete (`LookupHeader`, see [lookup.md](lookup.md)): an explanation, a status line, an amber or red hint, or a green banner with Undo. Filled fields get a light green fill (`lookupFilled`), differing fields a note (`LookupOfferNote`).
 - Finished on is optional like Started. Leaving or saving the ISBN field rewrites a valid ISBN as hyphenated ISBN-13.
 
@@ -24,6 +26,7 @@ The visual language: a deep green accent (#1F6F5C), serif (New York) titles, a f
 - Buttons follow the current reading: Start Reading and Edit for Want to Read (`Library.startReading`: Reading, started today, one undo step), Finish Reading…, Abandon… and Edit while reading, Read Again and Edit otherwise. The same status actions are in the book's context menu and the Mac's Book menu.
 - Fields edit in place (`InlineFields.swift`): a click turns a field into a text field, Return or clicking elsewhere saves, Escape cancels. A value the library refuses keeps the field open with a red outline. Languages are menus, Date Added a calendar. Each change is one "Edit Book" undo step through `Library.updateDetails`.
 - Empty fields show their placeholders on hover on the Mac, always on iOS.
+- `SynopsisSection` sits between the header and Collections: the text in the serif face, cut after four lines with More and Less (measured against a hidden full copy), and the "From …" line. No section without a synopsis. On the Mac a click edits it in place: a `TextEditor` as tall as its text (a hidden copy sizes it), Return or a click elsewhere saves through `updateDetails` ("Edit Book"), ⌥Return or ⇧Return is a new line, Escape cancels, and a change of book saves to the book that was edited. An invisible focusable view behind the detail takes focus on a click into empty space, because macOS keeps a text view focused otherwise. On iOS a long press offers Copy, Edit… and Remove Synopsis.
 - The cover takes a dropped or pasted image (Mac), the Photos picker or the camera (iOS, `PhotoCapture`), and offers Find Cover when it has none.
 
 ## Mac

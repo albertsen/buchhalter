@@ -31,7 +31,7 @@ The read sound is `\.scanFeedback`: "Tink" on the Mac, a success haptic and syst
 
 ## iOS flow
 
-`ScanScreen` is a full-screen cover with the camera, Cancel, the torch and Done with "Added in this round: N". Every scan is a round. A read pauses the camera and shows the card (`ScanCardModel` runs a `LookupModel` on a draft with the round's preset; `ScanCardView`): the best match with its source, "N other editions" (opens the edition picker), the status segments, a Collections line, Edit… and Add and Scan Next. Edit… opens `BookEditorSheet` with the card's draft and lookup result (`ScanEditorConfig.prepared`), so nothing is looked up twice. A known ISBN shows the duplicate card (Show Book, Add Anyway, Scan Another). The scene going to the background stops the camera.
+`ScanScreen` is a full-screen cover with the camera, Cancel, the torch and Done with "Added in this round: N". Every scan is a round. A read pauses the camera and shows the card (`ScanCardModel` runs a `LookupModel` on a draft with the round's preset; `ScanCardView`): the best match with its source, "N other editions" (opens the edition picker), the status segments, a Collections line, Edit… and Add and Scan Next. Edit… opens `BookEditorSheet` with the card's draft and lookup result (`ScanEditorConfig.prepared`), so nothing is looked up twice. The card fetches the synopsis with the cover (lookup.md, Synopsis) but does not show it; Add and Scan Next saves it. A known ISBN shows the duplicate card (Show Book, Add Anyway, Scan Another). The scene going to the background stops the camera.
 
 On both platforms the barcode button next to the ISBN field opens the scanner in `fillISBN` mode, which puts the read ISBN into the field and closes.
 

@@ -8,7 +8,7 @@ This doc is the overview every change starts from. Each area has its own doc; re
 |---|---|
 | [ui.md](ui.md) | Visual language, the app's own controls, sheets, the book detail, the Mac window and its saved state, the iPhone and iPad layout |
 | [sync.md](sync.md) | Store locations, iCloud sync on and off, the copy of the library from before sync, the CloudKit schema, sync status, sync duplicates |
-| [lookup.md](lookup.md) | Book lookup (Complete, Find Cover), the three sources, Google Books and its key |
+| [lookup.md](lookup.md) | Book lookup (Complete, Find Cover, Find Synopsis), the three sources, synopses, Google Books and its key |
 | [scanning.md](scanning.md) | Barcode scanning on the Mac and on iOS: reading, the scan logic, the camera, the flows |
 
 ## Apps and signing
@@ -30,7 +30,7 @@ This doc is the overview every change starts from. Each area has its own doc; re
 
 `Package.swift`: tools version 6.2, Swift 6 language mode, platforms `.macOS("27.0")` and `.iOS("27.0")` (so nothing Mac-only creeps into the core), no package resources.
 
-**Platform code** sits in `Sources/Buchhalter/Mac/` (only in the package), in `iOS/Buchhalter/` (only in the Xcode target), or behind `#if os(macOS)` / `#if os(iOS)` in a shared file when it is a line or two. Longer differences are a view or modifier with the same name in both platform folders (`librarySubtitle`, `FindCoverAlertModifier`, `CameraPreviewLayer`, `ScanFeedback.mac` and `.phone`). `Views/Common/PlatformStyles.swift` maps Mac-only styles (`.link`, `.checkbox`, `onDeleteCommand`, sheet and pane widths) onto iOS.
+**Platform code** sits in `Sources/Buchhalter/Mac/` (only in the package), in `iOS/Buchhalter/` (only in the Xcode target), or behind `#if os(macOS)` / `#if os(iOS)` in a shared file when it is a line or two. Longer differences are a view or modifier with the same name in both platform folders (`librarySubtitle`, `FindCoverAlertModifier` (Find Cover's and Find Synopsis's alerts), `CameraPreviewLayer`, `ScanFeedback.mac` and `.phone`). `Views/Common/PlatformStyles.swift` maps Mac-only styles (`.link`, `.checkbox`, `onDeleteCommand`, sheet and pane widths) onto iOS.
 
 ## Layout
 
@@ -56,11 +56,11 @@ specs/planned/, specs/done/
 
 ## Data model
 
-`SchemaV2`.
+`SchemaV3`.
 
 | Type | Holds | Relationships |
 |---|---|---|
-| `Book` | `id`, title, subtitle, `isbn13` (digits, for matching and search), `isbnText` (display; a valid ISBN is stored hyphenated as ISBN-13), publisher, year, page count, language and original language (ISO 639; the original only for a translation), cover image (external storage, JPEG, longest side 1200 px), added date, origin (`manual`, `lookup`, `scan`, `assistant`), origin note (the lookup record id, "dnb:991442512") | authorships (cascade), readings (cascade), collections (many-to-many, nullify) |
+| `Book` | `id`, title, subtitle, `isbn13` (digits, for matching and search), `isbnText` (display; a valid ISBN is stored hyphenated as ISBN-13), publisher, year, page count, language and original language (ISO 639; the original only for a translation), cover image (external storage, JPEG, longest side 1200 px), added date, origin (`manual`, `lookup`, `scan`, `assistant`), origin note (the lookup record id, "dnb:991442512"), synopsis (plain text, paragraphs kept), synopsis source (`LookupSource` raw value; nil when typed or edited) | authorships (cascade), readings (cascade), collections (many-to-many, nullify) |
 | `Author` | `id`, name, sort name ("Mann, Thomas"). One per name, reused across books, kept when it has no books left | authorships (cascade) |
 | `Authorship` | `id`, position. The ordered join: SwiftData's to-many relationships are unordered, and the first author decides the sort order | book, author |
 | `Reading` | One read-through: `id`, status (`wantToRead`, `reading`, `finished`, `abandoned`), started, ended, `stars` (0.5–5.0 in halves, optional), notes, created. `rating` is SchemaV1's whole-star field, copied into `stars` by the migration and unused since. The current reading is the one created last | book |
@@ -75,7 +75,7 @@ A book read twice has two readings. Reading, Want to Read and Read are computed 
 - No `@Attribute(.unique)`. Duplicates are prevented in the operations and merged after a sync ([sync.md](sync.md)).
 - Every relationship is optional and has an inverse. No `.deny` delete rules.
 - Large data (covers) uses `@Attribute(.externalStorage)`.
-- Schema changes are additive only and go through a new `VersionedSchema` in the one `SchemaMigrationPlan`, then `make cloudkit-schema` and "Deploy Schema Changes…" ([sync.md](sync.md)) before a build with it reaches the library. The V1 → V2 stage adds `Reading.stars` and copies `rating` into it in `didMigrate`; `MigrationTests` runs it on a V1 store.
+- Schema changes are additive only and go through a new `VersionedSchema` in the one `SchemaMigrationPlan`, then `make cloudkit-schema` and "Deploy Schema Changes…" ([sync.md](sync.md)) before a build with it reaches the library. The V1 → V2 stage adds `Reading.stars` and copies `rating` into it in `didMigrate`; V2 → V3 is lightweight and adds `Book.synopsis` and `Book.synopsisSourceRaw`. `MigrationTests` and `SynopsisStoreTests` run them on old stores.
 
 ## Data flow
 

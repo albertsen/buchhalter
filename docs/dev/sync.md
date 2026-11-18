@@ -26,7 +26,7 @@ The unsandboxed app kept the library in `~/Library/Application Support/Buchhalte
 
 ## CloudKit schema
 
-The production schema is deployed by hand. `make cloudkit-schema` builds `build/BuchhalterSchema.app` for the Development environment. Run as `build/BuchhalterSchema.app/Contents/MacOS/Buchhalter -initializeCloudKitSchema YES` (`open` swallows stderr), `CloudKitSchemaInitializer` calls `initializeCloudKitSchema()` on a scratch store, prints `cloudkit-schema: ok (<id>)` and quits. Then "Deploy Schema Changes…" in the CloudKit Console (icloud.developer.apple.com) copies the record types (`CD_Book`, `CD_Author`, `CD_Authorship`, `CD_Reading`, `CD_Collection`, `CD_ListSettings`) to Production. Neither `cktool` nor CKToolJS can deploy to Production.
+The production schema is deployed by hand. `make cloudkit-schema` builds `build/BuchhalterSchema.app` for the Development environment. Run as `build/BuchhalterSchema.app/Contents/MacOS/Buchhalter -initializeCloudKitSchema YES` (`open` swallows stderr), `CloudKitSchemaInitializer` calls `initializeCloudKitSchema()` on a scratch store, prints `cloudkit-schema: ok (<id>)` and quits. Then "Deploy Schema Changes…" in the CloudKit Console (icloud.developer.apple.com) copies the record types (`CD_Book`, `CD_Author`, `CD_Authorship`, `CD_Reading`, `CD_Collection`, `CD_ListSettings`) to Production. Neither `cktool` nor CKToolJS can deploy to Production. The V3 fields (`CD_synopsis`, `CD_synopsisSourceRaw` on `CD_Book`) were deployed on 2026-11-18, before the first V3 build reached the library. A build on SchemaV2 (an older device) ignores them and keeps them when it edits a book.
 
 ## Status
 
