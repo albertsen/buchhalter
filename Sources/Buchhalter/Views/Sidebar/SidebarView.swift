@@ -13,7 +13,7 @@ struct SidebarView: View {
     @Binding var selection: LibraryListID?
     @Environment(CloudSyncMonitor.self) private var syncMonitor
 
-    /// The user's order of the four built-in lists (`LibraryListOrder`).
+    /// The user's order of the Library rows (`LibraryListOrder`).
     private var libraryOrder: LibraryListOrder { ListSettings.libraryListOrder(among: settings) }
 
     var body: some View {
@@ -85,6 +85,7 @@ struct SidebarView: View {
         case .wantToRead: row("Want to Read", symbol: "bookmark", list: .wantToRead)
         case .read: row("Read", symbol: "checkmark.circle", list: .read)
         case .all: row("All Books", symbol: "books.vertical", list: .all)
+        case .authors: row("Authors", symbol: "person", list: .authors)
         case .collection: EmptyView()
         }
     }

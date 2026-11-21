@@ -64,7 +64,8 @@ struct BookEditorSheet: View {
     init(
         model: WindowModel, editing: Book?, books: [Book], collections: [Collection],
         onAdded: @escaping (UUID) -> Void, onShowBook: @escaping (UUID) -> Void,
-        scan: ScanEditorConfig? = nil, focusISBN: Bool = false, initialTab: EditorTab = .details
+        scan: ScanEditorConfig? = nil, focusISBN: Bool = false, initialTab: EditorTab = .details,
+        initialAuthor: AuthorDraft? = nil
     ) {
         _tab = State(initialValue: initialTab)
         self.model = model
@@ -92,6 +93,9 @@ struct BookEditorSheet: View {
                 // get the status and collections chosen for the one before.
                 if scan.inARow { scan.round.apply(to: &fresh) }
                 _scannedISBN = State(initialValue: fresh.isbnText)
+            } else if let initialAuthor {
+                // Add Book from an author's books.
+                fresh.authors = [initialAuthor]
             }
             _draft = State(initialValue: fresh)
         }

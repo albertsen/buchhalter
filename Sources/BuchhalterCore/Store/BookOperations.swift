@@ -78,9 +78,9 @@ extension Library {
     }
 
     /// Changes the sort name of an author, and with it the order of all that
-    /// author's books.
+    /// author's books and the author's place in Authors.
     public func setSortName(_ sortName: String, for author: Author) throws {
-        try change("Change Sort Name") {
+        try change("Edit Sorted As") {
             let trimmed = AuthorName.normalize(sortName)
             author.sortName = trimmed.isEmpty ? AuthorName.guessSortName(author.name) : trimmed
         }

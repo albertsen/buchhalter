@@ -4,6 +4,8 @@ import BuchhalterCore
 /// The sheets the main window can show. They carry ids, never model objects.
 enum ActiveSheet: Identifiable, Hashable {
     case addBook
+    /// Add Book from an author's books: the author is the first author chip.
+    case addBookByAuthor(UUID)
     /// Add Book with the cursor in the ISBN field ("Type ISBN Instead" in the scan sheet).
     case addBookTypingISBN
     case scanBarcode
@@ -14,12 +16,15 @@ enum ActiveSheet: Identifiable, Hashable {
     case abandon(UUID)
     case editReading(book: UUID, reading: UUID)
     case newCollection(addingBook: UUID?)
+    /// "Edit Sorted As…" on an author in Authors.
+    case editSortName(UUID)
     /// The one-time sheet after the first launch of the synced version.
     case syncNotice
 
     var id: String {
         switch self {
         case .addBook: "addBook"
+        case .addBookByAuthor(let id): "addBookByAuthor-\(id)"
         case .addBookTypingISBN: "addBookTypingISBN"
         case .scanBarcode: "scanBarcode"
         case .editBook(let id): "editBook-\(id)"
@@ -28,6 +33,7 @@ enum ActiveSheet: Identifiable, Hashable {
         case .abandon(let id): "abandon-\(id)"
         case .editReading(_, let reading): "editReading-\(reading)"
         case .newCollection(let id): "newCollection-\(id?.uuidString ?? "none")"
+        case .editSortName(let id): "editSortName-\(id)"
         case .syncNotice: "syncNotice"
         }
     }
@@ -52,6 +58,15 @@ enum FindAlert: Equatable {
     }
 }
 
+/// A page in Authors' navigation stack, over its root (the authors).
+enum AuthorRoute: Hashable {
+    /// An author's books.
+    case author(UUID)
+    /// A book's detail, pushed where the books and the detail are not side by
+    /// side (iPhone, iPad in portrait).
+    case book(UUID)
+}
+
 /// UI state of the one main window. It holds ids and flags only, so nothing
 /// outlives the model objects it points at.
 @Observable
@@ -66,6 +81,14 @@ final class WindowModel {
     var isCreatingCollection = false
     /// The NavigationStack path of the detail column in grid mode.
     var gridPath: [UUID] = []
+    /// The NavigationStack path of Authors. Never set while `gridPath` is.
+    var authorPath: [AuthorRoute] = []
+
+    /// The author whose books are open in Authors.
+    var openAuthorID: UUID? {
+        if case .author(let id) = authorPath.first { return id }
+        return nil
+    }
     /// Shown in an alert when an operation fails.
     var errorMessage: String?
     /// Shown by `FindCoverAlertModifier` (a Mac and an iOS version).

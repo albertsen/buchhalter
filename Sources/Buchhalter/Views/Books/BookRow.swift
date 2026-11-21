@@ -6,6 +6,9 @@ struct BookRow: View {
     @Environment(\.locale) private var locale
     var book: Book
     var isSelected: Bool
+    /// Shown in place of the authors, among an author's books ("1959 · with
+    /// Lisa Seidl"). Nil shows the authors; an empty line shows nothing.
+    var lineInsteadOfAuthors: String? = nil
 
     var body: some View {
         let formatting = BookFormatting(locale: locale)
@@ -15,9 +18,9 @@ struct BookRow: View {
                 Text(book.title)
                     .font(Theme.serif(15))
                     .lineLimit(2)
-                let authors = book.orderedAuthors.map(\.name).joined(separator: ", ")
-                if !authors.isEmpty {
-                    Text(authors)
+                let second = lineInsteadOfAuthors ?? book.orderedAuthors.map(\.name).joined(separator: ", ")
+                if !second.isEmpty {
+                    Text(second)
                         .font(.system(size: 13))
                         .foregroundStyle(isSelected ? AnyShapeStyle(.white.opacity(0.9)) : AnyShapeStyle(.secondary))
                         .lineLimit(1)

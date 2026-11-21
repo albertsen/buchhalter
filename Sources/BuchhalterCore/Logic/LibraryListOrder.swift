@@ -1,15 +1,16 @@
 import Foundation
 
-/// The user's order of the four built-in lists in the sidebar, stored as
-/// "reading,wantToRead,read,all". It lives in the library (a `ListSettings`
+/// The user's order of the Library rows in the sidebar (the four built-in
+/// lists and Authors), stored as "reading,wantToRead,read,all,authors". An
+/// order stored before Authors existed gets it at the end. It lives in the library (a `ListSettings`
 /// row with the key `sidebarOrder`), so it syncs: dragging Read above Reading
 /// changes the order on every device. Before sync it was a UserDefaults
 /// preference (`libraryListOrder`); the first launch of the synced app carries
 /// it over.
 public struct LibraryListOrder: Equatable, Sendable {
-    public static let builtIns: [LibraryListID] = [.reading, .wantToRead, .read, .all]
+    public static let builtIns: [LibraryListID] = [.reading, .wantToRead, .read, .all, .authors]
 
-    /// Always the four built-in lists, each once.
+    /// Always the five Library rows, each once.
     public private(set) var lists: [LibraryListID]
 
     public init() { lists = Self.builtIns }

@@ -32,6 +32,8 @@ struct LibraryListsTests {
         #expect(counts[.read] == 1)
         #expect(counts[.all] == 5)
         #expect(counts[.collection(owned.id)] == 1)
+        #expect(counts[.authors] == 0)
+        #expect(LibraryLists.books(in: .authors, from: books).isEmpty)
     }
 
     @Test func bookWithoutReadingsIsOnlyInAllBooksAndCollections() throws {
@@ -49,7 +51,7 @@ struct LibraryListsTests {
 
     @Test func listIDRoundTrips() throws {
         let id = UUID()
-        for list in [LibraryListID.reading, .wantToRead, .read, .all, .collection(id)] {
+        for list in [LibraryListID.reading, .wantToRead, .read, .all, .authors, .collection(id)] {
             #expect(LibraryListID(rawValue: list.rawValue) == list)
             let data = try JSONEncoder().encode(list)
             #expect(try JSONDecoder().decode(LibraryListID.self, from: data) == list)
@@ -57,5 +59,6 @@ struct LibraryListsTests {
         #expect(LibraryListID(rawValue: "bogus") == nil)
         #expect(LibraryListID.collection(id).settingsKey.isEmpty)
         #expect(LibraryListID.all.settingsKey == "all")
+        #expect(!LibraryListID.builtIn.contains(.authors))
     }
 }

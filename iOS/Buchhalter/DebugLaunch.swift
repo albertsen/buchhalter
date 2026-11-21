@@ -9,7 +9,7 @@ import BuchhalterCore
 // what `make ios` installs, have none of this.
 //
 //   -debugSeed YES          fills an empty scratch library with sample books
-//   -debugScreen <screen>   list | book | addBook | settings
+//   -debugScreen <screen>   list | book | addBook | settings | authors | author
 
 enum DebugLaunch {
     static let bookID = UUID(uuidString: "00000000-0000-0000-0000-00000000B00C") ?? UUID()
@@ -24,7 +24,7 @@ enum DebugLaunch {
     }
 
     /// Whether the iPhone starts with a list pushed over the Library screen.
-    static var showsList: Bool { ["list", "book"].contains(screen) }
+    static var showsList: Bool { ["list", "book", "authors", "author"].contains(screen) }
 
     /// A handful of books in every status, with German titles that test the widths.
     @MainActor
@@ -55,7 +55,11 @@ enum DebugLaunch {
             _ = try? library.createCollection(named: name)
         }
         try? container.mainContext.save()
-        UserDefaults.standard.set(LibraryListID.reading.rawValue, forKey: "selectedList")
+        let authors = screen == "authors" || screen == "author"
+        UserDefaults.standard.set((authors ? LibraryListID.authors : .reading).rawValue, forKey: "selectedList")
+        if screen == "author", let mann = AuthorIndex.authors(in: (try? container.mainContext.fetch(FetchDescriptor<Book>())) ?? []).first(where: { $0.name == "Thomas Mann" }) {
+            UserDefaults.standard.set(mann.id.uuidString, forKey: "openAuthor")
+        }
         UserDefaults.standard.set(screen == "book" ? bookID.uuidString : "", forKey: "selectedBook")
     }
 

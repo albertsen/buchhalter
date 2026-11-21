@@ -20,6 +20,13 @@ extension View {
         modifier(PhoneListChrome(preferences: preferences, library: library, model: model, listID: listID, listName: listName))
     }
 
+    /// A column of Authors: `+` (and Scan on the iPad), and on the author list
+    /// the search field (`prompt`), but no Sort and View menu: the order is
+    /// fixed and there is no grid.
+    func phoneAuthorsChrome(model: WindowModel, prompt: Text?, onAdd: @escaping () -> Void) -> some View {
+        modifier(PhoneAuthorsChrome(model: model, prompt: prompt, onAdd: onAdd))
+    }
+
     /// The full-screen scanner, the Settings sheet and the iPad's keyboard
     /// shortcuts.
     func phoneWindowChrome(
@@ -223,6 +230,44 @@ private struct PhoneListChrome: ViewModifier {
                     }
                 }
                 .presentationDetents([.medium, .large])
+            }
+    }
+}
+
+// MARK: Authors
+
+private struct PhoneAuthorsChrome: ViewModifier {
+    @Environment(PhoneUI.self) private var phone
+    var model: WindowModel
+    var prompt: Text?
+    var onAdd: () -> Void
+
+    func body(content: Content) -> some View {
+        @Bindable var model = model
+        Group {
+            if let prompt {
+                content.searchable(text: $model.searchText, placement: .navigationBarDrawer, prompt: prompt)
+            } else {
+                content
+            }
+        }
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                // A split view column reports a compact width, so ask the device.
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            phone.scanner = .addBooks
+                        } label: {
+                            Label("Scan Barcode", systemImage: "barcode.viewfinder")
+                        }
+                    }
+                }
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: onAdd) {
+                        Label("Add Book", systemImage: "plus")
+                    }
+                }
             }
     }
 }

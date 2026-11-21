@@ -116,6 +116,12 @@ public struct Library {
         descriptor.fetchLimit = 1
         return (try? context.fetch(descriptor))?.first
     }
+
+    public func author(withID id: UUID) -> Author? {
+        var descriptor = FetchDescriptor<Author>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        return (try? context.fetch(descriptor))?.first
+    }
 }
 
 /// Dates are stored as given. The UI passes the start of the chosen day.

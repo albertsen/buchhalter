@@ -99,6 +99,23 @@ public struct BookFormatting: Sendable {
         count == 0 ? String(localized: "No books", locale: locale) : String(localized: "\(count) books", locale: locale)
     }
 
+    public func authorCount(_ count: Int) -> String {
+        count == 0 ? String(localized: "No authors", locale: locale) : String(localized: "\(count) authors", locale: locale)
+    }
+
+    /// The second line of a row among an author's books, where other lists
+    /// show the authors: "1959 · with Lisa Seidl". The year, then the book's
+    /// other authors; empty when there is neither.
+    public func authorBookLine(year: Int?, coauthors: [String]) -> String {
+        var parts: [String] = []
+        if let year { parts.append(self.year(year)) }
+        if !coauthors.isEmpty {
+            let names = coauthors.formatted(.list(type: .and).locale(locale))
+            parts.append(String(localized: "with \(names)", locale: locale))
+        }
+        return parts.joined(separator: " · ")
+    }
+
     /// "Thomas Mann · Reclam · 2026": the authors, the publisher and the year of a lookup record.
     public func editionByline(_ record: LookupRecord) -> String {
         var parts: [String] = []

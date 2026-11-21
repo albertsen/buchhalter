@@ -32,11 +32,12 @@ The visual language: a deep green accent (#1F6F5C), serif (New York) titles, a f
 
 ## Mac
 
-- One main window (one `Window` scene, so one undo stack; closing it quits). List mode: a three-column `NavigationSplitView` with the sidebar (the built-in lists in the user's order, then the collections), the list and the detail. Grid mode: the sidebar and the grid; opening a book pushes its detail with a back button.
+- One main window (one `Window` scene, so one undo stack; closing it quits). List mode: a three-column `NavigationSplitView` with the sidebar (the Library rows in the user's order, then the collections), the list and the detail. Grid mode: the sidebar and the grid; opening a book pushes its detail with a back button.
+- Authors: three columns on every device. The middle column lists the authors (a selection, `WindowModel.authorPath.first`); the detail column is a `NavigationStack` whose root is the selected author's books ("No Author Selected" before one is chosen), and a book pushes its detail. On the Mac a "‹ Books" button over the detail goes back (the system one would sit by the authors' title); iOS uses its own back button. The search field filters the authors only. The toolbar has no Sort and no List/Grid switch; `+` from an author's books fills in the author. Edit Sorted As… on an author is `EditSortNameSheet`.
 - The Book menu and ⌘N, ⇧⌘N, ⌘F and ⌘⌫ cover the common actions.
 - `Settings` scene (⌘,): two tabs, Book Lookup and iCloud, 620 pt wide. The panes and the key help sheet are shared views under `Views/Settings`. The sources are a bordered `List` with checkboxes and drag handles.
 - The sidebar's bottom shows `SidebarSyncLine` during a first transfer or a problem; a click opens the iCloud tab.
-- **Saved per Mac in UserDefaults:** `scanCamera`, `scanInARow`, `lookupSources`, `googleBooksKeyState` (no secret), `selectedList`, `selectedBook`, `openBook`, `sidebarWidth`, `listWidth`, `settingsTab`, and the sync keys (`legacyCopyDate`, `syncNoticeShown`, `iCloudLastSynced`, `iCloudFirstTransfer`). The order of the built-in lists is in the store, so it syncs.
+- **Saved per Mac in UserDefaults:** `scanCamera`, `scanInARow`, `lookupSources`, `googleBooksKeyState` (no secret), `selectedList`, `selectedBook`, `openBook`, `openAuthor`, `sidebarWidth`, `listWidth`, `settingsTab`, and the sync keys (`legacyCopyDate`, `syncNoticeShown`, `iCloudLastSynced`, `iCloudFirstTransfer`). The order of the Library rows is in the store, so it syncs.
 - **Window frame and columns:** SwiftUI restores the frame only through state restoration (skipped when "Close windows when quitting an application" is on), places new windows on the main display, and lays the columns out at their ideal widths. `restoresWindowFrame(named:)` saves AppKit's frame descriptor (which names the display) under `WindowFrame main` and the column widths, and applies them when the window first becomes key.
 
 ## iPhone and iPad
@@ -46,8 +47,10 @@ The visual language: a deep green accent (#1F6F5C), serif (New York) titles, a f
 - Settings is a sheet (`PhoneSettingsView`) with the shared panes stacked: the sources as rows with a switch and drag handles, the key section, iCloud.
 - Inside the split view's columns iOS reports a compact width even on an iPad, so iPad checks use `UIDevice.current.userInterfaceIdiom`.
 - **iPhone:** portrait only. The split view collapses to Library → list → detail. Small-screen layouts are size-class branches, not copies: the detail stacks the cover over the header, the grid uses columns from 90 pt.
+- **Authors:** the Mac's three columns. Collapsed on the iPhone: Library → Authors → author → book. The iPad in portrait slides the overlay away when an author is chosen, as for a tapped book. The author list is plain with the system section index (`sectionIndexLabel`, `listSectionIndexVisibility`).
 - **iPad:** landscape keeps sidebar, list and detail open (`.balanced`). Portrait uses `.prominentDetail`: it starts with the list over the detail. Picking a list keeps the sidebar and the book list open in list mode (hiding only the sidebar makes the split view jump the book list to the left edge while the sidebar slides) and slides the sidebar away in grid mode; tapping a book slides the overlays away and shows the detail alone. `RootView` sets the column visibility from `onGeometryChange`, so rotating to landscape opens all columns again.
 
 ## Decisions
 
+- **Authors' stack in the detail column.** A `NavigationStack` in the content column of a three-column split view navigates back wrongly on the iPhone (Apple Developer Forums 792882, 727778); one in the detail column is the arrangement Apple's documentation describes.
 - **One `RootView` for every device.** The split view collapses on the iPhone into the design's Library → list → detail flow, and the iPad gets the Mac's columns. iOS adds its bars and gestures through modifiers in `iOS/`, so the Mac's view code stays as it is.

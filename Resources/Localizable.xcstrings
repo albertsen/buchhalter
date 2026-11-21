@@ -65,6 +65,46 @@
         }
       }
     },
+    "%lld authors" : {
+      "localizations" : {
+        "de" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Autor"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld Autoren"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld author"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld authors"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld books" : {
       "localizations" : {
         "de" : {
@@ -969,6 +1009,38 @@
         }
       }
     },
+    "Authors appear here as you add their books." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoren erscheinen hier, sobald du ihre Bücher hinzufügst."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authors appear here as you add their books."
+          }
+        }
+      }
+    },
+    "Back to Books" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zurück zu den Büchern"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back to Books"
+          }
+        }
+      }
+    },
     "Before the library first went to iCloud, Buchhalter kept a copy of it on this Mac, from %@." : {
       "localizations" : {
         "de" : {
@@ -1353,22 +1425,6 @@
         }
       }
     },
-    "Change Sort Name" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sortiernamen ändern"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Change Sort Name"
-          }
-        }
-      }
-    },
     "Change…" : {
       "localizations" : {
         "de" : {
@@ -1445,6 +1501,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose Photo…"
+          }
+        }
+      }
+    },
+    "Choose an author to see their books." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle einen Autor aus, um die Bücher zu sehen."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose an author to see their books."
           }
         }
       }
@@ -2101,6 +2173,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Edit Reading"
+          }
+        }
+      }
+    },
+    "Edit Sorted As" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sortierung bearbeiten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Sorted As"
+          }
+        }
+      }
+    },
+    "Edit Sorted As…" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sortierung bearbeiten…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Sorted As…"
           }
         }
       }
@@ -3453,6 +3557,70 @@
         }
       }
     },
+    "No Author Selected" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kein Autor ausgewählt"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Author Selected"
+          }
+        }
+      }
+    },
+    "No authors" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Autoren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No authors"
+          }
+        }
+      }
+    },
+    "No authors match “%@”" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine Autoren passen zu „%@“"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No authors match “%@”"
+          }
+        }
+      }
+    },
+    "No authors yet" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Autoren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No authors yet"
+          }
+        }
+      }
+    },
     "No book found for ISBN %@. Check the number, or enter the title and author instead." : {
       "localizations" : {
         "de" : {
@@ -4705,6 +4873,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Search All Books"
+          }
+        }
+      }
+    },
+    "Search Authors" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoren suchen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search Authors"
           }
         }
       }
@@ -6465,6 +6649,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "then by"
+          }
+        }
+      }
+    },
+    "with %@" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mit %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "with %@"
           }
         }
       }

@@ -135,7 +135,7 @@ struct SidebarOrderTests {
         let order = LibraryListOrder(raw: "read,reading,wantToRead,all")
         try t.library.setLibraryListOrder(order)
         try t.library.setLibraryListOrder(order)
-        #expect(t.library.libraryListOrder().raw == "read,reading,wantToRead,all")
+        #expect(t.library.libraryListOrder().raw == "read,reading,wantToRead,all,authors")
         #expect(t.library.hasLibraryListOrder)
         let rows = try t.context.fetch(FetchDescriptor<ListSettings>())
         #expect(rows.filter { $0.key == ListSettings.sidebarOrderKey }.count == 1)
@@ -150,7 +150,27 @@ struct SidebarOrderTests {
             row.updatedAt = date(year, 1, 1)
             t.context.insert(row)
         }
-        #expect(t.library.libraryListOrder().raw == "all,read,reading,wantToRead")
+        #expect(t.library.libraryListOrder().raw == "all,read,reading,wantToRead,authors")
+    }
+
+    @Test func anOrderFromBeforeAuthorsGetsAuthorsLast() throws {
+        let order = LibraryListOrder(raw: "read,reading,wantToRead,all")
+        #expect(order.lists == [.read, .reading, .wantToRead, .all, .authors])
+        #expect(LibraryListOrder().raw == "reading,wantToRead,read,all,authors")
+    }
+
+    @Test func authorsHasNoSettings() throws {
+        let t = try TestLibrary()
+        try t.library.setViewMode(.grid, for: .authors)
+        try t.library.setSortLevels(SortLevels(levels: [SortLevel(field: .title)]), for: .authors)
+        let global = ListSettings()
+        global.key = ListSettings.globalSortKey
+        global.sortLevelsRaw = "year:asc"
+        t.context.insert(global)
+        try t.library.adoptGlobalSort()
+        let rows = try t.context.fetch(FetchDescriptor<ListSettings>())
+        #expect(!rows.contains { $0.key == "authors" })
+        #expect(t.library.preferences(for: .authors).viewMode == .list)
     }
 
     @Test func aDamagedValueFallsBackLikeTheParserDoes() throws {
@@ -159,7 +179,7 @@ struct SidebarOrderTests {
         row.key = ListSettings.sidebarOrderKey
         row.sortLevelsRaw = "bogus,read,read"
         t.context.insert(row)
-        #expect(t.library.libraryListOrder().raw == "read,reading,wantToRead,all")
+        #expect(t.library.libraryListOrder().raw == "read,reading,wantToRead,all,authors")
     }
 
     @Test func theRowIsNotMistakenForAnOldPerListSort() throws {

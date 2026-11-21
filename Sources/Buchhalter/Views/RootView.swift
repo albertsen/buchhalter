@@ -24,6 +24,8 @@ struct RootView: View {
     /// the window comes back as it was left.
     @AppStorage("selectedBook") private var selectedBookRaw = ""
     @AppStorage("openBook") private var openBookRaw = ""
+    /// The author whose books are open in Authors, restored at launch.
+    @AppStorage("openAuthor") private var openAuthorRaw = ""
     @State private var model = WindowModel()
     /// The split view's columns. The Mac leaves them to the user; the iPad
     /// hides the sidebar after a list is picked.
@@ -84,6 +86,35 @@ struct RootView: View {
         return BookSorter.sorted(BookSearch.filter(inList, query: model.searchText), by: preferences.sortLevels)
     }
 
+    /// Every author with a book, in the order of Authors.
+    private var authorEntries: [AuthorEntry] { AuthorIndex.authors(in: books) }
+
+    /// Authors' detail stack: the part of `authorPath` after the author.
+    private var authorDetailPath: Binding<[AuthorRoute]> {
+        Binding(
+            get: { Array(model.authorPath.dropFirst()) },
+            set: { model.authorPath = Array(model.authorPath.prefix(1)) + $0 }
+        )
+    }
+
+    /// The author list's selection: choosing an author opens their books.
+    private var authorSelection: Binding<UUID?> {
+        Binding(
+            get: { model.openAuthorID },
+            set: { id in model.authorPath = id.map { [.author($0)] } ?? [] }
+        )
+    }
+
+    /// The open author's number of books; 0 sends Authors back to its list.
+    private var openAuthorBookCount: Int? {
+        guard let id = model.openAuthorID else { return nil }
+        return authorEntries.first { $0.id == id }?.bookCount ?? 0
+    }
+
+    private var searchPrompt: Text {
+        listID == .authors ? Text("Search Authors") : Text("Search")
+    }
+
     private var selectedBook: Book? {
         guard let id = model.selectedBookID else { return nil }
         return books.first { $0.id == id }
@@ -99,6 +130,9 @@ struct RootView: View {
         let counts = LibraryLists.counts(books: books, collections: collections)
         let visible = listBooks
         Group {
+            if listID == .authors {
+                authors(counts)
+            } else {
             switch preferences.viewMode {
             case .list:
                 NavigationSplitView(columnVisibility: $columnVisibility) {
@@ -131,20 +165,22 @@ struct RootView: View {
                     }
                 }
             }
+            }
         }
         #if os(macOS)
-        .searchable(text: $model.searchText, placement: .toolbar, prompt: Text("Search"))
+        .searchable(text: $model.searchText, placement: .toolbar, prompt: searchPrompt)
         .searchFocused($searchFocused)
         .toolbar {
             LibraryToolbar(
                 listName: listName,
                 preferences: preferences,
+                showsSortAndView: listID != .authors,
                 onSort: { levels in model.attempt { try library.setSortLevels(levels, for: listID) } },
                 onViewMode: { mode in
                     model.attempt { try library.setViewMode(mode, for: listID) }
                     model.gridPath = []
                 },
-                onAdd: { model.sheet = .addBook },
+                onAdd: addBook,
                 onScan: { model.sheet = .scanBarcode }
             )
         }
@@ -198,6 +234,20 @@ struct RootView: View {
         .onChange(of: selectedListRaw) {
             model.selectedBookID = nil
             model.gridPath = []
+            model.authorPath = []
+        }
+        .onChange(of: model.authorPath) { old, new in
+            #if os(iOS)
+            // iPad in portrait: a chosen author gets the whole screen, as a tapped book does.
+            if isPad, !isLandscape, new.first != nil, old.first != new.first { setColumns(.detailOnly, animated: true) }
+            #endif
+            if case .book(let id)? = new.last { model.selectedBookID = id }
+            // A book selected on a page that is gone must not stay the target of ⌫ and the Book menu.
+            if let id = model.selectedBookID, !authorPageShows(id) { model.selectedBookID = nil }
+            openAuthorRaw = model.openAuthorID?.uuidString ?? ""
+        }
+        .onChange(of: openAuthorBookCount) { _, count in
+            if count == 0 { model.authorPath = [] }
         }
         .onAppear {
             restoreSelection()
@@ -308,6 +358,129 @@ struct RootView: View {
         }
     }
 
+    // MARK: Authors
+
+    /// Three columns, as in list mode: the authors in the middle column, the
+    /// open author's books on the right as the root of a navigation stack, and
+    /// a book's detail pushed over them. Collapsed on the iPhone this is
+    /// Library → Authors → author → book. The stack sits in the detail column:
+    /// one in the content column navigates back wrongly on the iPhone.
+    private func authors(_ counts: [LibraryListID: Int]) -> some View {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
+            sidebar(counts)
+        } content: {
+            authorList
+                .navigationSplitViewColumnWidth(min: 280, ideal: 360, max: 520)
+                .navigationTitle(LibraryListID.authors.builtInName.map { String(localized: $0) } ?? "")
+                .librarySubtitle(BookFormatting(locale: locale).authorCount(visibleAuthorEntries.count))
+                #if os(iOS)
+                .phoneAuthorsChrome(model: model, prompt: Text("Search Authors"), onAdd: addBook)
+                #endif
+        } detail: {
+            NavigationStack(path: authorDetailPath) {
+                Group {
+                    if let id = model.openAuthorID {
+                        authorPage(id)
+                    } else {
+                        NoAuthorSelectedView()
+                    }
+                }
+                .navigationDestination(for: AuthorRoute.self) { route in
+                    if case .book(let id) = route { authorBookDetail(id) }
+                }
+            }
+        }
+    }
+
+    /// A book's detail over the author's books. On the Mac the system back
+    /// button would sit at the window's leading edge, by the authors' title;
+    /// this one sits over the detail it leaves. iOS puts its own in the
+    /// detail's navigation bar.
+    @ViewBuilder
+    private func authorBookDetail(_ id: UUID) -> some View {
+        #if os(macOS)
+        VStack(alignment: .leading, spacing: 0) {
+            Button {
+                model.authorPath = Array(model.authorPath.prefix(1))
+            } label: {
+                Label("Books", systemImage: "chevron.left")
+                    .labelStyle(.titleAndIcon)
+            }
+            .buttonStyle(.borderless)
+            .help("Back to Books")
+            .padding(.horizontal, 20)
+            .padding(.top, 12)
+            detail(for: book(id))
+        }
+        .navigationBarBackButtonHidden()
+        #else
+        detail(for: book(id))
+        #endif
+    }
+
+    private var visibleAuthorEntries: [AuthorEntry] {
+        AuthorIndex.filter(authorEntries, query: model.searchText)
+    }
+
+    /// The authors, their empty state and the search's. Choosing an author
+    /// opens their books on the right.
+    @ViewBuilder
+    private var authorList: some View {
+        let visible = visibleAuthorEntries
+        if authorEntries.isEmpty {
+            NoAuthorsView()
+        } else if visible.isEmpty {
+            NoAuthorsMatchView(searchText: model.searchText.trimmingCharacters(in: .whitespacesAndNewlines))
+        } else {
+            AuthorListView(model: model, sections: AuthorIndex.sections(visible), selection: authorSelection)
+        }
+    }
+
+    /// The open author's books. The search field filters the authors, which
+    /// stay in view next to them (or one step back on the iPhone).
+    private func authorPage(_ authorID: UUID) -> some View {
+        let formatting = BookFormatting(locale: locale)
+        let own = AuthorIndex.books(by: authorID, in: books)
+        return Group {
+            if own.isEmpty {
+                EmptyListView()
+            } else {
+                BookListView(
+                    model: model, books: own, collections: collections, currentCollection: nil,
+                    rowLine: { book in
+                        formatting.authorBookLine(year: book.year, coauthors: AuthorIndex.coauthors(of: book, excluding: authorID))
+                    },
+                    pushRoute: { .book($0.id) }
+                )
+                #if os(iOS)
+                // In a stack the list would be inset; the other book lists are plain.
+                .listStyle(.plain)
+                #endif
+            }
+        }
+        .navigationTitle(authorEntries.first { $0.id == authorID }?.name ?? "")
+        .librarySubtitle(formatting.bookCount(own.count))
+        #if os(iOS)
+        .phoneAuthorsChrome(model: model, prompt: nil, onAdd: addBook)
+        #endif
+    }
+
+    /// Whether the open Authors page shows the book (in its list or as its detail).
+    private func authorPageShows(_ bookID: UUID) -> Bool {
+        guard listID == .authors else { return true }
+        guard let authorID = model.openAuthorID, let book = book(bookID) else { return false }
+        return (book.authorships ?? []).contains { $0.author?.id == authorID }
+    }
+
+    /// `+` and ⌘N's button: from an author's books, the author comes along.
+    private func addBook() {
+        if listID == .authors, let id = model.openAuthorID {
+            model.sheet = .addBookByAuthor(id)
+        } else {
+            model.sheet = .addBook
+        }
+    }
+
     // MARK: Sheets
 
     @ViewBuilder
@@ -317,6 +490,13 @@ struct RootView: View {
             BookEditorSheet(
                 model: model, editing: nil, books: books, collections: collections,
                 onAdded: { id in reveal(id) }, onShowBook: { id in reveal(id) }
+            )
+            .environment(\.library, library)
+        case .addBookByAuthor(let authorID):
+            BookEditorSheet(
+                model: model, editing: nil, books: books, collections: collections,
+                onAdded: { id in reveal(id) }, onShowBook: { id in reveal(id) },
+                initialAuthor: library.author(withID: authorID).map { library.suggestedAuthor(for: $0.name) }
             )
             .environment(\.library, library)
         case .addBookTypingISBN:
@@ -356,6 +536,10 @@ struct RootView: View {
                 .environment(\.library, library)
         case .syncNotice:
             SyncNoticeSheet(bookCount: books.count)
+        case .editSortName(let id):
+            if let author = library.author(withID: id) {
+                EditSortNameSheet(model: model, author: author).environment(\.library, library)
+            }
         }
     }
 
@@ -372,6 +556,16 @@ struct RootView: View {
     /// Selects the book saved at the last quit, and reopens its detail in grid
     /// mode, if it still exists and is in the selected list.
     private func restoreSelection() {
+        if listID == .authors {
+            guard let authorID = UUID(uuidString: openAuthorRaw),
+                  authorEntries.contains(where: { $0.id == authorID }) else { return }
+            model.authorPath = [.author(authorID)]
+            let own = Set(AuthorIndex.books(by: authorID, in: books).map(\.id))
+            if let id = UUID(uuidString: selectedBookRaw), own.contains(id) {
+                model.selectedBookID = id
+            }
+            return
+        }
         let visible = Set(listBooks.map(\.id))
         if let id = UUID(uuidString: selectedBookRaw), visible.contains(id) { model.selectedBookID = id }
         if preferences.viewMode == .grid, let id = UUID(uuidString: openBookRaw), visible.contains(id) {
@@ -382,6 +576,15 @@ struct RootView: View {
     /// Selects a book, switching to All Books when the current list (or the
     /// search) would hide it.
     private func reveal(_ id: UUID) {
+        // A book added from an author's books stays there; it may not be in
+        // the query result yet.
+        if listID == .authors, let authorID = model.openAuthorID,
+           book(id).map({ ($0.authorships ?? []).contains { $0.author?.id == authorID } }) ?? true {
+            model.searchText = ""
+            model.selectedBookID = id
+            model.authorPath = [.author(authorID), .book(id)]
+            return
+        }
         guard let book = book(id) else {
             // A book added a moment ago may not be in the query result yet.
             model.selectedBookID = id
@@ -415,6 +618,7 @@ struct RootView: View {
             try library.deleteBook(book)
             if model.selectedBookID == id { model.selectedBookID = nil }
             model.gridPath = []
+            if model.authorPath.last == .book(id) { model.authorPath.removeLast() }
         }
         model.pendingDeleteBookID = nil
     }

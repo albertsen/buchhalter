@@ -31,7 +31,10 @@ extension ListSettings {
         case .collection(let id):
             if let own = collections.first(where: { $0.id == id })?.settings { return own }
             return nil
-        default:
+        case .authors:
+            // Authors has a fixed order and no view mode.
+            return nil
+        case .reading, .wantToRead, .read, .all:
             return settings
                 .filter { $0.collection == nil && $0.key == list.settingsKey }
                 .max { $0.updatedAt < $1.updatedAt }
@@ -152,9 +155,10 @@ extension Library {
         }
     }
 
-    /// The existing settings object, or a new one. Nil only for a collection
-    /// that no longer exists.
+    /// The existing settings object, or a new one. Nil for a collection that
+    /// no longer exists, and for Authors, which has no settings.
     private func settingsObject(for list: LibraryListID) -> ListSettings? {
+        if list == .authors { return nil }
         let all = (try? context.fetch(FetchDescriptor<ListSettings>())) ?? []
         let collections = fetchCollections()
         if let existing = ListSettings.resolve(for: list, among: all, collections: collections) { return existing }

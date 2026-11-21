@@ -23,27 +23,31 @@ struct SortButton: View {
 }
 
 /// Sort button, List/Grid switch, Scan Barcode and `+`. The title, count and search field
-/// come from the navigation title, subtitle and `.searchable`.
+/// come from the navigation title, subtitle and `.searchable`. Authors has a
+/// fixed order and no grid, so it shows neither Sort nor the switch.
 struct LibraryToolbar: ToolbarContent {
     var listName: String
     var preferences: ListPreferences
+    var showsSortAndView = true
     var onSort: (SortLevels) -> Void
     var onViewMode: (ViewMode) -> Void
     var onAdd: () -> Void
     var onScan: () -> Void
 
     var body: some ToolbarContent {
-        ToolbarItem(placement: .automatic) {
-            SortButton(listName: listName, levels: preferences.sortLevels, onChange: onSort)
-        }
-        ToolbarItem(placement: .automatic) {
-            Picker("View", selection: Binding(get: { preferences.viewMode }, set: { onViewMode($0) })) {
-                Label("List", systemImage: "list.bullet").tag(ViewMode.list)
-                Label("Grid", systemImage: "square.grid.2x2").tag(ViewMode.grid)
+        if showsSortAndView {
+            ToolbarItem(placement: .automatic) {
+                SortButton(listName: listName, levels: preferences.sortLevels, onChange: onSort)
             }
-            .pickerStyle(.segmented)
-            .labelStyle(.iconOnly)
-            .help("View")
+            ToolbarItem(placement: .automatic) {
+                Picker("View", selection: Binding(get: { preferences.viewMode }, set: { onViewMode($0) })) {
+                    Label("List", systemImage: "list.bullet").tag(ViewMode.list)
+                    Label("Grid", systemImage: "square.grid.2x2").tag(ViewMode.grid)
+                }
+                .pickerStyle(.segmented)
+                .labelStyle(.iconOnly)
+                .help("View")
+            }
         }
         ToolbarItem(placement: .primaryAction) {
             Button(action: onScan) {

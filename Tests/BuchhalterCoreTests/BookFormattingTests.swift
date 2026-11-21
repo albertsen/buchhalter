@@ -7,6 +7,20 @@ struct BookFormattingTests {
     private let en = BookFormatting(locale: Locale(identifier: "en_GB"), timeZone: .current)
     private let de = BookFormatting(locale: Locale(identifier: "de_DE"), timeZone: .current)
 
+    @Test func authorBookLine() {
+        #expect(en.authorBookLine(year: 1959, coauthors: []) == "1959")
+        #expect(en.authorBookLine(year: nil, coauthors: []) == "")
+        #expect(en.authorBookLine(year: 1959, coauthors: ["Lisa Seidl"]) == "1959 · with Lisa Seidl")
+        #expect(en.authorBookLine(year: nil, coauthors: ["Lisa Seidl", "Ann Bo"]) == "with Lisa Seidl and Ann Bo")
+        // The test runner has no catalog: "with" stays English, the list is German.
+        #expect(de.authorBookLine(year: 1959, coauthors: ["Lisa Seidl", "Ann Bo"]).hasSuffix("Lisa Seidl und Ann Bo"))
+    }
+
+    @Test func authorCount() {
+        #expect(en.authorCount(0) == "No authors")
+        #expect(en.authorCount(48) == "48 authors")
+    }
+
     @Test func dayFormat() {
         #expect(en.day(date(2026, 10, 3)) == "3 Oct 2026")
         #expect(de.day(date(2026, 10, 3)) == "3. Okt. 2026")
