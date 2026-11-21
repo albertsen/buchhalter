@@ -12,13 +12,16 @@ extension View {
         modifier(PhoneSidebarChrome(model: model, showAllBooks: showAllBooks))
     }
 
-    /// A list: its search field and the Sort and View menu with `+`.
-    func phoneListChrome(preferences: ListPreferences, library: Library, model: WindowModel, listID: LibraryListID) -> some View {
-        modifier(PhoneListChrome(preferences: preferences, library: library, model: model, listID: listID))
+    /// A list: its search field, the Sort and View menu with `+`, and the
+    /// sheet that sorts this list.
+    func phoneListChrome(
+        preferences: ListPreferences, library: Library, model: WindowModel, listID: LibraryListID, listName: String
+    ) -> some View {
+        modifier(PhoneListChrome(preferences: preferences, library: library, model: model, listID: listID, listName: listName))
     }
 
-    /// The full-screen scanner, the Settings sheet, the sort sheet and the
-    /// iPad's keyboard shortcuts.
+    /// The full-screen scanner, the Settings sheet and the iPad's keyboard
+    /// shortcuts.
     func phoneWindowChrome(
         model: WindowModel, books: [Book], collections: [Collection], library: Library, reveal: @escaping (UUID) -> Void
     ) -> some View {
@@ -156,9 +159,11 @@ private struct PhoneListChrome: ViewModifier {
     var library: Library
     var model: WindowModel
     var listID: LibraryListID
+    var listName: String
 
     func body(content: Content) -> some View {
         @Bindable var model = model
+        @Bindable var phone = phone
         content
             .navigationBarTitleDisplayMode(.large)
             .searchable(text: $model.searchText, placement: .navigationBarDrawer, prompt: Text("Search"))
@@ -202,6 +207,23 @@ private struct PhoneListChrome: ViewModifier {
                     }
                 }
             }
+            .sheet(isPresented: $phone.isSorting) {
+                NavigationStack {
+                    ScrollView {
+                        SortPopover(
+                            listName: listName,
+                            levels: preferences.sortLevels,
+                            onChange: { levels in model.attempt { try library.setSortLevels(levels, for: listID) } }
+                        )
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Done") { phone.isSorting = false }
+                        }
+                    }
+                }
+                .presentationDetents([.medium, .large])
+            }
     }
 }
 
@@ -214,7 +236,6 @@ private struct PhoneWindowChrome: ViewModifier {
     var collections: [Collection]
     var library: Library
     var reveal: (UUID) -> Void
-    @Query private var settings: [ListSettings]
 
     func body(content: Content) -> some View {
         @Bindable var phone = phone
@@ -236,22 +257,6 @@ private struct PhoneWindowChrome: ViewModifier {
             }
             .sheet(item: $phone.settings) { section in
                 PhoneSettingsView(section: section)
-            }
-            .sheet(isPresented: $phone.isSorting) {
-                NavigationStack {
-                    ScrollView {
-                        SortPopover(
-                            levels: ListSettings.sortLevels(among: settings, collections: collections),
-                            onChange: { levels in model.attempt { try library.setSortLevels(levels) } }
-                        )
-                    }
-                    .toolbar {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Done") { phone.isSorting = false }
-                        }
-                    }
-                }
-                .presentationDetents([.medium, .large])
             }
             .background { keyboardShortcuts }
     }

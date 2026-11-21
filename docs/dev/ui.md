@@ -9,6 +9,7 @@ The visual language: a deep green accent (#1F6F5C), serif (New York) titles, a f
 - `StatusSegments` looks like a segmented control, but clicking the selected segment clears it: a system segmented `Picker` cannot deselect, and the status is optional.
 - `SecondaryButtonStyle` for the detail's secondary buttons: a primary-colour label on a neutral fill. On macOS 27 a bordered button draws its label in the tint, dark green on dark grey in dark mode. Only the prominent action uses the accent.
 - Pop-up and link buttons draw in the tint too, so the sort popover uses the system colours (`.tint(nil)`).
+- The sort popover (Mac) and sheet (iOS, from Sort Books… in the Sort and View menu) sort the open list only; its note names the list. Each list and collection keeps its own sort, a new collection starts with Author, then Year Published.
 - `DateField`: a button with the day that opens a graphical calendar in a popover, which closes on a pick. The system date field's calendar stays open.
 - `OptionalDatePicker` for dates that may be missing (Started and Finished on in the editor, the dates in Edit Reading): the same button, or "Optional" in grey without a date. The calendar offers Today when no day is set (picking the already selected day changes nothing) and Remove Date when one is. No checkbox.
 - `StarRatingControl` sets half stars: a first click on a star gives it whole, a second makes it half (`StarClick`). Arrow keys and VoiceOver step in halves.
@@ -40,7 +41,7 @@ The visual language: a deep green accent (#1F6F5C), serif (New York) titles, a f
 
 ## iPhone and iPad
 
-- One `RootView` for every device. The iOS parts come from three modifiers in `PhoneRootChrome.swift` (`phoneSidebarChrome`, `phoneListChrome`, `phoneWindowChrome`): the gear for the settings sheet, the sidebar's Edit button, a bottom bar (New Collection; on the iPhone also Scan and Add), the list toolbar (search, the Sort and View menu, Scan on the iPad, Add), the full-screen scanner, and hidden ⌘N, ⇧⌘N and ⌘⌫ for a hardware keyboard.
+- One `RootView` for every device. The iOS parts come from three modifiers in `PhoneRootChrome.swift` (`phoneSidebarChrome`, `phoneListChrome`, `phoneWindowChrome`): the gear for the settings sheet, the sidebar's Edit button, a bottom bar (New Collection; on the iPhone also Scan and Add), the list toolbar (search, the Sort and View menu, Scan on the iPad, Add) and the list's sort sheet, the full-screen scanner, and hidden ⌘N, ⇧⌘N and ⌘⌫ for a hardware keyboard.
 - Rows swipe right for the next step (Start Reading, Finish Reading…) and left for Delete, which asks first. Undo is the system's (shake, three-finger swipe). Context menus are long-press menus.
 - Settings is a sheet (`PhoneSettingsView`) with the shared panes stacked: the sources as rows with a switch and drag handles, the key section, iCloud.
 - Inside the split view's columns iOS reports a compact width even on an iPad, so iPad checks use `UIDevice.current.userInterfaceIdiom`.

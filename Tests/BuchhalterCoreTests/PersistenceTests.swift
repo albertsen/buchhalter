@@ -29,7 +29,7 @@ struct PersistenceTests {
             draft.collectionIDs = [collection.id]
             try library.addBook(draft)
             try library.setViewMode(.grid, for: .collection(collection.id))
-            try library.setSortLevels(SortLevels(levels: [SortLevel(field: .rating, direction: .descending)]))
+            try library.setSortLevels(SortLevels(levels: [SortLevel(field: .rating, direction: .descending)]), for: .collection(collection.id))
         }
 
         let container = try LibraryContainer.make(at: url)

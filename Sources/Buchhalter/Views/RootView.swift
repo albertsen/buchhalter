@@ -109,7 +109,7 @@ struct RootView: View {
                         .navigationTitle(listName)
                         .librarySubtitle(BookFormatting(locale: locale).bookCount(visible.count))
                         #if os(iOS)
-                        .phoneListChrome(preferences: preferences, library: library, model: model, listID: listID)
+                        .phoneListChrome(preferences: preferences, library: library, model: model, listID: listID, listName: listName)
                         #endif
                 } detail: {
                     detail(for: selectedBook)
@@ -123,7 +123,7 @@ struct RootView: View {
                             .navigationTitle(listName)
                             .librarySubtitle(BookFormatting(locale: locale).bookCount(visible.count))
                             #if os(iOS)
-                            .phoneListChrome(preferences: preferences, library: library, model: model, listID: listID)
+                            .phoneListChrome(preferences: preferences, library: library, model: model, listID: listID, listName: listName)
                             #endif
                             .navigationDestination(for: UUID.self) { id in
                                 detail(for: books.first { $0.id == id })
@@ -137,8 +137,9 @@ struct RootView: View {
         .searchFocused($searchFocused)
         .toolbar {
             LibraryToolbar(
+                listName: listName,
                 preferences: preferences,
-                onSort: { levels in model.attempt { try library.setSortLevels(levels) } },
+                onSort: { levels in model.attempt { try library.setSortLevels(levels, for: listID) } },
                 onViewMode: { mode in
                     model.attempt { try library.setViewMode(mode, for: listID) }
                     model.gridPath = []

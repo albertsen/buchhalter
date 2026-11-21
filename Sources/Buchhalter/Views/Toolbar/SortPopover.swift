@@ -1,9 +1,10 @@
 import SwiftUI
 import BuchhalterCore
 
-/// The sort level editor. One sort applies to every list and collection.
-/// Every change is saved at once.
+/// The sort level editor for one list; every list has its own sort. Every
+/// change is saved at once.
 struct SortPopover: View {
+    var listName: String
     var levels: SortLevels
     var onChange: (SortLevels) -> Void
 
@@ -13,7 +14,7 @@ struct SortPopover: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Sort Books")
                         .font(.system(size: 13, weight: .bold))
-                    Text("Applies to every list and collection.")
+                    Text("Applies to “\(listName)” only.")
                         .font(.system(size: 12))
                         .foregroundStyle(.secondary)
                 }

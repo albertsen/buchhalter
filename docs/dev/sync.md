@@ -40,7 +40,7 @@ SwiftData has no sync status API. `CloudSyncMonitor` (shared) observes `NSPersis
 
 ## Sync duplicates
 
-Two devices can create the same author, collection or list setting. `Library.mergeSyncDuplicates()` merges them without undo, 3 s after launch and 2 s after the last successful import, and logs `sync: merged <n> duplicates`: authors by `AuthorName.matchKey` (smallest id survives, a corrected sort name is kept), collections by folded name (earliest `createdAt`, then smallest id; the survivor gets every book), `ListSettings` by key (newest). Books are never merged.
+Two devices can create the same author, collection or list setting. `Library.mergeSyncDuplicates()` merges them without undo, 3 s after launch and 2 s after the last successful import, and logs `sync: merged <n> duplicates`: authors by `AuthorName.matchKey` (smallest id survives, a corrected sort name is kept), collections by folded name (earliest `createdAt`, then smallest id; the survivor gets every book), `ListSettings` by key (newest). Books are never merged. The same task then runs `Library.adoptGlobalSort()`, which turns the old global sort row into each list's sort (an older app on another device can still write it) and logs `sync: gave every list the global sort`.
 
 Remote changes never pass through `Library.change`, so they are never on the undo stack.
 

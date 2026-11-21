@@ -65,7 +65,7 @@ specs/planned/, specs/done/
 | `Authorship` | `id`, position. The ordered join: SwiftData's to-many relationships are unordered, and the first author decides the sort order | book, author |
 | `Reading` | One read-through: `id`, status (`wantToRead`, `reading`, `finished`, `abandoned`), started, ended, `stars` (0.5–5.0 in halves, optional), notes, created. `rating` is SchemaV1's whole-star field, copied into `stars` by the migration and unused since. The current reading is the one created last | book |
 | `Collection` | A user-made list: `id`, name, note, sort index, created | books, settings (cascade) |
-| `ListSettings` | View mode (`list`, `grid`) of one list, by `key` (`reading`, `wantToRead`, `read`, `all`) or hanging off a collection. The row `sort` holds the one sort for all lists ("author:asc,year:asc"), the row `sidebarOrder` the order of the built-in lists. No unique constraint, so readers take the newest `updatedAt` | collection |
+| `ListSettings` | Sort levels ("author:asc,year:asc", empty for the default) and view mode (`list`, `grid`) of one list, by `key` (`reading`, `wantToRead`, `read`, `all`) or hanging off a collection. The row `sidebarOrder` holds the order of the built-in lists. The row `sort` is one sort for every list, which an older app version writes: while it exists every list shows its sort, and `Library.adoptGlobalSort` (at launch, after each iCloud import, before a sort change) copies it into every list and deletes it, so older per-list values never come back. No unique constraint, so readers take the newest `updatedAt` | collection |
 
 A book read twice has two readings. Reading, Want to Read and Read are computed from each book's current reading, not stored. A book without a reading is valid and shows in All Books and its collections. Clearing the status in Edit Book deletes the current reading; earlier readings stay, and an abandoned current reading is left alone. Collections hold any books in any status; a book can be in several.
 
@@ -132,7 +132,7 @@ Area decisions are in the area docs.
 10. **Lists, filtering, sorting and search in the core over fetched arrays.** One in-memory rule keeps lists and counts consistent where `#Predicate` cannot express them.
 11. **Ordered authors through an `Authorship` join, one `Author` per name.** The first author decides the sort order; a corrected sort name applies to all of an author's books.
 12. **`Library` does the undo, from value snapshots.** SwiftData's undo does not persist attribute changes on macOS 27.2. One mechanism, one step per user action.
-13. **Sort and view choices are data, not undo steps.** One sort for every list (the user's choice), a view mode per list, all in `ListSettings`.
+13. **Sort and view choices are data, not undo steps.** A sort and a view mode per list, in `ListSettings`, so they sync.
 14. **Half stars as a new attribute, not a changed one.** A type change is not allowed with CloudKit; an additive `stars` plus one copy in `didMigrate` keeps the old value.
 15. **ISBN hyphens from the official range table, generated into code.** Hyphen positions depend on group and publisher. The generated table is committed: no package resources, no network at build time.
 16. **The iOS target compiles the shared folders, no UI library.** A library would make about 60 views `public` and change the Mac build; compiling `App` and `Views` twice costs nothing.

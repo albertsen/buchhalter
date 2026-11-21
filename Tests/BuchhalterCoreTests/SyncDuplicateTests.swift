@@ -125,7 +125,7 @@ struct SyncDuplicateTests {
         let t = try TestLibrary()
         for (year, raw) in [(2025, "title:asc"), (2027, "year:desc"), (2026, "pages:asc")] {
             let row = ListSettings()
-            row.key = ListSettings.sortKey
+            row.key = ListSettings.globalSortKey
             row.sortLevelsRaw = raw
             row.updatedAt = date(year, 1, 1)
             t.context.insert(row)

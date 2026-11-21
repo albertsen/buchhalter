@@ -1,8 +1,7 @@
 import Foundation
 import SwiftData
 
-/// The sort levels (one setting for every list) and the view mode of a list
-/// as the views need them.
+/// The sort levels and the view mode of a list as the views need them.
 public struct ListPreferences: Equatable, Sendable {
     public var sortLevels: SortLevels
     public var viewMode: ViewMode
@@ -11,9 +10,11 @@ public struct ListPreferences: Equatable, Sendable {
 }
 
 extension ListSettings {
-    /// The `key` of the one row whose sort levels apply to every list and
-    /// collection. Never a list's own key.
-    public static let sortKey = "sort"
+    /// The `key` of the row that held one sort for every list, from 2026-11-15
+    /// until sorting was per list again. `Library.adoptGlobalSort` turns it
+    /// into each list's own sort and deletes it; an older app on another device
+    /// can still write it. Never a list's own key.
+    public static let globalSortKey = "sort"
     /// The `key` of the row that holds the order of the built-in lists in the
     /// sidebar, as `LibraryListOrder.raw` in `sortLevelsRaw`. It is a view
     /// preference that syncs, so it lives in the store: a new schema version
@@ -37,20 +38,10 @@ extension ListSettings {
         }
     }
 
-    /// The global sort row; the newest wins.
+    /// The old global sort row; the newest wins.
     @MainActor
-    static func resolveSort(among settings: [ListSettings]) -> ListSettings? {
-        settings.filter { $0.collection == nil && $0.key == sortKey }.max { $0.updatedAt < $1.updatedAt }
-    }
-
-    /// The sort levels for every list. Until the global row exists, the sort
-    /// the user last chose for any one list (from before sorting was global).
-    @MainActor
-    public static func sortLevels(among settings: [ListSettings], collections: [Collection]) -> SortLevels {
-        if let global = resolveSort(among: settings) { return SortLevels(raw: global.sortLevelsRaw) }
-        let lists = settings + collections.compactMap(\.settings)
-        let latest = lists.filter { $0.key != sortKey && $0.key != sidebarOrderKey && !$0.sortLevelsRaw.isEmpty }.max { $0.updatedAt < $1.updatedAt }
-        return latest.map { SortLevels(raw: $0.sortLevelsRaw) } ?? .default
+    static func resolveGlobalSort(among settings: [ListSettings]) -> ListSettings? {
+        settings.filter { $0.collection == nil && $0.key == globalSortKey }.max { $0.updatedAt < $1.updatedAt }
     }
 
     /// The order of the built-in lists; the newest row wins. A missing or
@@ -61,13 +52,16 @@ extension ListSettings {
         return row.map { LibraryListOrder(raw: $0.sortLevelsRaw) } ?? LibraryListOrder()
     }
 
+    /// The list's own sort, or the old global one while it waits to be
+    /// adopted, so a list shows what `adoptGlobalSort` will give it.
     @MainActor
     public static func preferences(
         for list: LibraryListID, among settings: [ListSettings], collections: [Collection]
     ) -> ListPreferences {
         let own = resolve(for: list, among: settings, collections: collections)
+        let sortRaw = resolveGlobalSort(among: settings)?.sortLevelsRaw ?? own?.sortLevelsRaw ?? ""
         return ListPreferences(
-            sortLevels: sortLevels(among: settings, collections: collections),
+            sortLevels: SortLevels(raw: sortRaw),
             viewMode: own.map { ViewMode(raw: $0.viewModeRaw) } ?? .list
         )
     }
@@ -80,21 +74,43 @@ extension Library {
         return ListSettings.preferences(for: list, among: all, collections: fetchCollections())
     }
 
-    /// Sets the sort of every list and collection.
-    public func setSortLevels(_ levels: SortLevels) throws {
+    /// Sets the sort of one list. Other lists keep theirs.
+    public func setSortLevels(_ levels: SortLevels, for list: LibraryListID) throws {
+        try adoptGlobalSort()
         try withoutUndo {
-            let all = (try? context.fetch(FetchDescriptor<ListSettings>())) ?? []
-            let settings: ListSettings
-            if let existing = ListSettings.resolveSort(among: all) {
-                settings = existing
-            } else {
-                settings = ListSettings()
-                settings.key = ListSettings.sortKey
-                context.insert(settings)
-            }
-            settings.sortLevelsRaw = levels.isDefault ? "" : levels.raw
-            settings.updatedAt = .now
+            let settings = settingsObject(for: list)
+            settings?.sortLevelsRaw = levels.isDefault ? "" : levels.raw
+            settings?.updatedAt = .now
         }
+    }
+
+    public func resetSort(for list: LibraryListID) throws {
+        try setSortLevels(.default, for: list)
+    }
+
+    /// Sorting was one setting for every list and is per list again. The old
+    /// global sort becomes the sort of every list and collection, so no list
+    /// changes, and a list's own sort from before the global one does not come
+    /// back. Then the global row goes. Runs at launch and after each iCloud
+    /// import, because an older app on another device can write the row again.
+    /// Returns whether a global row was there.
+    @discardableResult
+    public func adoptGlobalSort() throws -> Bool {
+        let all = (try? context.fetch(FetchDescriptor<ListSettings>())) ?? []
+        guard let global = ListSettings.resolveGlobalSort(among: all) else { return false }
+        let raw = global.sortLevelsRaw
+        try withoutUndo {
+            let lists = LibraryListID.builtIn + fetchCollections().map { .collection($0.id) }
+            for list in lists {
+                guard let settings = settingsObject(for: list) else { continue }
+                settings.sortLevelsRaw = raw
+                settings.updatedAt = .now
+            }
+            for row in all where row.collection == nil && row.key == ListSettings.globalSortKey {
+                context.delete(row)
+            }
+        }
+        return true
     }
 
     /// Sets the order of the built-in lists in the sidebar. Saved at once, never
@@ -126,10 +142,6 @@ extension Library {
     public var hasLibraryListOrder: Bool {
         let all = (try? context.fetch(FetchDescriptor<ListSettings>())) ?? []
         return all.contains { $0.collection == nil && $0.key == ListSettings.sidebarOrderKey }
-    }
-
-    public func resetSort() throws {
-        try setSortLevels(.default)
     }
 
     public func setViewMode(_ mode: ViewMode, for list: LibraryListID) throws {

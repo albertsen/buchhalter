@@ -121,9 +121,11 @@ struct UndoTests {
         let collection = try t.library.createCollection(named: "A")
         let id = collection.id
         try t.library.setViewMode(.grid, for: .collection(id))
+        try t.library.setSortLevels(SortLevels(levels: [SortLevel(field: .title)]), for: .collection(id))
         try t.library.deleteCollection(collection)
         undo.undo()
         #expect(t.library.preferences(for: .collection(id)).viewMode == .grid)
+        #expect(t.library.preferences(for: .collection(id)).sortLevels.raw == "title:asc")
     }
 
     @Test func coverAndSortNameUndo() throws {
@@ -138,8 +140,8 @@ struct UndoTests {
         let t = try TestLibrary(undo: true)
         let undo = try #require(t.undo)
         try t.library.setViewMode(.grid, for: .all)
-        try t.library.setSortLevels(SortLevels(levels: [SortLevel(field: .title)]))
-        try t.library.resetSort()
+        try t.library.setSortLevels(SortLevels(levels: [SortLevel(field: .title)]), for: .all)
+        try t.library.resetSort(for: .all)
         #expect(!undo.canUndo)
         // And the settings survive an undo of an earlier data change.
         try t.add("A")

@@ -921,18 +921,18 @@
         }
       }
     },
-    "Applies to every list and collection." : {
+    "Applies to “%@” only." : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Gilt für alle Listen und Sammlungen."
+            "value" : "Gilt nur für „%@“."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Applies to every list and collection."
+            "value" : "Applies to “%@” only."
           }
         }
       }

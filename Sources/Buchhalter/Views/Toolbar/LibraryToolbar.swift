@@ -4,6 +4,7 @@ import BuchhalterCore
 /// The Sort button with its popover.
 struct SortButton: View {
     @Environment(\.locale) private var locale
+    var listName: String
     var levels: SortLevels
     var onChange: (SortLevels) -> Void
     @State private var isShowing = false
@@ -15,7 +16,7 @@ struct SortButton: View {
             Label(BookFormatting(locale: locale).sortButtonLabel(levels), systemImage: "arrow.up.arrow.down")
         }
         .popover(isPresented: $isShowing, arrowEdge: .bottom) {
-            SortPopover(levels: levels, onChange: onChange)
+            SortPopover(listName: listName, levels: levels, onChange: onChange)
         }
         .help("Sort")
     }
@@ -24,6 +25,7 @@ struct SortButton: View {
 /// Sort button, List/Grid switch, Scan Barcode and `+`. The title, count and search field
 /// come from the navigation title, subtitle and `.searchable`.
 struct LibraryToolbar: ToolbarContent {
+    var listName: String
     var preferences: ListPreferences
     var onSort: (SortLevels) -> Void
     var onViewMode: (ViewMode) -> Void
@@ -32,7 +34,7 @@ struct LibraryToolbar: ToolbarContent {
 
     var body: some ToolbarContent {
         ToolbarItem(placement: .automatic) {
-            SortButton(levels: preferences.sortLevels, onChange: onSort)
+            SortButton(listName: listName, levels: preferences.sortLevels, onChange: onSort)
         }
         ToolbarItem(placement: .automatic) {
             Picker("View", selection: Binding(get: { preferences.viewMode }, set: { onViewMode($0) })) {

@@ -10,7 +10,9 @@ import BuchhalterCore
 /// core's enums (the core imports no CloudKit) and keeps what must outlive a
 /// launch: the last sync date and an unfinished first transfer. After every
 /// successful download and once at launch it merges what two devices created
-/// twice (`Library.mergeSyncDuplicates`).
+/// twice (`Library.mergeSyncDuplicates`) and turns the old global sort, which
+/// an older app on another device can still write, into each list's own
+/// (`Library.adoptGlobalSort`).
 ///
 /// With no container id (a scratch store under `BUCHHALTER_HOME`, or a build
 /// without the iCloud entitlement) nothing is observed and `isEnabled` is false.
@@ -169,6 +171,13 @@ final class CloudSyncMonitor {
                 }
             } catch {
                 FileHandle.standardError.write(Data("sync: merging duplicates failed: \(error)\n".utf8))
+            }
+            do {
+                if try library.adoptGlobalSort() {
+                    FileHandle.standardError.write(Data("sync: gave every list the global sort\n".utf8))
+                }
+            } catch {
+                FileHandle.standardError.write(Data("sync: adopting the global sort failed: \(error)\n".utf8))
             }
         }
     }
